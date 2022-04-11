@@ -2,6 +2,8 @@ import 'package:expressions/src/errors.dart';
 import 'package:expressions/src/expression.dart';
 import 'package:expressions/src/parser.dart';
 
+// TODO: operator only one long, to allow: a*-b
+
 /// implements [ExpressionParser] to parse strings to expressions.
 ///
 /// throws [ParseError]s
@@ -61,22 +63,21 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
   /// the higher the int the lower the precedence.
   ///
   /// uses
-  /// [RegularStringExpressionParserOptions.standardOperatorsWithPrecedence]
+  /// [RegularStringExpressionParserOptions.defaultOperatorsWithPrecedence]
   /// to get the precedence from the operators given by [_options].
   ///
   /// will also throw error if the operator is not valid
-  int getOperatorPrecedence(int begin, String operator) {
+  int getOperatorPrecedence(String s, int operatorIndex) {
     for (var precedence = 0;
         precedence < _options.operatorsWithPrecedence.length;
         precedence++) {
       final operatorsOfPrecedence =
           _options.operatorsWithPrecedence[precedence];
-      if (operatorsOfPrecedence.contains(operator)) {
+      if (operatorsOfPrecedence.contains(s[operatorIndex])) {
         return precedence;
       }
     }
-    throw ParseError(
-        "operator '$operator' not valid", begin, begin + operator.length);
+    throw ParseError("operator '${s[operatorIndex]}' not valid", operatorIndex);
   }
 
   /// gives the list of expressions found inside of a function call.
@@ -204,10 +205,15 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
     }
     var braces = 0;
     var firstNonWhitespaceIndex = -1;
-    var lowestPrecedenceOperatorIndex = -1, lowestPrecedenceOperator = "";
+    var lowestPrecedenceOperatorIndex = -1;
     var lowestPrecedence = -1;
-    var currentOperatorIndex = -1, currentOperator = "";
-    var isOperator = false;
+    var currentOperatorIndex = -1;
+    var operatorOpen = false;
+    // var operatorIsNegation = false;
+    // a+-a
+    // a-a
+    // a^-a
+    // -a^-a
     for (var i = begin; i < end; i++) {
       final char = s[i];
       if (firstNonWhitespaceIndex == -1) {
@@ -224,41 +230,38 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
           braces++;
         }
         continue;
-      } else if (char == ")") {
-        throw ParseError("one closing bracket too much", i);
-      }
-      if (isOperator) {
-        if (isOperatorChar(char)) {
-          currentOperator += char;
-        } else {
-          if (char == "(") {
-            braces++;
-          }
-          final currentPrecedence = getOperatorPrecedence(i, currentOperator);
-          if (currentPrecedence > lowestPrecedence) {
-            lowestPrecedenceOperatorIndex = currentOperatorIndex;
-            lowestPrecedenceOperator = currentOperator;
-            lowestPrecedence = currentPrecedence;
-          }
-          currentOperator = "";
-          isOperator = false;
-        }
       } else {
-        if (isOperatorChar(char)) {
-          if (i == firstNonWhitespaceIndex) {
-            // TODO: negation
-            throw ParseError("operand expected before operator", i);
-          }
-          isOperator = true;
-          currentOperatorIndex = i;
-          currentOperator = char;
-        } else if (char == "(") {
+        if (char == ")") {
+          throw ParseError("one closing bracket too much", i);
+        } else if(char == "(") {
           braces++;
         }
       }
+      if (!operatorOpen) {
+        if (isOperatorChar(char)) {
+          operatorOpen = true;
+          currentOperatorIndex = i;
+        }
+      } else {
+        if (isOperatorChar(char)) {
+          if (char != _options.negationOperator) {
+            throw ParseError(
+                "a second operand was expected, not another operator", i);
+          }
+        } else if (!isWhitespaceChar(char)) {
+          final currentPrecedence =
+              getOperatorPrecedence(s, currentOperatorIndex);
+          if (currentPrecedence >= lowestPrecedence) {
+            lowestPrecedenceOperatorIndex = currentOperatorIndex;
+            lowestPrecedence = currentPrecedence;
+          }
+          operatorOpen = false;
+        }
+      }
     }
-    if (isOperator) {
-      throw ParseError("operator needs a second operand", end);
+    if (operatorOpen) {
+      throw ParseError(
+          "operator '${s[currentOperatorIndex]}' needs a right operand", end);
     }
     if (firstNonWhitespaceIndex == -1) {
       throw ParseError("expression expected", begin, end);
@@ -269,6 +272,15 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
     if (lowestPrecedenceOperatorIndex == -1) {
       return implicitOperatorParse(s, firstNonWhitespaceIndex, end);
     }
+    if (lowestPrecedenceOperatorIndex == firstNonWhitespaceIndex) {
+      if (s[lowestPrecedenceOperatorIndex] == _options.negationOperator) {
+        return NegateOperator(
+            operatorParse(s, firstNonWhitespaceIndex + 1, end));
+      } else {
+        throw ParseError(
+            "expected operand before operator", lowestPrecedenceOperatorIndex);
+      }
+    }
     // TODO: optimise always calling operatorParse again
     final expression1 = operatorParse(
       s,
@@ -277,10 +289,14 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
     );
     final expression2 = operatorParse(
       s,
-      lowestPrecedenceOperatorIndex + lowestPrecedenceOperator.length,
+      lowestPrecedenceOperatorIndex + 1,
       end,
     );
-    return OperatorCall(lowestPrecedenceOperator, expression1, expression2);
+    return OperatorCall(
+      s[lowestPrecedenceOperatorIndex],
+      expression1,
+      expression2,
+    );
   }
 
   @override
@@ -328,6 +344,7 @@ class RegularStringExpressionParserOptions {
   ///   1. a number
   ///   2. a character which is contained in identifier characters
   ///   3. whitespace (spaces, line breaks, tabs)
+  ///   4. no longer than one character
   final List<Set<String>> operatorsWithPrecedence;
 
   /// the implicit operator that should be used, such as (a)(b) or func(a)(b).
@@ -346,8 +363,8 @@ class RegularStringExpressionParserOptions {
   final String negationOperator;
 
   RegularStringExpressionParserOptions({
-    this.identifierCharacters = standardIdentifierCharacters,
-    this.operatorsWithPrecedence = standardOperatorsWithPrecedence,
+    this.identifierCharacters = defaultIdentifierCharacters,
+    this.operatorsWithPrecedence = defaultOperatorsWithPrecedence,
     this.implicitOperator = "*",
     this.negationOperator = "-",
   })  : identifierCharactersSet = <String>{}
@@ -355,9 +372,9 @@ class RegularStringExpressionParserOptions {
         operatorCharactersSet =
             _twoDimensionalStringListToCharSet(operatorsWithPrecedence);
 
-  static const standardIdentifierCharacters =
+  static const defaultIdentifierCharacters =
       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  static const standardOperatorsWithPrecedence = [
+  static const defaultOperatorsWithPrecedence = [
     {"^"},
     {"*", "/"},
     {"+", "-"},

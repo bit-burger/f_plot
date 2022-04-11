@@ -20,11 +20,29 @@ void main() {
     test('integer as decimal with spacing', () {
       expect(parser.parse("  \n  16.333  \t  "), Number(16.333));
     });
+
+    test('negative number', () {
+      expect(
+        parser.parse("  \n  -16.333  \t  "),
+        NegateOperator(Number(16.333)),
+      );
+    });
   });
 
   group("operators", () {
     test('plus', () {
       expect(parser.parse("4+4"), OperatorCall("+", Number(4), Number(4)));
+    });
+
+    test('minus', () {
+      expect(parser.parse("4-4"), OperatorCall("-", Number(4), Number(4)));
+    });
+
+    test('negated minus', () {
+      expect(
+        parser.parse("4--4"),
+        OperatorCall("-", Number(4), NegateOperator(Number(4))),
+      );
     });
 
     test('plus with spacing', () {
@@ -39,30 +57,34 @@ void main() {
         parser.parse("1*2*3*4"),
         OperatorCall(
           "*",
-          Number(1),
           OperatorCall(
             "*",
-            Number(2),
             OperatorCall(
               "*",
-              Number(3),
-              Number(4),
+              Number(1),
+              Number(2),
             ),
+            Number(3),
           ),
+          Number(4),
         ),
       );
     });
 
-    test('operator precedence', () {
+    test('operator precedence and negation', () {
       expect(
-        parser.parse("  4 \t*9+\n3.6   /6-\n22"),
+        parser.parse("  4 \t*9+\n-3.6   /6-\n--22"),
         OperatorCall(
-          "+",
-          OperatorCall("*", Number(4), Number(9)),
+          "-",
           OperatorCall(
-            "-",
-            OperatorCall("/", Number(3.6), Number(6)),
-            Number(22),
+            "+",
+            OperatorCall("*", Number(4), Number(9)),
+            NegateOperator(OperatorCall("/", Number(3.6), Number(6))),
+          ),
+          NegateOperator(
+            NegateOperator(
+              Number(22),
+            ),
           ),
         ),
       );
@@ -84,15 +106,45 @@ void main() {
         OperatorCall(
           "+",
           OperatorCall(
-            "/",
-            Variable("a"),
+            "*",
             OperatorCall(
-              "*",
+              "/",
+              Variable("a"),
               Variable("b"),
-              Variable("c"),
             ),
+            Variable("c"),
           ),
           Number(1234),
+        ),
+      );
+    });
+
+    test("variable negation", () {
+      expect(
+        parser.parse("-a* -b"),
+        NegateOperator(
+          OperatorCall(
+            "*",
+            Variable("a"),
+            NegateOperator(Variable("b")),
+          ),
+        ),
+      );
+    });
+
+    test("variable and numbers complicated operators with negation", () {
+      expect(
+        parser.parse("-0 +- -b"),
+        OperatorCall(
+          "+",
+          NegateOperator(
+            Number(0),
+          ),
+          NegateOperator(
+            NegateOperator(
+              Variable("b"),
+            ),
+          ),
         ),
       );
     });
@@ -105,22 +157,24 @@ void main() {
 
     test("override operator precedence with brackets", () {
       expect(
-        parser.parse("(1 + 5.) * (b)"),
+        parser.parse("(1 + 5.) * (-b)"),
         OperatorCall(
           "*",
           OperatorCall("+", Number(1), Number(5)),
-          Variable("b"),
+          NegateOperator(Variable("b")),
         ),
       );
     });
 
     test("more brackets", () {
       expect(
-        parser.parse("(((1 + 5.)) * (b))"),
-        OperatorCall(
-          "*",
-          OperatorCall("+", Number(1), Number(5)),
-          Variable("b"),
+        parser.parse("(-((1 + 5.)) * (b))"),
+        NegateOperator(
+          OperatorCall(
+            "*",
+            OperatorCall("+", Number(1), Number(5)),
+            Variable("b"),
+          ),
         ),
       );
     });
@@ -156,29 +210,35 @@ void main() {
 
   test('complicated expression', () {
     expect(
-      parser.parse("asdf(x+y, (f^1.*6)) * (x + y)"),
-      OperatorCall(
-        "*",
-        FunctionCall("asdf", [
-          OperatorCall(
-            "+",
-            Variable("x"),
-            Variable("y"),
-          ),
+      parser.parse("- asdf(x+y, (f^1.*6)) * (x + y) * -3"),
+      NegateOperator(
+        OperatorCall(
+          "*",
           OperatorCall(
             "*",
+            FunctionCall("asdf", [
+              OperatorCall(
+                "+",
+                Variable("x"),
+                Variable("y"),
+              ),
+              OperatorCall(
+                "*",
+                OperatorCall(
+                  "^",
+                  Variable("f"),
+                  Number(1),
+                ),
+                Number(6),
+              )
+            ]),
             OperatorCall(
-              "^",
-              Variable("f"),
-              Number(1),
+              "+",
+              Variable("x"),
+              Variable("y"),
             ),
-            Number(6),
-          )
-        ]),
-        OperatorCall(
-          "+",
-          Variable("x"),
-          Variable("y"),
+          ),
+          NegateOperator(Number(3)),
         ),
       ),
     );

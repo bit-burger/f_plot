@@ -8,7 +8,6 @@ const invalidExpressions = [
   "()",
   " ^ b",
   "(asdf)(asdf)", //TODO: implicit operators
-  "-a", //TODO: implement negation
   "func a()",
   "a a",
   "(adf) (adf)",
@@ -19,14 +18,18 @@ const invalidExpressions = [
   "func(,)",
   "func(a,b+)",
   "func(a,b,)",
+  "+func(a,b)",
 ];
 
-const validExpressions = [
+final validExpressions = [
   "a",
+  "-a",
+  " - - ---       --------------------------------func(-adsf (x) * 3, func(b))",
   "func(a + b+ c *d^3455)*fDj(1*1,0.)",
   "                1\n+123\n^h\n(a + \tb+ c *d              "
       "^\n\n\n345\t*5)*\nfDj  \n\n\n (1  *1\n\n,11,1,0.\n\n\n)     ",
-  "func(a*c)*f",
+  "func(a*c)*-----f",
+  "-"*1000 + "1",
 ];
 
 void main() {
