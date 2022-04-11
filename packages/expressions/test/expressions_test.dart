@@ -71,11 +71,11 @@ void main() {
 
   group("variables", () {
     test('simple variable', () {
-      expect(parser.parse("aBc"), VariableReference("aBc"));
+      expect(parser.parse("aBc"), Variable("aBc"));
     });
 
     test('simple variable with spacing', () {
-      expect(parser.parse("\n\taBc   \n"), VariableReference("aBc"));
+      expect(parser.parse("\n\taBc   \n"), Variable("aBc"));
     });
 
     test('variables with operator precedence', () {
@@ -85,11 +85,11 @@ void main() {
           "+",
           OperatorCall(
             "/",
-            VariableReference("a"),
+            Variable("a"),
             OperatorCall(
               "*",
-              VariableReference("b"),
-              VariableReference("c"),
+              Variable("b"),
+              Variable("c"),
             ),
           ),
           Number(1234),
@@ -109,7 +109,7 @@ void main() {
         OperatorCall(
           "*",
           OperatorCall("+", Number(1), Number(5)),
-          VariableReference("b"),
+          Variable("b"),
         ),
       );
     });
@@ -120,7 +120,7 @@ void main() {
         OperatorCall(
           "*",
           OperatorCall("+", Number(1), Number(5)),
-          VariableReference("b"),
+          Variable("b"),
         ),
       );
     });
@@ -135,9 +135,9 @@ void main() {
       expect(
         parser.parse("func(a,b,c)"),
         FunctionCall("func", [
-          VariableReference("a"),
-          VariableReference("b"),
-          VariableReference("c"),
+          Variable("a"),
+          Variable("b"),
+          Variable("c"),
         ]),
       );
     });
@@ -146,9 +146,9 @@ void main() {
       expect(
         parser.parse("fnc \n  (\n \na   ,\nb\n,   c\n)"),
         FunctionCall("fnc", [
-          VariableReference("a"),
-          VariableReference("b"),
-          VariableReference("c"),
+          Variable("a"),
+          Variable("b"),
+          Variable("c"),
         ]),
       );
     });
@@ -162,14 +162,14 @@ void main() {
         FunctionCall("asdf", [
           OperatorCall(
             "+",
-            VariableReference("x"),
-            VariableReference("y"),
+            Variable("x"),
+            Variable("y"),
           ),
           OperatorCall(
             "*",
             OperatorCall(
               "^",
-              VariableReference("f"),
+              Variable("f"),
               Number(1),
             ),
             Number(6),
@@ -177,8 +177,8 @@ void main() {
         ]),
         OperatorCall(
           "+",
-          VariableReference("x"),
-          VariableReference("y"),
+          Variable("x"),
+          Variable("y"),
         ),
       ),
     );

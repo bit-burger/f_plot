@@ -1,3 +1,4 @@
+/// an error that can be thrown if parsing has failed
 class ParseError implements Exception {
   final int from;
   final int? to;

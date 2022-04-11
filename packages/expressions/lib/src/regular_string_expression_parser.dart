@@ -2,7 +2,10 @@ import 'package:expressions/src/errors.dart';
 import 'package:expressions/src/expression.dart';
 import 'package:expressions/src/parser.dart';
 
-class RegularStringExpressionParser extends ExpressionParser<String> {
+/// implements [ExpressionParser] to parse strings to expressions.
+///
+/// throws [ParseError]s
+class RegularStringExpressionParser implements ExpressionParser<String> {
   final RegularStringExpressionParserOptions _options;
 
   RegularStringExpressionParser({RegularStringExpressionParserOptions? options})
@@ -80,7 +83,7 @@ class RegularStringExpressionParser extends ExpressionParser<String> {
   ///
   /// example: 'func(a,b,c)'
   /// [getFunctionArguments] would then be called with the range: 'a,b,c'
-  /// and would return three [VariableReference] inside of the returning [List].
+  /// and would return three [Variable] inside of the returning [List].
   ///
   /// can be called with white space in front and back
   List<Expression> getFunctionArguments(String s, int begin, int end) {
@@ -169,7 +172,7 @@ class RegularStringExpressionParser extends ExpressionParser<String> {
         return functionCallParse(s, begin, end);
       }
       checkIdentifier(s, begin, end);
-      return VariableReference(s.substring(begin, end));
+      return Variable(s.substring(begin, end));
     } else if (isNumberChar(s[begin])) {
       checkNumber(s, begin, end);
       return Number(double.parse(s.substring(begin, end)));

@@ -1,5 +1,7 @@
+/// represents a mathematical expression
 abstract class Expression {}
 
+/// represents a number literal with the value of [value]
 class Number extends Expression {
   final double value;
 
@@ -14,14 +16,14 @@ class Number extends Expression {
   }
 }
 
-class VariableReference extends Expression {
+/// represents a variable reference with the variable name being [name]
+class Variable extends Expression {
   final String name;
 
-  VariableReference(this.name);
+  Variable(this.name);
 
   @override
-  bool operator ==(Object other) =>
-      other is VariableReference && name == other.name;
+  bool operator ==(Object other) => other is Variable && name == other.name;
 
   @override
   String toString() {
@@ -29,6 +31,10 @@ class VariableReference extends Expression {
   }
 }
 
+/// represents a function call, such as f(1).
+///
+/// name of the function is [name] and
+/// the function arguments are a list of expressions
 class FunctionCall extends Expression {
   final String name;
   final List<Expression> arguments;
@@ -55,6 +61,8 @@ bool _listsAreEqual<T>(List<T> a, List<T> b) {
   return true;
 }
 
+/// represents an operator call such as 1 + pi, where + is the [operator],
+/// 1 expression1 and pi expression2
 class OperatorCall extends Expression {
   final String operator;
   final Expression expression1, expression2;
