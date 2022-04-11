@@ -123,7 +123,6 @@ class RegularStringExpressionParser extends ExpressionParser<String> {
     var identifierEnd = -1;
     var bracketsBegin = -1;
     for (var i = begin; i < end; i++) {
-      final c = s[i]; //TODO: DEBUG REMOVE
       if (identifierEnd == -1) {
         if (isWhitespaceChar(s[i])) {
           identifierEnd = i;
@@ -161,13 +160,8 @@ class RegularStringExpressionParser extends ExpressionParser<String> {
   /// example 2: 'func(a+b,c)',
   /// (the operators here are nested inside of a lower bracket level).
   ///
-  /// should be called with no whitespace in front
+  /// should be called with no whitespace in front or back
   Expression noOperatorParse(String s, int begin, int end) {
-    // remove whitespace in back
-    while (isWhitespaceChar(s[end - 1])) {
-      end--;
-    }
-    assert(begin < end);
     if (s[begin] == "(") {
       return operatorParse(s, begin + 1, end - 1);
     } else if (isIdentifierChar(s[begin])) {
@@ -184,7 +178,7 @@ class RegularStringExpressionParser extends ExpressionParser<String> {
     }
   }
 
-  /// should be called with no whitespace in front
+  /// should be called with no whitespace in front or back
   Expression implicitOperatorParse(String s, int begin, int end) {
     // TODO: not implemented, should probably be implemented by operatorParse
     //       (operator precedence doesn't make sense otherwise)
@@ -201,6 +195,10 @@ class RegularStringExpressionParser extends ExpressionParser<String> {
   ///
   /// can be called with white space in front and back
   Expression operatorParse(String s, int begin, int end) {
+    // remove whitespace in back
+    while (end > begin && isWhitespaceChar(s[end - 1])) {
+      end--;
+    }
     var braces = 0;
     var firstNonWhitespaceIndex = -1;
     var lowestPrecedenceOperatorIndex = -1, lowestPrecedenceOperator = "";
@@ -219,7 +217,7 @@ class RegularStringExpressionParser extends ExpressionParser<String> {
       if (braces > 0) {
         if (char == ")") {
           braces--;
-        } else if(char == "(") {
+        } else if (char == "(") {
           braces++;
         }
         continue;
@@ -245,7 +243,8 @@ class RegularStringExpressionParser extends ExpressionParser<String> {
       } else {
         if (isOperatorChar(char)) {
           if (i == firstNonWhitespaceIndex) {
-            throw ParseError("expected expression before operator", i);
+            // TODO: negation
+            throw ParseError("operand expected before operator", i);
           }
           isOperator = true;
           currentOperatorIndex = i;
@@ -254,6 +253,9 @@ class RegularStringExpressionParser extends ExpressionParser<String> {
           braces++;
         }
       }
+    }
+    if (isOperator) {
+      throw ParseError("operator needs a second operand", end);
     }
     if (firstNonWhitespaceIndex == -1) {
       throw ParseError("expression expected", begin, end);
