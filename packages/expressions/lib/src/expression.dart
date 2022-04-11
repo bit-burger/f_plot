@@ -43,7 +43,7 @@ class Variable extends Expression {
   Set<String> get referencedFunctions => {};
 
   @override
-  Set<String> get referencedVariables => {};
+  Set<String> get referencedVariables => {name};
 }
 
 /// represents a function call, such as f(1).

@@ -13,6 +13,44 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
   RegularStringExpressionParser({RegularStringExpressionParserOptions? options})
       : _options = options ?? RegularStringExpressionParserOptions();
 
+  /// throws an error if a variable identifier is used,
+  /// that is not in the [SetParserContext] (if there is a context)
+  void checkVariable(String s, int begin, int end, ParserContext? c) {
+    final v = s.substring(begin, end);
+    if (!(c?.variableAllowed(v) ?? true)) {
+      throw ParseError("variable '$v' unknown", begin, end);
+    }
+  }
+
+  /// throws an error if a function identifier is used,
+  /// that is not in the [SetParserContext] (if there is a context)
+  void checkFunction(
+    String s,
+    int begin,
+    int nameEnd,
+    int functionCallEnd,
+    int functionParameterCount,
+    ParserContext? c,
+  ) {
+    final f = s.substring(begin, nameEnd);
+    if (c != null) {
+      final allowedParameterCount = c.allowedFunctionParameterCount(f);
+      if (allowedParameterCount == null) {
+        throw ParseError("function '$f' unknown", begin, nameEnd);
+      } else if (functionParameterCount != allowedParameterCount) {
+        throw ParseError(
+          "function '$f' should be called with "
+          "$allowedParameterCount parameter"
+          "${allowedParameterCount > 1 ? "s" : ""}, it was instead called with "
+          "$functionParameterCount parameter"
+          "${functionParameterCount > 1 ? "s" : ""}",
+          begin,
+          functionCallEnd,
+        );
+      }
+    }
+  }
+
   /// throws an error on a invalid identifier
   void checkIdentifier(String s, int begin, int end) {
     for (var i = begin; i < end; i++) {
@@ -87,7 +125,8 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
   /// and would return three [Variable] inside of the returning [List].
   ///
   /// can be called with white space in front and back
-  List<Expression> getFunctionArguments(String s, int begin, int end) {
+  List<Expression> getFunctionArguments(
+      String s, int begin, int end, ParserContext? c) {
     // remove whitespace
     while (isWhitespaceChar(s[begin])) {
       begin++;
@@ -112,18 +151,23 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
       } else if (s[i] == "(") {
         brackets++;
       } else if (s[i] == ",") {
-        expressions.add(operatorParse(s, lastArgumentEnd + 1, i));
+        expressions.add(operatorParse(s, lastArgumentEnd + 1, i, c));
         lastArgumentEnd = i;
       }
     }
-    expressions.add(operatorParse(s, lastArgumentEnd + 1, end));
+    expressions.add(operatorParse(s, lastArgumentEnd + 1, end, c));
     return expressions;
   }
 
   /// parses a function call such as 'func(a,b,c)' to a [FunctionCall].
   ///
   /// should be called with no whitespace in front and back
-  FunctionCall functionCallParse(String s, int begin, int end) {
+  FunctionCall functionCallParse(
+    String s,
+    int begin,
+    int end,
+    ParserContext? c,
+  ) {
     var identifierEnd = -1;
     var bracketsBegin = -1;
     for (var i = begin; i < end; i++) {
@@ -152,7 +196,8 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
     }
     checkIdentifier(s, begin, identifierEnd);
     final functionArguments =
-        getFunctionArguments(s, bracketsBegin + 1, end - 1);
+        getFunctionArguments(s, bracketsBegin + 1, end - 1, c);
+    checkFunction(s, begin, identifierEnd, end, functionArguments.length, c);
     return FunctionCall(s.substring(begin, identifierEnd), functionArguments);
   }
 
@@ -165,14 +210,15 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
   /// (the operators here are nested inside of a lower bracket level).
   ///
   /// should be called with no whitespace in front or back
-  Expression noOperatorParse(String s, int begin, int end) {
+  Expression noOperatorParse(String s, int begin, int end, ParserContext? c) {
     if (s[begin] == "(") {
-      return operatorParse(s, begin + 1, end - 1);
+      return operatorParse(s, begin + 1, end - 1, c);
     } else if (isIdentifierChar(s[begin])) {
       if (s[end - 1] == ")") {
-        return functionCallParse(s, begin, end);
+        return functionCallParse(s, begin, end, c);
       }
       checkIdentifier(s, begin, end);
+      checkVariable(s, begin, end, c);
       return Variable(s.substring(begin, end));
     } else if (isNumberChar(s[begin])) {
       checkNumber(s, begin, end);
@@ -183,10 +229,11 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
   }
 
   /// should be called with no whitespace in front or back
-  Expression implicitOperatorParse(String s, int begin, int end) {
+  Expression implicitOperatorParse(
+      String s, int begin, int end, ParserContext? c) {
     // TODO: not implemented, should probably be implemented by operatorParse
     //       (operator precedence doesn't make sense otherwise)
-    return noOperatorParse(s, begin, end);
+    return noOperatorParse(s, begin, end, c);
   }
 
   /// searches for the highest precedence operator and
@@ -203,7 +250,7 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
   ///   a+a+a => (a+a)+a
   ///   a+-a  => a+(-a)
   ///   -a^-a => -(a^(-a))
-  Expression operatorParse(String s, int begin, int end) {
+  Expression operatorParse(String s, int begin, int end, ParserContext? c) {
     // remove whitespace in back
     while (end > begin && isWhitespaceChar(s[end - 1])) {
       end--;
@@ -271,12 +318,12 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
       throw ParseError("closing brace missing", end - 1);
     }
     if (lowestPrecedenceOperatorIndex == -1) {
-      return implicitOperatorParse(s, firstNonWhitespaceIndex, end);
+      return implicitOperatorParse(s, firstNonWhitespaceIndex, end, c);
     }
     if (lowestPrecedenceOperatorIndex == firstNonWhitespaceIndex) {
       if (s[lowestPrecedenceOperatorIndex] == _options.negationOperator) {
         return NegateOperator(
-            operatorParse(s, firstNonWhitespaceIndex + 1, end));
+            operatorParse(s, firstNonWhitespaceIndex + 1, end, c));
       } else {
         throw ParseError(
             "expected operand before operator", lowestPrecedenceOperatorIndex);
@@ -287,11 +334,13 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
       s,
       firstNonWhitespaceIndex,
       lowestPrecedenceOperatorIndex,
+      c,
     );
     final expression2 = operatorParse(
       s,
       lowestPrecedenceOperatorIndex + 1,
       end,
+      c,
     );
     return OperatorCall(
       s[lowestPrecedenceOperatorIndex],
@@ -301,8 +350,8 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
   }
 
   @override
-  Expression parse(String rawExpression) {
-    return operatorParse(rawExpression, 0, rawExpression.length);
+  Expression parse(String rawExpression, [ParserContext? c]) {
+    return operatorParse(rawExpression, 0, rawExpression.length, c);
   }
 }
 

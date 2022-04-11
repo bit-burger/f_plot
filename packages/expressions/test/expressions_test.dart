@@ -208,9 +208,10 @@ void main() {
     });
   });
 
-  test('complicated expression', () {
+  test('complicated expression with variable and function analysing', () {
+    final expression = parser.parse("- asdf(x+y, (f^1.*6)) * (x + y) * -3");
     expect(
-      parser.parse("- asdf(x+y, (f^1.*6)) * (x + y) * -3"),
+      expression,
       NegateOperator(
         OperatorCall(
           "*",
@@ -242,5 +243,7 @@ void main() {
         ),
       ),
     );
+    expect(expression.referencedVariables, {"x", "y", "f"});
+    expect(expression.referencedFunctions, {"asdf"});
   });
 }
