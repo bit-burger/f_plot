@@ -81,3 +81,19 @@ class OperatorCall extends Expression {
     return "($expression1$operator$expression2)";
   }
 }
+
+/// negate [expression]
+class NegateOperator extends Expression {
+  final Expression expression;
+
+  NegateOperator(this.expression);
+
+  @override
+  bool operator ==(Object other) =>
+      other is NegateOperator && expression == other.expression;
+
+  @override
+  String toString() {
+    return "-($expression)";
+  }
+}
