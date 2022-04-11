@@ -1,9 +1,12 @@
 /// represents a mathematical expression
-abstract class Expression {}
+abstract class Expression {
+  Set<String> get referencedVariables;
+  Set<String> get referencedFunctions;
+}
 
 /// represents a number literal with the value of [value]
 class Number extends Expression {
-  final double value;
+  double value;
 
   Number(this.value);
 
@@ -14,11 +17,17 @@ class Number extends Expression {
   String toString() {
     return value.toString();
   }
+
+  @override
+  Set<String> get referencedFunctions => {};
+
+  @override
+  Set<String> get referencedVariables => {};
 }
 
 /// represents a variable reference with the variable name being [name]
 class Variable extends Expression {
-  final String name;
+  String name;
 
   Variable(this.name);
 
@@ -29,6 +38,12 @@ class Variable extends Expression {
   String toString() {
     return name;
   }
+
+  @override
+  Set<String> get referencedFunctions => {};
+
+  @override
+  Set<String> get referencedVariables => {};
 }
 
 /// represents a function call, such as f(1).
@@ -36,8 +51,8 @@ class Variable extends Expression {
 /// name of the function is [name] and
 /// the function arguments are a list of expressions
 class FunctionCall extends Expression {
-  final String name;
-  final List<Expression> arguments;
+  String name;
+  List<Expression> arguments;
 
   FunctionCall(this.name, this.arguments);
 
@@ -51,6 +66,24 @@ class FunctionCall extends Expression {
   String toString() {
     return "$name(${arguments.join(",")})";
   }
+
+  @override
+  Set<String> get referencedFunctions {
+    final functions = {name};
+    for (final argument in arguments) {
+      functions.addAll(argument.referencedFunctions);
+    }
+    return functions;
+  }
+
+  @override
+  Set<String> get referencedVariables {
+    final variables = <String>{};
+    for (final argument in arguments) {
+      variables.addAll(argument.referencedVariables);
+    }
+    return variables;
+  }
 }
 
 bool _listsAreEqual<T>(List<T> a, List<T> b) {
@@ -62,10 +95,10 @@ bool _listsAreEqual<T>(List<T> a, List<T> b) {
 }
 
 /// represents an operator call such as 1 + pi, where + is the [operator],
-/// 1 expression1 and pi expression2
+/// 1 is expression1 and pi is expression2
 class OperatorCall extends Expression {
-  final String operator;
-  final Expression expression1, expression2;
+  String operator;
+  Expression expression1, expression2;
 
   OperatorCall(this.operator, this.expression1, this.expression2);
 
@@ -80,11 +113,19 @@ class OperatorCall extends Expression {
   String toString() {
     return "($expression1$operator$expression2)";
   }
+
+  @override
+  Set<String> get referencedFunctions =>
+      expression1.referencedFunctions.union(expression2.referencedFunctions);
+
+  @override
+  Set<String> get referencedVariables =>
+      expression1.referencedVariables.union(expression2.referencedVariables);
 }
 
 /// negate [expression]
 class NegateOperator extends Expression {
-  final Expression expression;
+  Expression expression;
 
   NegateOperator(this.expression);
 
@@ -96,4 +137,10 @@ class NegateOperator extends Expression {
   String toString() {
     return "-($expression)";
   }
+
+  @override
+  Set<String> get referencedFunctions => expression.referencedFunctions;
+
+  @override
+  Set<String> get referencedVariables => expression.referencedVariables;
 }
