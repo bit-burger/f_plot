@@ -198,6 +198,11 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
   /// [implicitOperatorParse] will be called.
   ///
   /// can be called with white space in front and back
+  ///
+  /// examples of precedence:
+  ///   a+a+a => (a+a)+a
+  ///   a+-a  => a+(-a)
+  ///   -a^-a => -(a^(-a))
   Expression operatorParse(String s, int begin, int end) {
     // remove whitespace in back
     while (end > begin && isWhitespaceChar(s[end - 1])) {
@@ -209,11 +214,7 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
     var lowestPrecedence = -1;
     var currentOperatorIndex = -1;
     var operatorOpen = false;
-    // var operatorIsNegation = false;
-    // a+-a
-    // a-a
-    // a^-a
-    // -a^-a
+
     for (var i = begin; i < end; i++) {
       final char = s[i];
       if (firstNonWhitespaceIndex == -1) {
@@ -233,7 +234,7 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
       } else {
         if (char == ")") {
           throw ParseError("one closing bracket too much", i);
-        } else if(char == "(") {
+        } else if (char == "(") {
           braces++;
         }
       }
