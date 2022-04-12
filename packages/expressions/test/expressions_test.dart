@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:expressions/expressions.dart';
 import 'package:test/test.dart';
 
@@ -204,6 +206,105 @@ void main() {
           Variable("b"),
           Variable("c"),
         ]),
+      );
+    });
+  });
+
+  group("simplifying", () {
+    test("adding numbers", () {
+      expect(
+        parser.parse("2 + 2").simplifyWithDefaults(),
+        Number(4),
+      );
+    });
+
+    test("more complicated arithmetic", () {
+      expect(
+        parser.parse("2*4^2. + -2").simplifyWithDefaults(),
+        Number(30),
+      );
+    });
+
+    test("negation simplifying", () {
+      expect(
+        parser.parse("-(-a-b)").simplifyWithDefaults(),
+        OperatorCall("+", Variable("a"), Variable("b")),
+      );
+    });
+
+    test("non simplifiable function call", () {
+      final e = parser.parse("func(1+2, 1+b)");
+      expect(
+        e,
+        FunctionCall(
+          "func",
+          [
+            OperatorCall(
+              "+",
+              Number(1),
+              Number(2),
+            ),
+            OperatorCall(
+              "+",
+              Number(1),
+              Variable("b"),
+            ),
+          ],
+        ),
+      );
+      expect(
+        e.simplify(SimplifyContext.customFunctions({"func": (l) => 0})),
+        FunctionCall(
+          "func",
+          [
+            Number(3),
+            OperatorCall(
+              "+",
+              Number(1),
+              Variable("b"),
+            ),
+          ],
+        ),
+      );
+    });
+
+    test("easily simplifiable function call", () {
+      final e = parser.parse("pow (5.*\n5.0, sqrt(4)) / 2");
+      expect(
+        e,
+        OperatorCall(
+          "/",
+          FunctionCall(
+            "pow",
+            [
+              OperatorCall(
+                "*",
+                Number(5),
+                Number(5),
+              ),
+              FunctionCall(
+                "sqrt",
+                [
+                  Number(4),
+                ],
+              ),
+            ],
+          ),
+          Number(2),
+        ),
+      );
+      expect(
+        e.simplify(
+          SimplifyContext.customFunctions(
+            {
+              "sqrt": (l) => sqrt(l[0]),
+              "pow": (l) {
+                return pow(l[0], l[1]) as double;
+              }
+            },
+          ),
+        ),
+        Number(625 / 2),
       );
     });
   });
