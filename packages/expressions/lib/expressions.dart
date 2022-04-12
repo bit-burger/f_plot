@@ -1,4 +1,4 @@
-library plotter;
+library expressions;
 
 export 'src/errors.dart';
 export 'src/expression.dart';
