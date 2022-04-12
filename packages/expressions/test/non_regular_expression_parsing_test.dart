@@ -2,7 +2,7 @@ import 'package:expressions/expressions.dart';
 import 'package:test/test.dart';
 
 void main() {
-  final context = SimpleParserContext({"fnc": 3, "f": 1}, {"a", "b", "c"});
+  final context = ParserContext({"fnc": 3, "f": 1}, {"a", "b", "c"});
   final parser = RegularStringExpressionParser();
 
   test('simple variable', () {

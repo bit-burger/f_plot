@@ -16,19 +16,25 @@ abstract class ParserContext {
   /// gives back null, if function does not exist
   int? allowedFunctionParameterCount(String f);
 
-  /// gives back if a variable exists and can be referenced
+  /// gives back true if a variable exists and can be referenced
   bool variableAllowed(String v);
+
+  /// a simple implementation of [ParserContext]
+  const factory ParserContext(
+    Map<String, int> allowedFunctionsWithLength,
+    Set<String> allowedVariables,
+  ) = _SimpleParserContext;
 }
 
-class SimpleParserContext implements ParserContext {
-  final Map<String, int> allowedFunctions;
+class _SimpleParserContext implements ParserContext {
+  final Map<String, int> allowedFunctionsWithLength;
   final Set<String> allowedVariables;
 
-  const SimpleParserContext(this.allowedFunctions, this.allowedVariables);
+  const _SimpleParserContext(this.allowedFunctionsWithLength, this.allowedVariables);
 
   @override
   int? allowedFunctionParameterCount(String f) {
-    return allowedFunctions[f];
+    return allowedFunctionsWithLength[f];
   }
 
   @override
