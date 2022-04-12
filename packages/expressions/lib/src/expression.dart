@@ -97,6 +97,10 @@ abstract class Expression {
   /// will only give back a [double] if the [Expression] is of type [Number],
   /// else it will throw a [UnimplementedError]
   double numberValue();
+
+  // void insert(); TODO
+
+  // double eval(Map<String, double> values); TODO
 }
 
 /// represents a number literal with the value of [value]
