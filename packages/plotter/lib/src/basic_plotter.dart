@@ -105,7 +105,6 @@ class BasicPlotter {
       ),
     );
     receivePortSub = receivePort.listen((message) {
-      print(message);
       final list = message as List<double>;
       _handleNewComputedValue(functionName, list[0], list[1]);
       receivedEvents++;
