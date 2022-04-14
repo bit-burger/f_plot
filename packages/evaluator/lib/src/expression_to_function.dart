@@ -24,6 +24,9 @@ import 'package:expressions/expressions.dart';
 ///
 /// to evaluate [FunctionCall]s that should reference other [Expression]s,
 /// use [Expression.insert]
+///
+/// the evaluate function can not only evaluate to [double.nan],
+/// but also [double.infinity] or [double.negativeInfinity]
 EvaluatorFunction expressionToEvaluatorFunction(
   Expression e, [
   EvaluatorContext c = const EvaluatorContext(),
