@@ -32,7 +32,7 @@ void main() {
       rangeEnd: 1024,
       howManyDivides: 10,
       afterHowManyEventsNewStreamEvent: pow(2, 53).toInt(),
-      maxRangeWithOneIsolate: 256,
+      maxRangeWithOneIsolate: 1024,
       functions: {"a": functionA, "b": functionB},
     );
   }
