@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:evaluator/evaluator.dart';
 import 'dart:isolate';
 
-class BasicPlotter {
+class BinaryIsolateStreamPlotter {
   final int rangeBegin, rangeEnd;
   final int howManyDivides;
   final Map<String, EvaluatorFunction> functions;
@@ -24,7 +24,7 @@ class BasicPlotter {
   Stream<Map<String, Map<double, double>>> get stream =>
       _streamController.stream;
 
-  BasicPlotter({
+  BinaryIsolateStreamPlotter({
     this.rangeBegin = 0,
     required this.rangeEnd,
     required this.functions,
@@ -78,9 +78,6 @@ class BasicPlotter {
         currentIsolateRangeBegin = currentIsolateRangeEnd;
       }
     }
-    // on IsolateSpawnException catch (e) {
-    //   throw Exception("could not start the isolates, error occurred: $e");
-    // }
   }
 
   void _beginComputationOfFunction(
@@ -108,9 +105,9 @@ class BasicPlotter {
       final list = message as List<double>;
       _handleNewComputedValue(functionName, list[0], list[1]);
       receivedEvents++;
-      if (receivedEvents == expectedEvents) { //TODO: fix
-        // isolate.kill(priority: Isolate.immediate);
-        // receivePortSub.cancel();
+      if (receivedEvents == expectedEvents) { //TODO: not sure if fixed
+        isolate.kill(priority: Isolate.immediate);
+        receivePortSub.cancel();
       }
     });
   }

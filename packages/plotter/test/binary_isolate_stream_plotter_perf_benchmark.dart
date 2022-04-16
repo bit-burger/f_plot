@@ -2,10 +2,10 @@ import 'dart:math';
 
 import 'package:evaluator/evaluator.dart';
 import 'package:expressions/expressions.dart';
-import 'package:plotter/src/basic_plotter.dart';
+import 'package:plotter/src/binary_isolate_stream_plotter.dart';
 
 void main() {
-  late final BasicPlotter plotter;
+  late final BinaryIsolateStreamPlotter plotter;
   {
     final parser = RegularStringExpressionParser();
     final EvaluatorFunction functionA, functionB;
@@ -27,7 +27,7 @@ void main() {
         ),
       );
     }
-    plotter = BasicPlotter(
+    plotter = BinaryIsolateStreamPlotter(
       rangeBegin: -1024,
       rangeEnd: 1024,
       howManyDivides: 10,
