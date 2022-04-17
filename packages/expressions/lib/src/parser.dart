@@ -30,7 +30,8 @@ class _SimpleParserContext implements ParserContext {
   final Map<String, int> allowedFunctionsWithLength;
   final Set<String> allowedVariables;
 
-  const _SimpleParserContext(this.allowedFunctionsWithLength, this.allowedVariables);
+  const _SimpleParserContext(
+      this.allowedFunctionsWithLength, this.allowedVariables);
 
   @override
   int? allowedFunctionParameterCount(String f) {

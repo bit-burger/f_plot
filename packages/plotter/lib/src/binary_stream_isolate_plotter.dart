@@ -105,7 +105,8 @@ class BinaryStreamIsolatePlotter {
       final list = message as List<double>;
       _handleNewComputedValue(functionName, list[0], list[1]);
       receivedEvents++;
-      if (receivedEvents == expectedEvents) { //TODO: not sure if fixed
+      if (receivedEvents == expectedEvents) {
+        //TODO: not sure if fixed
         isolate.kill(priority: Isolate.immediate);
         receivePortSub.cancel();
       }

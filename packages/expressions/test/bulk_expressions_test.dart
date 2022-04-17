@@ -29,7 +29,7 @@ final validExpressions = [
   "                1\n+123\n^h\n(a + \tb+ c *d              "
       "^\n\n\n345\t*5)*\nfDj  \n\n\n (1  *1\n\n,11,1,0.\n\n\n)     ",
   "func(a*c)*-----f",
-  "-"*1000 + "1",
+  "-" * 1000 + "1",
 ];
 
 void main() {

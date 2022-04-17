@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:evaluator/evaluator.dart';
 import 'package:expressions/expressions.dart';
-import 'package:plotter/src/binary_stream_isolate_plotter.dart';
 import 'package:plotter/src/linear_asynchronous_isolate_plotter.dart';
 
 void main() async {
