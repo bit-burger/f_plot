@@ -1,16 +1,16 @@
 import 'dart:math';
 
-import 'package:plotter/src/binary_isolate_stream_plotter.dart';
+import 'package:plotter/src/binary_stream_isolate_plotter.dart';
 import 'package:test/test.dart';
 
 void main() {
-  late final BinaryIsolateStreamPlotter plotter;
+  late final BinaryStreamIsolatePlotter plotter;
 
   setUp(() async {
     double f(double x) => pow(x, 2) as double;
     double fnc(double x) => x;
 
-    plotter = BinaryIsolateStreamPlotter(
+    plotter = BinaryStreamIsolatePlotter(
       rangeEnd: 5,
       howManyDivides: 2,
       afterHowManyEventsNewStreamEvent: 1000,

@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:evaluator/evaluator.dart';
 import 'dart:isolate';
 
-class BinaryIsolateStreamPlotter {
+class BinaryStreamIsolatePlotter {
   final int rangeBegin, rangeEnd;
   final int howManyDivides;
   final Map<String, EvaluatorFunction> functions;
@@ -24,7 +24,7 @@ class BinaryIsolateStreamPlotter {
   Stream<Map<String, Map<double, double>>> get stream =>
       _streamController.stream;
 
-  BinaryIsolateStreamPlotter({
+  BinaryStreamIsolatePlotter({
     this.rangeBegin = 0,
     required this.rangeEnd,
     required this.functions,
