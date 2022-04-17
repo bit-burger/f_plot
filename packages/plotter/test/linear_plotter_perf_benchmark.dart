@@ -2,10 +2,10 @@ import 'dart:math';
 
 import 'package:evaluator/evaluator.dart';
 import 'package:expressions/expressions.dart';
-import 'package:plotter/src/linear_asynchronous_isolate_plotter.dart';
+import 'package:plotter/src/linear_plotter.dart';
 
 void main() async {
-  late final LinearAsynchronousIsolatePlotter plotter;
+  late final LinearPlotter plotter;
   {
     final parser = RegularStringExpressionParser();
     final EvaluatorFunction functionA, functionB;
@@ -27,7 +27,7 @@ void main() async {
         ),
       );
     }
-    plotter = LinearAsynchronousIsolatePlotter(
+    plotter = LinearPlotter(
       beginX: -1024,
       lastX: 1024,
       stepSizeX: 1 / pow(2, 10),
@@ -38,7 +38,7 @@ void main() async {
   {
     final stopWatch = Stopwatch()..start();
     print("started stop watch");
-    await plotter.compute();
+    plotter.compute();
     stopWatch.stop();
     print("stopped at ${stopWatch.elapsedMilliseconds / 1000} seconds");
   }
