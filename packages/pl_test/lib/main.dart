@@ -44,48 +44,61 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Stack(
         children: [
-          LayoutBuilder(
-            builder: (context, constraints) {
-              // print(
-              //   "y: ${this.y} - ${this.y + yOffset} | "
-              //   "x: ${this.x} - ${this.x + xOffset}",
-              // );
-              final size = constraints.biggest;
-              final sizeWidth = size.width;
-              final sizeHeight = size.height;
-              final xSizeRatio = xOffset / sizeWidth;
-              final ySizeRatio = yOffset / sizeHeight;
-              return GestureDetector(
-                onPanUpdate: (details) {
-                  setState(() {
-                    x -= details.delta.dx * xSizeRatio;
-                    y += details.delta.dy * ySizeRatio;
-                  });
-                },
-                child: Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  child: CustomPaint(
-                    painter: MathFunctionsPainter(
-                      x: x,
-                      y: y,
-                      xOffset: xOffset,
-                      yOffset: yOffset,
-                      functions: [
-                        MathFunctionAttributes(
-                          evaluatingFunction: (x) => pow(x, 3) as double,
-                          color: Colors.blue,
+          MouseRegion(
+            cursor: SystemMouseCursors.grab,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // print(
+                //   "y: ${this.y} - ${this.y + yOffset} | "
+                //   "x: ${this.x} - ${this.x + xOffset}",
+                // );
+                final size = constraints.biggest;
+                final sizeWidth = size.width;
+                final sizeHeight = size.height;
+                final xSizeRatio = xOffset / sizeWidth;
+                final ySizeRatio = yOffset / sizeHeight;
+                return Listener(
+                  onPointerSignal: (event) {
+                    if(event is PointerScrollEvent) {
+                      setState(() {
+                        x += event.scrollDelta.dx * xSizeRatio;
+                        y -= event.scrollDelta.dy * ySizeRatio;
+                      });
+                    }
+                  },
+                  child: GestureDetector(
+                    onPanUpdate: (details) {
+                      setState(() {
+                        x -= details.delta.dx * xSizeRatio;
+                        y += details.delta.dy * ySizeRatio;
+                      });
+                    },
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: double.infinity,
+                      child: CustomPaint(
+                        painter: MathFunctionsPainter(
+                          x: x,
+                          y: y,
+                          xOffset: xOffset,
+                          yOffset: yOffset,
+                          functions: [
+                            MathFunctionAttributes(
+                              evaluatingFunction: (x) => pow(x, 3) as double,
+                              color: Colors.blue,
+                            ),
+                            MathFunctionAttributes(
+                              evaluatingFunction: (x) => sin(x) * 2.5 + 20,
+                              color: Colors.red,
+                            ),
+                          ],
                         ),
-                        MathFunctionAttributes(
-                          evaluatingFunction: (x) => sin(x) * 2.5 + 20,
-                          color: Colors.red,
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
           Align(
             alignment: Alignment.bottomLeft,
