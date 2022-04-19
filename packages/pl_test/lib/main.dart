@@ -73,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       yOffset: yOffset,
                       functions: [
                         MathFunctionAttributes(
-                          evaluatingFunction: (x) => pow(x, 2) as double,
+                          evaluatingFunction: (x) => pow(x, 3) as double,
                           color: Colors.blue,
                         ),
                         MathFunctionAttributes(
@@ -152,24 +152,54 @@ class MathFunctionsPainter extends CustomPainter {
       ..color = axisColor
       ..strokeWidth = axisWidth;
     // y-axis
+    final stepSizeX = xOffset / size.width;
+    final xOfZeroY = -this.x / stepSizeX;
+    final stepSizeY = yOffset / size.height;
+    final yOfZeroX = size.height - (-this.y / stepSizeY);
     if (x <= 0 && 0 <= x + xOffset) {
-      final stepSizeX = xOffset / size.width;
-      final x = -this.x / stepSizeX;
       canvas.drawLine(
-        Offset(x, 0),
-        Offset(x, size.height),
+        Offset(xOfZeroY, 0),
+        Offset(xOfZeroY, size.height),
         paint,
       );
+      final yStepOfYAxis = axisStep(yOffset) / stepSizeY;
+      for (var y = yOfZeroX; y <= size.height; y += yStepOfYAxis) {
+        canvas.drawLine(
+          Offset(xOfZeroY + 10, y),
+          Offset(xOfZeroY - 10, y),
+          paint,
+        );
+      }
+      for (var y = yOfZeroX; y >= 0; y -= yStepOfYAxis) {
+        canvas.drawLine(
+          Offset(xOfZeroY + 10, y),
+          Offset(xOfZeroY - 10, y),
+          paint,
+        );
+      }
     }
     // x-axis
     if (y <= 0 && 0 <= y + yOffset) {
-      final stepSizeY = yOffset / size.height;
-      final y = size.height - (-this.y / stepSizeY);
       canvas.drawLine(
-        Offset(0, y),
-        Offset(size.width, y),
+        Offset(0, yOfZeroX),
+        Offset(size.width, yOfZeroX),
         paint,
       );
+      final xStepOfXAxis = axisStep(xOffset) / stepSizeX;
+      for (var x = xOfZeroY; x <= size.width; x += xStepOfXAxis) {
+        canvas.drawLine(
+          Offset(x, yOfZeroX + 10),
+          Offset(x, yOfZeroX - 10),
+          paint,
+        );
+      }
+      for (var x = xOfZeroY; x >= 0; x -= xStepOfXAxis) {
+        canvas.drawLine(
+          Offset(x, yOfZeroX + 10),
+          Offset(x, yOfZeroX - 10),
+          paint,
+        );
+      }
     }
   }
 
