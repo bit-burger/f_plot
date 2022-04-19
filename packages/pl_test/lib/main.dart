@@ -33,8 +33,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   bool zoomedByDoubleTap = false;
-  double x = -10, y = 40;
-  double xOffset = 50, yOffset = 50;
+  double x = -10, y = -10;
+  double xOffset = 40, yOffset = 40;
 
   @override
   Widget build(BuildContext context) {
@@ -93,6 +93,38 @@ class _MyHomePageState extends State<MyHomePage> {
               padding: const EdgeInsets.all(8.0),
               child: Text("(${x.toStringAsFixed(1)}|${y.toStringAsFixed(1)})"),
             ),
+          ),
+        ],
+      ),
+      floatingActionButton: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            onPressed: () {
+              setState(() {
+                final middleX = x + xOffset / 2;
+                final middleY = y + yOffset / 2;
+                xOffset = xOffset * 0.75;
+                yOffset = yOffset * 0.75;
+                x = middleX - xOffset / 2;
+                y = middleY - yOffset / 2;
+              });
+            },
+            child: Icon(Icons.add),
+          ),
+          SizedBox(width: 8),
+          FloatingActionButton(
+            onPressed: () {
+              setState(() {
+                final middleX = x + xOffset / 2;
+                final middleY = y + yOffset / 2;
+                xOffset = xOffset / 0.75;
+                yOffset = yOffset / 0.75;
+                x = middleX - xOffset / 2;
+                y = middleY - yOffset / 2;
+              });
+            },
+            child: Icon(Icons.remove),
           ),
         ],
       ),
@@ -203,45 +235,6 @@ class MathFunctionsPainter extends CustomPainter {
     }
   }
 
-  static int nextStepSize(int currentStepSize) {
-    if (currentStepSize == 1) {
-      return 2;
-    } else if (currentStepSize == 2) {
-      return 5;
-    }
-    return 1;
-  }
-
-  static double axisStep(double axisRange) {
-    //   axis steps 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000...
-    //   has to be at least 10 to go to 2,
-    //   has to be at least 5 to go to 1, etc
-    //   => axis range multiplied by 10, must be bigger than range
-    //   rawStepSize * 10^e is the axisStepSize
-    var e = 0;
-    var rawStepSize = 1; // either 1, 2 or 5
-    if (axisRange >= 5) {
-      while (rawStepSize * pow(10, e) * 10 <= axisRange) {
-        if (rawStepSize == 5) {
-          e++;
-        }
-        rawStepSize = nextStepSize(rawStepSize);
-      }
-    } else {
-      while (rawStepSize * pow(10, e) * 10 >= axisRange) {
-        if (rawStepSize == 1) {
-          e--;
-        }
-        rawStepSize = nextStepSize(nextStepSize(rawStepSize));
-      }
-      if (rawStepSize == 5 || rawStepSize == 2) {
-        e++;
-      }
-      rawStepSize = nextStepSize(nextStepSize(rawStepSize));
-    }
-    return rawStepSize * pow(10, e).toDouble();
-  }
-
   void paintGraph(Canvas canvas, Size size) {
     final paint = Paint()
       ..style = PaintingStyle.stroke
@@ -276,4 +269,43 @@ class MathFunctionsPainter extends CustomPainter {
       oldDelegate.y != y ||
       oldDelegate.xOffset != xOffset ||
       oldDelegate.yOffset != yOffset;
+
+  static int _nextStepSize(int currentStepSize) {
+    if (currentStepSize == 1) {
+      return 2;
+    } else if (currentStepSize == 2) {
+      return 5;
+    }
+    return 1;
+  }
+
+  static double axisStep(double axisRange) {
+    //   axis steps 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000...
+    //   has to be at least 10 to go to 2,
+    //   has to be at least 5 to go to 1, etc
+    //   => axis range multiplied by 10, must be bigger than range
+    //   rawStepSize * 10^e is the axisStepSize
+    var e = 0;
+    var rawStepSize = 1; // either 1, 2 or 5
+    if (axisRange >= 5) {
+      while (rawStepSize * pow(10, e) * 10 <= axisRange) {
+        if (rawStepSize == 5) {
+          e++;
+        }
+        rawStepSize = _nextStepSize(rawStepSize);
+      }
+    } else {
+      while (rawStepSize * pow(10, e) * 10 >= axisRange) {
+        if (rawStepSize == 1) {
+          e--;
+        }
+        rawStepSize = _nextStepSize(_nextStepSize(rawStepSize));
+      }
+      if (rawStepSize == 5 || rawStepSize == 2) {
+        e++;
+      }
+      rawStepSize = _nextStepSize(_nextStepSize(rawStepSize));
+    }
+    return rawStepSize * pow(10, e).toDouble();
+  }
 }
