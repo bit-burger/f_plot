@@ -89,6 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
         children: [
           MathFunctionPlotterView(
             controller: functionPlotterViewController,
+            scrollAction: MathFunctionPlotterViewScrollAction.zoom,
             functions: functions,
           ),
         ],
@@ -160,8 +161,18 @@ class MathFunctionPlotterViewController extends ChangeNotifier {
   }
 }
 
+enum MathFunctionPlotterViewScrollAction {
+  zoom,
+  move,
+  none;
+}
+
 class MathFunctionPlotterView extends StatefulWidget {
   final MathFunctionPlotterViewController? controller;
+
+  final bool disablePanning;
+  final bool showGrabCursorForMousePanning;
+  final MathFunctionPlotterViewScrollAction scrollAction;
 
   final List<MathFunctionAttributes> functions;
   final double graphsWidth;
@@ -174,6 +185,9 @@ class MathFunctionPlotterView extends StatefulWidget {
   MathFunctionPlotterView({
     Key? key,
     this.controller,
+    this.disablePanning = false,
+    this.showGrabCursorForMousePanning = true,
+    this.scrollAction = MathFunctionPlotterViewScrollAction.zoom,
     this.graphsWidth = 4,
     this.showAxis = true,
     this.axisColor = Colors.black,
@@ -230,76 +244,115 @@ class _MathFunctionPlotterViewState extends State<MathFunctionPlotterView> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: _isPanning == false
-          ? SystemMouseCursors.grab
-          : SystemMouseCursors.grabbing,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final size = constraints.biggest;
-          final sizeWidth = size.width;
-          final sizeHeight = size.height;
-          return Listener(
-            onPointerSignal: (event) {
-              if (event is PointerScrollEvent) {
-                setState(() {
-                  // TODO: scroll = zooom, next todo make configuration to configure what mouse does, and what pointer/hand does
-                  final xSizeRatio = _effectiveController.xOffset / sizeWidth;
-                  final ySizeRatio = _effectiveController.yOffset / sizeHeight;
+    Widget w = LayoutBuilder(
+      builder: (context, constraints) {
+        final size = constraints.biggest;
+        final sizeWidth = size.width;
+        final sizeHeight = size.height;
+        return Listener(
+          onPointerSignal: (event) {
+            if (widget.scrollAction ==
+                MathFunctionPlotterViewScrollAction.none) {
+              return;
+            }
+            if (event is PointerScrollEvent) {
+              setState(() {
+                final xSizeRatio = _effectiveController.xOffset / sizeWidth;
+                final ySizeRatio = _effectiveController.yOffset / sizeHeight;
+                if (widget.scrollAction ==
+                    MathFunctionPlotterViewScrollAction.move) {
                   _effectiveController.x += event.scrollDelta.dx * xSizeRatio;
                   _effectiveController.y -= event.scrollDelta.dy * ySizeRatio;
-                  _effectiveController.update();
-                });
-              }
+                } else if (widget.scrollAction ==
+                    MathFunctionPlotterViewScrollAction.zoom) {
+                  // TODO: did not implement zoom correctly
+                  final zoomRatio = 1 + (event.scrollDelta.dy / 200);
+                  final zoomPoint = event.localPosition;
+                  // x-coordinates
+                  final currentLeftWidth = zoomPoint.dx;
+                  final currentRightWidth = sizeWidth - currentLeftWidth;
+                  final newLeftWidth = zoomRatio * currentLeftWidth;
+                  final newRightWidth = zoomRatio * currentRightWidth;
+                  final newX = currentLeftWidth - newLeftWidth;
+                  final newXOffset = newLeftWidth + newRightWidth;
+                  // translate coordinates of flutter to those of the controller
+                  _effectiveController.x += newX * xSizeRatio;
+                  _effectiveController.xOffset = newXOffset * xSizeRatio;
+                  // y-coordinates
+                  final currentUpperHeight = zoomPoint.dy;
+                  final currentLowerHeight = sizeHeight - currentUpperHeight;
+                  final newUpperHeight = zoomRatio * currentUpperHeight;
+                  final newLowerHeight = zoomRatio * currentLowerHeight;
+                  final newY = currentUpperHeight - newUpperHeight;
+                  final newYOffset = newUpperHeight + newLowerHeight;
+                  // translate coordinates of flutter to those of the controller
+                  _effectiveController.y += newY * ySizeRatio;
+                  _effectiveController.yOffset = newYOffset * ySizeRatio;
+                }
+                _effectiveController.update();
+              });
+            }
+          },
+          child: GestureDetector(
+            onPanStart: (_) {
+              _setIsPanning(true);
             },
-            child: GestureDetector(
-              onPanStart: (_) {
-                _setIsPanning(true);
-              },
-              onPanUpdate: (details) {
-                setState(() {
-                  final xSizeRatio = _effectiveController.xOffset / sizeWidth;
-                  final ySizeRatio = _effectiveController.yOffset / sizeHeight;
-                  _effectiveController.x -= details.delta.dx * xSizeRatio;
-                  _effectiveController.y += details.delta.dy * ySizeRatio;
-                  _effectiveController.update();
-                });
-              },
-              onPanEnd: (_) {
-                _setIsPanning(false);
-              },
-              onPanCancel: () {
-                _setIsPanning(false);
-              },
-              child: AnimatedBuilder(
-                animation: _effectiveController,
-                builder: (_, __) {
-                  return SizedBox(
-                    height: double.infinity,
-                    width: double.infinity,
-                    child: CustomPaint(
-                      // TODO: SIZED BOX MISSING SizedBox(width: double.infinity, height: double.infinity,)
-                      painter: MathFunctionsPainter(
-                        labelTextStyle: widget.axisLabelsTextStyle,
-                        axisColor: widget.axisColor,
-                        axisWidth: widget.axisWidth,
-                        graphsWidth: widget.graphsWidth,
-                        showAxis: widget.showAxis,
-                        x: _effectiveController.x,
-                        y: _effectiveController.y,
-                        xOffset: _effectiveController.xOffset,
-                        yOffset: _effectiveController.yOffset,
-                        functions: widget.functions,
-                      ),
+            onPanUpdate: widget.disablePanning
+                ? null
+                : (details) {
+                    setState(() {
+                      final xSizeRatio =
+                          _effectiveController.xOffset / sizeWidth;
+                      final ySizeRatio =
+                          _effectiveController.yOffset / sizeHeight;
+                      _effectiveController.x -= details.delta.dx * xSizeRatio;
+                      _effectiveController.y += details.delta.dy * ySizeRatio;
+                      _effectiveController.update();
+                    });
+                  },
+            onPanEnd: (_) {
+              _setIsPanning(false);
+            },
+            onPanCancel: () {
+              _setIsPanning(false);
+            },
+            child: AnimatedBuilder(
+              animation: _effectiveController,
+              builder: (_, __) {
+                return SizedBox(
+                  height: double.infinity,
+                  width: double.infinity,
+                  child: CustomPaint(
+                    // TODO: SIZED BOX MISSING SizedBox(width: double.infinity, height: double.infinity,)
+                    painter: MathFunctionsPainter(
+                      labelTextStyle: widget.axisLabelsTextStyle,
+                      axisColor: widget.axisColor,
+                      axisWidth: widget.axisWidth,
+                      graphsWidth: widget.graphsWidth,
+                      showAxis: widget.showAxis,
+                      x: _effectiveController.x,
+                      y: _effectiveController.y,
+                      xOffset: _effectiveController.xOffset,
+                      yOffset: _effectiveController.yOffset,
+                      functions: widget.functions,
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
+    if (widget.showGrabCursorForMousePanning) {
+      return MouseRegion(
+        cursor: _isPanning == false
+            ? SystemMouseCursors.grab
+            : SystemMouseCursors.grabbing,
+        child: w,
+      );
+    }
+    return w;
   }
 
   @override
@@ -473,7 +526,6 @@ class MathFunctionsPainter extends CustomPainter {
       var sizeX = 0.0;
       var x = this.x;
       while (sizeX < size.width) {
-        print("a");
         final rawY = f(x);
         if (rawY.isNaN || rawY.isInfinite) {
           if (offsets.length < 2) {
