@@ -427,18 +427,18 @@ class MathFunctionsPainter extends CustomPainter {
       final yAxisStepSize = computeAxisStepSize(yOffset);
       final yStepOfYAxis = yAxisStepSize / stepSizeY;
       var currentYAxisStep = yAxisStepSize;
+      for (var y = yOfZeroX - yStepOfYAxis; y >= 0; y -= yStepOfYAxis) {
+        _paintAxisMarking(canvas, paint, labelTextStyle,
+            currentYAxisStep.toString(), xOfZeroY, y, true);
+        currentYAxisStep += yAxisStepSize;
+      }
+      currentYAxisStep = -yAxisStepSize;
       for (var y = yOfZeroX + yStepOfYAxis;
           y <= size.height;
           y += yStepOfYAxis) {
         _paintAxisMarking(canvas, paint, labelTextStyle,
             currentYAxisStep.toString(), xOfZeroY, y, true);
         currentYAxisStep -= yAxisStepSize;
-      }
-      currentYAxisStep = -yAxisStepSize;
-      for (var y = yOfZeroX - yStepOfYAxis; y >= 0; y -= yStepOfYAxis) {
-        _paintAxisMarking(canvas, paint, labelTextStyle,
-            currentYAxisStep.toString(), xOfZeroY, y, true);
-        currentYAxisStep += yAxisStepSize;
       }
     }
     // x-axis
