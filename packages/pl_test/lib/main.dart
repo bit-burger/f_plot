@@ -265,7 +265,7 @@ class _MathFunctionPlotterViewState extends State<MathFunctionPlotterView> {
                   _effectiveController.y -= event.scrollDelta.dy * ySizeRatio;
                 } else if (widget.scrollAction ==
                     MathFunctionPlotterViewScrollAction.zoom) {
-                  // TODO: did not implement zoom correctly
+                  // TODO: did not implement zoom correctly *ON Y AXIS*, on x axis it works
                   final zoomRatio = 1 + (event.scrollDelta.dy / 200);
                   final zoomPoint = event.localPosition;
                   // x-coordinates
