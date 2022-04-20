@@ -319,23 +319,18 @@ class _MathFunctionPlotterViewState extends State<MathFunctionPlotterView> {
             child: AnimatedBuilder(
               animation: _effectiveController,
               builder: (_, __) {
-                return SizedBox(
-                  height: double.infinity,
-                  width: double.infinity,
-                  child: CustomPaint(
-                    // TODO: SIZED BOX MISSING SizedBox(width: double.infinity, height: double.infinity,)
-                    painter: MathFunctionsPainter(
-                      labelTextStyle: widget.axisLabelsTextStyle,
-                      axisColor: widget.axisColor,
-                      axisWidth: widget.axisWidth,
-                      graphsWidth: widget.graphsWidth,
-                      showAxis: widget.showAxis,
-                      x: _effectiveController.x,
-                      y: _effectiveController.y,
-                      xOffset: _effectiveController.xOffset,
-                      yOffset: _effectiveController.yOffset,
-                      functions: widget.functions,
-                    ),
+                return CustomPaint(
+                  painter: MathFunctionsPainter(
+                    labelTextStyle: widget.axisLabelsTextStyle,
+                    axisColor: widget.axisColor,
+                    axisWidth: widget.axisWidth,
+                    graphsWidth: widget.graphsWidth,
+                    showAxis: widget.showAxis,
+                    x: _effectiveController.x,
+                    y: _effectiveController.y,
+                    xOffset: _effectiveController.xOffset,
+                    yOffset: _effectiveController.yOffset,
+                    functions: widget.functions,
                   ),
                 );
               },
@@ -345,14 +340,16 @@ class _MathFunctionPlotterViewState extends State<MathFunctionPlotterView> {
       },
     );
     if (widget.showGrabCursorForMousePanning) {
-      return MouseRegion(
-        cursor: _isPanning == false
-            ? SystemMouseCursors.grab
-            : SystemMouseCursors.grabbing,
-        child: w,
+      return SizedBox.expand(
+        child: MouseRegion(
+          cursor: _isPanning == false
+              ? SystemMouseCursors.grab
+              : SystemMouseCursors.grabbing,
+          child: w,
+        ),
       );
     }
-    return w;
+    return SizedBox.expand(child: w);
   }
 
   @override
