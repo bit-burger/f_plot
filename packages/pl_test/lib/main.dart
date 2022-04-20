@@ -1,15 +1,16 @@
 import 'dart:math';
-import 'dart:ui';
+import 'dart:ui' as ui;
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 void main() {
-  print(MathFunctionsPainter.axisStep(2));
-  print(MathFunctionsPainter.axisStep(1.9));
-  print(MathFunctionsPainter.axisStep(9));
-  print(MathFunctionsPainter.axisStep(10));
-  print(MathFunctionsPainter.axisStep(20));
+  print(MathFunctionsPainter.computeAxisStepSize(2));
+  print(MathFunctionsPainter.computeAxisStepSize(1.9));
+  print(MathFunctionsPainter.computeAxisStepSize(9));
+  print(MathFunctionsPainter.computeAxisStepSize(10));
+  print(MathFunctionsPainter.computeAxisStepSize(20));
   runApp(MyApp());
 }
 
@@ -32,10 +33,52 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  bool zoomedByDoubleTap = false;
-  double x = -10, y = -10;
-  double xOffset = 40, yOffset = 40;
+  static final allFunctions = [
+    MathFunctionAttributes(
+      evaluatingFunction: (x) => pow(x, 3) as double,
+      color: Colors.blue,
+    ),
+    MathFunctionAttributes(
+      evaluatingFunction: (x) => sin(x) * 2.5 + 20,
+      color: Colors.red,
+    ),
+    MathFunctionAttributes(
+      evaluatingFunction: (x) => x,
+      color: Colors.green,
+    ),
+    MathFunctionAttributes(
+      evaluatingFunction: (x) => -0.1 * pow(x, 3) + x + 0.01 * pow(x, 4),
+      color: Colors.purple,
+    ),
+    MathFunctionAttributes(
+      evaluatingFunction: (x) => cos(x) * 2.5 + 20,
+      color: Colors.yellow,
+    ),
+    MathFunctionAttributes(
+      evaluatingFunction: (x) => 7 * pow(0.5, x / 2).toDouble(),
+      color: Colors.orange,
+    ),
+    MathFunctionAttributes(
+      evaluatingFunction: (x) => log(x),
+      name: "ln",
+      color: Colors.black,
+    ),
+  ];
 
+  final functions = <MathFunctionAttributes>[];
+  void addFunction() {
+    setState(() {
+      functions.add(allFunctions.removeAt(0));
+    });
+  }
+
+  final MathFunctionPlotterViewController functionPlotterViewController =
+      MathFunctionPlotterViewController(
+    x: -10,
+    y: -10,
+    xOffset: 40,
+    yOffset: 40,
+  );
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,68 +87,9 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Stack(
         children: [
-          MouseRegion(
-            cursor: SystemMouseCursors.grab,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                // print(
-                //   "y: ${this.y} - ${this.y + yOffset} | "
-                //   "x: ${this.x} - ${this.x + xOffset}",
-                // );
-                final size = constraints.biggest;
-                final sizeWidth = size.width;
-                final sizeHeight = size.height;
-                final xSizeRatio = xOffset / sizeWidth;
-                final ySizeRatio = yOffset / sizeHeight;
-                return Listener(
-                  onPointerSignal: (event) {
-                    if(event is PointerScrollEvent) {
-                      setState(() {
-                        x += event.scrollDelta.dx * xSizeRatio;
-                        y -= event.scrollDelta.dy * ySizeRatio;
-                      });
-                    }
-                  },
-                  child: GestureDetector(
-                    onPanUpdate: (details) {
-                      setState(() {
-                        x -= details.delta.dx * xSizeRatio;
-                        y += details.delta.dy * ySizeRatio;
-                      });
-                    },
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: double.infinity,
-                      child: CustomPaint(
-                        painter: MathFunctionsPainter(
-                          x: x,
-                          y: y,
-                          xOffset: xOffset,
-                          yOffset: yOffset,
-                          functions: [
-                            MathFunctionAttributes(
-                              evaluatingFunction: (x) => pow(x, 3) as double,
-                              color: Colors.blue,
-                            ),
-                            MathFunctionAttributes(
-                              evaluatingFunction: (x) => sin(x) * 2.5 + 20,
-                              color: Colors.red,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomLeft,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text("(${x.toStringAsFixed(1)}|${y.toStringAsFixed(1)})"),
-            ),
+          MathFunctionPlotterView(
+            controller: functionPlotterViewController,
+            functions: functions,
           ),
         ],
       ),
@@ -113,35 +97,215 @@ class _MyHomePageState extends State<MyHomePage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           FloatingActionButton(
+            onPressed: addFunction,
+            child: Icon(Icons.add),
+          ),
+          SizedBox(width: 8),
+          FloatingActionButton(
             onPressed: () {
-              setState(() {
-                final middleX = x + xOffset / 2;
-                final middleY = y + yOffset / 2;
-                xOffset = xOffset * 0.75;
-                yOffset = yOffset * 0.75;
-                x = middleX - xOffset / 2;
-                y = middleY - yOffset / 2;
-              });
+              functionPlotterViewController.applyZoomRatioToCenter(3 / 4);
+              functionPlotterViewController.update();
             },
             child: Icon(Icons.add),
           ),
           SizedBox(width: 8),
           FloatingActionButton(
             onPressed: () {
-              setState(() {
-                final middleX = x + xOffset / 2;
-                final middleY = y + yOffset / 2;
-                xOffset = xOffset / 0.75;
-                yOffset = yOffset / 0.75;
-                x = middleX - xOffset / 2;
-                y = middleY - yOffset / 2;
-              });
+              functionPlotterViewController.applyZoomRatioToCenter(4 / 3);
+              functionPlotterViewController.update();
             },
             child: Icon(Icons.remove),
           ),
         ],
       ),
     );
+  }
+}
+
+// TODO: maybe replace with extending a ValueNotifier<ui.Rect>
+class MathFunctionPlotterViewController extends ChangeNotifier {
+  double x;
+  double y;
+  double xOffset;
+  double yOffset;
+
+  MathFunctionPlotterViewController({
+    required this.x,
+    required this.y,
+    required this.xOffset,
+    required this.yOffset,
+  });
+
+  factory MathFunctionPlotterViewController.fromZero({
+    required double width,
+    required double height,
+  }) {
+    return MathFunctionPlotterViewController(
+        x: 0, y: 0, xOffset: width, yOffset: height);
+  }
+
+  void update() {
+    notifyListeners();
+  }
+
+  void applyZoomRatioToCenter(double zoomRatio) {
+    assert(zoomRatio > 0);
+
+    final middleX = x + xOffset / 2;
+    final middleY = y + yOffset / 2;
+    xOffset = xOffset * zoomRatio;
+    yOffset = yOffset * zoomRatio;
+    x = middleX - xOffset / 2;
+    y = middleY - yOffset / 2;
+  }
+}
+
+class MathFunctionPlotterView extends StatefulWidget {
+  final MathFunctionPlotterViewController? controller;
+
+  final List<MathFunctionAttributes> functions;
+  final double graphsWidth;
+
+  final bool showAxis;
+  final Color axisColor;
+  final double axisWidth;
+  final ui.TextStyle axisLabelsTextStyle;
+
+  MathFunctionPlotterView({
+    Key? key,
+    this.controller,
+    this.graphsWidth = 4,
+    this.showAxis = true,
+    this.axisColor = Colors.black,
+    this.axisWidth = 2,
+    TextStyle axisLabelsTextStyle = const TextStyle(color: Colors.black),
+    required this.functions,
+  })  : axisLabelsTextStyle = axisLabelsTextStyle.getTextStyle(),
+        super(key: key);
+
+  @override
+  State<MathFunctionPlotterView> createState() =>
+      _MathFunctionPlotterViewState();
+}
+
+class _MathFunctionPlotterViewState extends State<MathFunctionPlotterView> {
+  late MathFunctionPlotterViewController? _controller;
+  MathFunctionPlotterViewController get _effectiveController =>
+      _controller ?? widget.controller!;
+
+  var _isPanning = false;
+
+  void _setIsPanning(bool isPanning) {
+    setState(() {
+      _isPanning = isPanning;
+    });
+  }
+
+  @override
+  void initState() {
+    if (widget.controller == null) {
+      _controller = MathFunctionPlotterViewController.fromZero(
+        width: 1,
+        height: 1,
+      );
+    } else {
+      _controller = null;
+    }
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant MathFunctionPlotterView oldWidget) {
+    if (widget.controller != null && _controller != null) {
+      _controller = null;
+    } else {
+      _controller ??= widget.controller;
+      _controller ??= MathFunctionPlotterViewController.fromZero(
+        width: 1,
+        height: 1,
+      );
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: _isPanning == false
+          ? SystemMouseCursors.grab
+          : SystemMouseCursors.grabbing,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final size = constraints.biggest;
+          final sizeWidth = size.width;
+          final sizeHeight = size.height;
+          return Listener(
+            onPointerSignal: (event) {
+              if (event is PointerScrollEvent) {
+                setState(() {
+                  // TODO: scroll = zooom, next todo make configuration to configure what mouse does, and what pointer/hand does
+                  final xSizeRatio = _effectiveController.xOffset / sizeWidth;
+                  final ySizeRatio = _effectiveController.yOffset / sizeHeight;
+                  _effectiveController.x += event.scrollDelta.dx * xSizeRatio;
+                  _effectiveController.y -= event.scrollDelta.dy * ySizeRatio;
+                  _effectiveController.update();
+                });
+              }
+            },
+            child: GestureDetector(
+              onPanStart: (_) {
+                _setIsPanning(true);
+              },
+              onPanUpdate: (details) {
+                setState(() {
+                  final xSizeRatio = _effectiveController.xOffset / sizeWidth;
+                  final ySizeRatio = _effectiveController.yOffset / sizeHeight;
+                  _effectiveController.x -= details.delta.dx * xSizeRatio;
+                  _effectiveController.y += details.delta.dy * ySizeRatio;
+                  _effectiveController.update();
+                });
+              },
+              onPanEnd: (_) {
+                _setIsPanning(false);
+              },
+              onPanCancel: () {
+                _setIsPanning(false);
+              },
+              child: AnimatedBuilder(
+                animation: _effectiveController,
+                builder: (_, __) {
+                  return SizedBox(
+                    height: double.infinity,
+                    width: double.infinity,
+                    child: CustomPaint(
+                      // TODO: SIZED BOX MISSING SizedBox(width: double.infinity, height: double.infinity,)
+                      painter: MathFunctionsPainter(
+                        labelTextStyle: widget.axisLabelsTextStyle,
+                        axisColor: widget.axisColor,
+                        axisWidth: widget.axisWidth,
+                        graphsWidth: widget.graphsWidth,
+                        showAxis: widget.showAxis,
+                        x: _effectiveController.x,
+                        y: _effectiveController.y,
+                        xOffset: _effectiveController.xOffset,
+                        yOffset: _effectiveController.yOffset,
+                        functions: widget.functions,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
   }
 }
 
@@ -164,24 +328,24 @@ class MathFunctionsPainter extends CustomPainter {
   final double xOffset, yOffset;
   // make sure functions is rebuilt if changes
   final List<MathFunctionAttributes> functions;
-  final double functionsGraphWidth;
+  final double graphsWidth;
 
   final bool showAxis;
   final Color axisColor;
   final double axisWidth;
-  // final Paint? graphPaint;
-  // final Paint? axisPaint;
+  final ui.TextStyle labelTextStyle;
 
-  const MathFunctionsPainter({
+  MathFunctionsPainter({
     this.x = 0,
     this.y = 0,
     this.xOffset = 1,
     this.yOffset = 1,
     required this.functions,
-    this.functionsGraphWidth = 4,
+    this.graphsWidth = 4,
     this.showAxis = true,
     this.axisColor = Colors.black,
     this.axisWidth = 2,
+    required this.labelTextStyle,
   });
 
   @override
@@ -207,20 +371,21 @@ class MathFunctionsPainter extends CustomPainter {
         Offset(xOfZeroY, size.height),
         paint,
       );
-      final yStepOfYAxis = axisStep(yOffset) / stepSizeY;
-      for (var y = yOfZeroX; y <= size.height; y += yStepOfYAxis) {
-        canvas.drawLine(
-          Offset(xOfZeroY + 10, y),
-          Offset(xOfZeroY - 10, y),
-          paint,
-        );
+      final yAxisStepSize = computeAxisStepSize(yOffset);
+      final yStepOfYAxis = yAxisStepSize / stepSizeY;
+      var currentYAxisStep = yAxisStepSize;
+      for (var y = yOfZeroX + yStepOfYAxis;
+          y <= size.height;
+          y += yStepOfYAxis) {
+        _paintAxisMarking(canvas, paint, labelTextStyle,
+            currentYAxisStep.toString(), xOfZeroY, y, true);
+        currentYAxisStep -= yAxisStepSize;
       }
-      for (var y = yOfZeroX; y >= 0; y -= yStepOfYAxis) {
-        canvas.drawLine(
-          Offset(xOfZeroY + 10, y),
-          Offset(xOfZeroY - 10, y),
-          paint,
-        );
+      currentYAxisStep = -yAxisStepSize;
+      for (var y = yOfZeroX - yStepOfYAxis; y >= 0; y -= yStepOfYAxis) {
+        _paintAxisMarking(canvas, paint, labelTextStyle,
+            currentYAxisStep.toString(), xOfZeroY, y, true);
+        currentYAxisStep += yAxisStepSize;
       }
     }
     // x-axis
@@ -230,28 +395,71 @@ class MathFunctionsPainter extends CustomPainter {
         Offset(size.width, yOfZeroX),
         paint,
       );
-      final xStepOfXAxis = axisStep(xOffset) / stepSizeX;
-      for (var x = xOfZeroY; x <= size.width; x += xStepOfXAxis) {
-        canvas.drawLine(
-          Offset(x, yOfZeroX + 10),
-          Offset(x, yOfZeroX - 10),
-          paint,
-        );
+      final xAxisStepSize = computeAxisStepSize(xOffset);
+      final xStepOfXAxis = xAxisStepSize / stepSizeX;
+      var currentXAxisStep = xAxisStepSize;
+      for (var x = xOfZeroY + xStepOfXAxis;
+          x <= size.width;
+          x += xStepOfXAxis) {
+        _paintAxisMarking(canvas, paint, labelTextStyle,
+            currentXAxisStep.toString(), x, yOfZeroX, false);
+        currentXAxisStep += xAxisStepSize;
       }
-      for (var x = xOfZeroY; x >= 0; x -= xStepOfXAxis) {
-        canvas.drawLine(
-          Offset(x, yOfZeroX + 10),
-          Offset(x, yOfZeroX - 10),
-          paint,
-        );
+      currentXAxisStep = -xAxisStepSize;
+      for (var x = xOfZeroY - xStepOfXAxis; x >= 0; x -= xStepOfXAxis) {
+        _paintAxisMarking(canvas, paint, labelTextStyle,
+            currentXAxisStep.toString(), x, yOfZeroX, false);
+        currentXAxisStep -= xAxisStepSize;
       }
     }
+  }
+
+  void _paintAxisMarking(
+    Canvas canvas,
+    Paint linePaint,
+    ui.TextStyle labelTextStyle,
+    String label,
+    double x,
+    double y,
+    bool horizontal,
+  ) {
+    final paragraphBuilder = ui.ParagraphBuilder(
+      ui.ParagraphStyle(textAlign: TextAlign.center),
+    )
+      ..pushStyle(
+        ui.TextStyle(color: Colors.black),
+      )
+      ..addText(label);
+    final paragraph = paragraphBuilder.build();
+
+    paragraph.layout(
+      const ui.ParagraphConstraints(width: double.infinity),
+    );
+    paragraph.layout(
+      ui.ParagraphConstraints(width: paragraph.longestLine.ceilToDouble()),
+    );
+    if (horizontal) {
+      canvas.drawParagraph(
+          paragraph, Offset(x + 12.5, y - paragraph.height / 2));
+    } else {
+      canvas.drawParagraph(
+        paragraph,
+        Offset(x - paragraph.width / 2, y + 10),
+      );
+    }
+    canvas.drawLine(
+      Offset(horizontal ? x + 10 : x, horizontal ? y : y + 10),
+      Offset(horizontal ? x - 10 : x, horizontal ? y : y - 10),
+      linePaint,
+    );
   }
 
   void paintGraph(Canvas canvas, Size size) {
     final paint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = functionsGraphWidth;
+      ..strokeWidth = graphsWidth
+      ..strokeCap = StrokeCap.round;
+    // ..blendMode = BlendMode.src;
 
     final stepSizeX = xOffset / size.width;
     final stepSizeY = yOffset / size.height;
@@ -265,23 +473,47 @@ class MathFunctionsPainter extends CustomPainter {
       var sizeX = 0.0;
       var x = this.x;
       while (sizeX < size.width) {
+        print("a");
         final rawY = f(x);
+        if (rawY.isNaN || rawY.isInfinite) {
+          if (offsets.length < 2) {
+            canvas.drawPoints(ui.PointMode.polygon, offsets, paint);
+            offsets.clear();
+          }
+          continue;
+        }
         final y = size.height - ((rawY - this.y) / stepSizeY);
         offsets.add(Offset(sizeX, y));
         sizeX++;
         x += stepSizeX;
       }
-      canvas.drawPoints(PointMode.polygon, offsets, paint);
+      if (offsets.isNotEmpty) {
+        canvas.drawPoints(ui.PointMode.polygon, offsets, paint);
+      }
     }
+    // _rebuild++;
   }
 
-  // TODO: add extra repaint property, to force rebuild from parent if it isn't one of the 4 lower properties being changed
   @override
-  bool shouldRepaint(MathFunctionsPainter oldDelegate) =>
-      oldDelegate.x != x ||
-      oldDelegate.y != y ||
-      oldDelegate.xOffset != xOffset ||
-      oldDelegate.yOffset != yOffset;
+  bool shouldRepaint(MathFunctionsPainter oldDelegate) {
+    return oldDelegate.x != x ||
+        oldDelegate.y != y ||
+        oldDelegate.xOffset != xOffset ||
+        oldDelegate.yOffset != yOffset;
+  }
+  // static int _rebuild = 0;
+  // static int _nonRebuild = 0;
+  // @override
+  // bool shouldRepaint(MathFunctionsPainter oldDelegate) {
+  //   final rebuild = oldDelegate.x != x ||
+  //       oldDelegate.y != y ||
+  //       oldDelegate.xOffset != xOffset ||
+  //       oldDelegate.yOffset != yOffset;
+  //
+  //   if (!rebuild) _nonRebuild++;
+  //   print("rebuild: $_rebuild, non rebuilt: $_nonRebuild");
+  //   return rebuild;
+  // }
 
   static int _nextStepSize(int currentStepSize) {
     if (currentStepSize == 1) {
@@ -292,7 +524,7 @@ class MathFunctionsPainter extends CustomPainter {
     return 1;
   }
 
-  static double axisStep(double axisRange) {
+  static double computeAxisStepSize(double axisRange) {
     //   axis steps 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000...
     //   has to be at least 10 to go to 2,
     //   has to be at least 5 to go to 1, etc
