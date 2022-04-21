@@ -57,16 +57,16 @@ class GraphsPainter extends CustomPainter {
       final yStepOfYAxis = yAxisStepSize / stepSizeY;
       var currentYAxisStep = yAxisStepSize;
       for (var y = yOfZeroX - yStepOfYAxis; y >= 0; y -= yStepOfYAxis) {
-        _paintAxisMarking(canvas, paint, labelTextStyle,
-            currentYAxisStep.toString(), xOfZeroY, y, true);
+        _paintAxisMarking(
+            canvas, paint, currentYAxisStep.toString(), xOfZeroY, y, true);
         currentYAxisStep += yAxisStepSize;
       }
       currentYAxisStep = -yAxisStepSize;
       for (var y = yOfZeroX + yStepOfYAxis;
           y <= size.height;
           y += yStepOfYAxis) {
-        _paintAxisMarking(canvas, paint, labelTextStyle,
-            currentYAxisStep.toString(), xOfZeroY, y, true);
+        _paintAxisMarking(
+            canvas, paint, currentYAxisStep.toString(), xOfZeroY, y, true);
         currentYAxisStep -= yAxisStepSize;
       }
     }
@@ -83,14 +83,14 @@ class GraphsPainter extends CustomPainter {
       for (var x = xOfZeroY + xStepOfXAxis;
           x <= size.width;
           x += xStepOfXAxis) {
-        _paintAxisMarking(canvas, paint, labelTextStyle,
-            currentXAxisStep.toString(), x, yOfZeroX, false);
+        _paintAxisMarking(
+            canvas, paint, currentXAxisStep.toString(), x, yOfZeroX, false);
         currentXAxisStep += xAxisStepSize;
       }
       currentXAxisStep = -xAxisStepSize;
       for (var x = xOfZeroY - xStepOfXAxis; x >= 0; x -= xStepOfXAxis) {
-        _paintAxisMarking(canvas, paint, labelTextStyle,
-            currentXAxisStep.toString(), x, yOfZeroX, false);
+        _paintAxisMarking(
+            canvas, paint, currentXAxisStep.toString(), x, yOfZeroX, false);
         currentXAxisStep -= xAxisStepSize;
       }
     }
@@ -99,7 +99,6 @@ class GraphsPainter extends CustomPainter {
   void _paintAxisMarking(
     ui.Canvas canvas,
     ui.Paint linePaint,
-    ui.TextStyle labelTextStyle,
     String label,
     double x,
     double y,
@@ -109,7 +108,7 @@ class GraphsPainter extends CustomPainter {
       ui.ParagraphStyle(textAlign: ui.TextAlign.center),
     )
       ..pushStyle(
-        ui.TextStyle(color: Colors.black),
+        labelTextStyle,
       )
       ..addText(label);
     final paragraph = paragraphBuilder.build();
