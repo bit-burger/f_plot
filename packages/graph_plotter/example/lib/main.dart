@@ -119,7 +119,7 @@ class _GraphPlotterTestState extends State<GraphPlotterTest> {
             axisLabelsTextStyle: const TextStyle(color: Colors.white),
             controller: functionPlotterViewController,
             scrollAction: GraphPlotterScrollAction.zoom,
-            functions: graphsB,
+            graphs: graphsB,
           ),
         ],
       ),

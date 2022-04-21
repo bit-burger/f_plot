@@ -1,5 +1,25 @@
 import 'package:flutter/foundation.dart';
+import 'plotter.dart';
 
+/// a controller for the [GraphPlotter],
+/// used to control the [GraphPlotter]s view area,
+/// see [GraphPlotter.controller] for more information.
+///
+/// always update the view area by calling [update]
+///
+/// example:
+///
+/// ```dart
+/// final GraphPlotterController controller;
+///
+/// // some operations on the controller
+/// controller.x = _x;
+/// controller.y = _y;
+/// ...
+///
+/// // update the GraphPlotters view area
+/// controller.update();
+/// ```
 // TODO: maybe replace with extending a ValueNotifier<ui.Rect>
 class GraphPlotterController extends ChangeNotifier {
   double x;
@@ -18,8 +38,7 @@ class GraphPlotterController extends ChangeNotifier {
     required double width,
     required double height,
   }) {
-    return GraphPlotterController(
-        x: 0, y: 0, xOffset: width, yOffset: height);
+    return GraphPlotterController(x: 0, y: 0, xOffset: width, yOffset: height);
   }
 
   void update() {

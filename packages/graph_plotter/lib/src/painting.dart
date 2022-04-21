@@ -5,16 +5,32 @@ import './type_defs.dart';
 
 import 'package:flutter/material.dart';
 
+/// paints the given [GraphAttributes] given by [graphs]
+/// in the area specified by: [x], [y], [xOffset] and [yOffset] in a given size
 class GraphsPainter extends CustomPainter {
+  /// where the view area of the GraphsPainter should start
   final double x, y;
+
+  /// the width and the high
   final double xOffset, yOffset;
-  // make sure functions is rebuilt if changes
-  final List<GraphAttributes> functions;
+
+  /// each graph with their [Color], name and [GraphFunction],
+  /// see [GraphAttributes].
+  final List<GraphAttributes> graphs;
+
+  /// the stroke width of all graphs
   final double graphsWidth;
 
+  /// if a axis should be shown
   final bool showAxis;
+
+  /// the color of the axes and the axis markings
   final Color axisColor;
+
+  /// the stroke width of the axes and the axis markings
   final double axisWidth;
+
+  /// the [ui.TextStyle] of each label on the axes
   final ui.TextStyle labelTextStyle;
 
   GraphsPainter({
@@ -22,7 +38,7 @@ class GraphsPainter extends CustomPainter {
     this.y = 0,
     this.xOffset = 1,
     this.yOffset = 1,
-    required this.functions,
+    required this.graphs,
     this.graphsWidth = 4,
     this.showAxis = true,
     this.axisColor = Colors.black,
@@ -33,12 +49,13 @@ class GraphsPainter extends CustomPainter {
   @override
   void paint(ui.Canvas canvas, ui.Size size) {
     if (showAxis) {
-      paintAxis(canvas, size);
+      _paintAxis(canvas, size);
     }
-    paintGraph(canvas, size);
+    _paintGraphs(canvas, size);
   }
 
-  void paintAxis(ui.Canvas canvas, ui.Size size) {
+  /// paints the axes, is only called by paint if [showAxis] is set to true
+  void _paintAxis(ui.Canvas canvas, ui.Size size) {
     final paint = ui.Paint()
       ..color = axisColor
       ..strokeWidth = axisWidth;
@@ -96,6 +113,8 @@ class GraphsPainter extends CustomPainter {
     }
   }
 
+  /// paint an axis marking reading [label] at ([x]|[y]) on the canvas,
+  /// uses [horizontal] to determine if on the x-axis or y-axis
   void _paintAxisMarking(
     ui.Canvas canvas,
     ui.Paint linePaint,
@@ -135,7 +154,8 @@ class GraphsPainter extends CustomPainter {
     );
   }
 
-  void paintGraph(Canvas canvas, Size size) {
+  /// paint the graphs, always called in [paint] after [_paintAxisMarking]
+  void _paintGraphs(Canvas canvas, Size size) {
     final paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = graphsWidth
@@ -145,7 +165,7 @@ class GraphsPainter extends CustomPainter {
     final stepSizeX = xOffset / size.width;
     final stepSizeY = yOffset / size.height;
 
-    for (final functionAttributes in functions) {
+    for (final functionAttributes in graphs) {
       paint.color = functionAttributes.color;
 
       final f = functionAttributes.evaluatingFunction;
@@ -195,21 +215,15 @@ class GraphsPainter extends CustomPainter {
   //   return rebuild;
   // }
 
-  static int _nextStepSize(int currentStepSize) {
-    if (currentStepSize == 1) {
-      return 2;
-    } else if (currentStepSize == 2) {
-      return 5;
-    }
-    return 1;
-  }
-
+  /// determines how big the step size should be, dependant on the [axisRange]
+  ///
+  /// the axis steps are in the following pattern:
+  /// ...0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50...
+  ///
+  /// if axisRange >= 5 the step size is 1,
+  /// if the axisRange >= 10 the step size is 2, etc...
   static double computeAxisStepSize(double axisRange) {
-    //   axis steps 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000...
-    //   has to be at least 10 to go to 2,
-    //   has to be at least 5 to go to 1, etc
-    //   => axis range multiplied by 10, must be bigger than range
-    //   rawStepSize * 10^e is the axisStepSize
+    // rawStepSize * 10^e is the axisStepSize
     var e = 0;
     var rawStepSize = 1; // either 1, 2 or 5
     if (axisRange >= 5) {
@@ -232,5 +246,15 @@ class GraphsPainter extends CustomPainter {
       rawStepSize = _nextStepSize(_nextStepSize(rawStepSize));
     }
     return rawStepSize * math.pow(10, e).toDouble();
+  }
+
+  /// used inside of [computeAxisStepSize]
+  static int _nextStepSize(int currentStepSize) {
+    if (currentStepSize == 1) {
+      return 2;
+    } else if (currentStepSize == 2) {
+      return 5;
+    }
+    return 1;
   }
 }

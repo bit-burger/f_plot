@@ -7,26 +7,60 @@ import './painting.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+/// what should happen if a mouse,
+/// that is in the area of the [GraphPlotter] scrolls
 enum GraphPlotterScrollAction {
+  /// zooms, only uses the vertical scroll aka the mouse wheel
   zoom,
+
+  /// uses both the vertical scroll and the horizontal scroll to move around,
+  /// only makes sense with a mouse that can scroll in both directions,
+  /// such as the apple mouse
   move,
-  none;
+
+  /// does not do anything when scrolling
+  none,
 }
 
+/// a view too zoom and move around plotted functiosn
 class GraphPlotter extends StatefulWidget {
+  /// the controller, which controls the [GraphPlotter],
+  /// if none is given an internal one will be inserted
   final GraphPlotterController? controller;
 
+  /// if turned on, panning is disabled and
+  /// holding and moving the mouse will do nothing
   final bool disablePanning;
+
+  /// show [SystemMouseCursors.grab] and [SystemMouseCursors.grabbing]
   final bool showGrabCursorForMousePanning;
+
+  /// what to do on a mouse scroll, see [GraphPlotterScrollAction]
   final GraphPlotterScrollAction scrollAction;
+
+  /// if [scrollAction] is set to [GraphPlotterScrollAction.zoom],
+  /// the scroll delta of the vertical scroll,
+  /// aka the mouse wheel is multiplied with the [scrollDeltaToZoomRatio]
+  /// and then applied to the current position and view area
   final double scrollDeltaToZoomRatio;
 
-  final List<GraphAttributes> functions;
+  /// which functions and their respective color to render
+  final List<GraphAttributes> graphs;
+
+  /// the stroke width of each graph
   final double graphsWidth;
 
+  /// if the x-axis and y-axis should be shown or not
   final bool showAxis;
+
+  /// the color of the axes
   final Color axisColor;
+
+  /// the stroke width
   final double axisWidth;
+
+  /// the text style of the axis labels,
+  /// specified in the constructor as a [TextStyle] instead of [ui.TextStyle]
   final ui.TextStyle axisLabelsTextStyle;
 
   GraphPlotter({
@@ -41,13 +75,12 @@ class GraphPlotter extends StatefulWidget {
     this.axisColor = Colors.black,
     this.axisWidth = 2,
     TextStyle axisLabelsTextStyle = const TextStyle(color: Colors.black),
-    required this.functions,
+    required this.graphs,
   })  : axisLabelsTextStyle = axisLabelsTextStyle.getTextStyle(),
         super(key: key);
 
   @override
-  State<GraphPlotter> createState() =>
-      _GraphPlotterState();
+  State<GraphPlotter> createState() => _GraphPlotterState();
 }
 
 class _GraphPlotterState extends State<GraphPlotter> {
@@ -99,16 +132,15 @@ class _GraphPlotterState extends State<GraphPlotter> {
         final sizeHeight = size.height;
         return Listener(
           onPointerSignal: (event) {
-            if (widget.scrollAction ==
-                GraphPlotterScrollAction.none) {
+            // mouse scrolling
+            if (widget.scrollAction == GraphPlotterScrollAction.none) {
               return;
             }
             if (event is PointerScrollEvent) {
               setState(() {
                 final xSizeRatio = _effectiveController.xOffset / sizeWidth;
                 final ySizeRatio = _effectiveController.yOffset / sizeHeight;
-                if (widget.scrollAction ==
-                    GraphPlotterScrollAction.move) {
+                if (widget.scrollAction == GraphPlotterScrollAction.move) {
                   _effectiveController.x += event.scrollDelta.dx * xSizeRatio;
                   _effectiveController.y -= event.scrollDelta.dy * ySizeRatio;
                 } else if (widget.scrollAction ==
@@ -142,6 +174,7 @@ class _GraphPlotterState extends State<GraphPlotter> {
             }
           },
           child: GestureDetector(
+            // panning
             onPanStart: (_) {
               _setIsPanning(true);
             },
@@ -164,6 +197,7 @@ class _GraphPlotterState extends State<GraphPlotter> {
             onPanCancel: () {
               _setIsPanning(false);
             },
+            // use AnimatedBuilder to re-render on each controller update
             child: AnimatedBuilder(
               animation: _effectiveController,
               builder: (_, __) {
@@ -178,7 +212,7 @@ class _GraphPlotterState extends State<GraphPlotter> {
                     y: _effectiveController.y,
                     xOffset: _effectiveController.xOffset,
                     yOffset: _effectiveController.yOffset,
-                    functions: widget.functions,
+                    graphs: widget.graphs,
                   ),
                 );
               },
