@@ -4,7 +4,7 @@ import 'package:expressions/expressions.dart';
 /// convert an [Expression] to an efficient [EvaluatorFunction],
 /// which is a callable function, that can be called with a [double]
 /// and gives back a [double],
-/// this therefore allows to evaluate math functions, such as f(x) = x^2.
+/// this therefore allows to evaluate math_functions functions, such as f(x) = x^2.
 ///
 /// the function does not care what the variable name is,
 /// it substitutes all variables with the input from the [EvaluatorFunction].
