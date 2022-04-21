@@ -5,9 +5,17 @@ import 'package:graph_plotter/graph_plotter.dart';
 
 void main() {
   runApp(
-    const MaterialApp(
+    MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: GraphPlotterTest(),
+      theme: ThemeData(
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          foregroundColor: Colors.black,
+          backgroundColor: Colors.white,
+        ),
+        scaffoldBackgroundColor: Colors.black,
+        textTheme: const TextTheme().apply(displayColor: Colors.white),
+      ),
+      home: const GraphPlotterTest(),
     ),
   );
 }
@@ -23,33 +31,33 @@ class _GraphPlotterTestState extends State<GraphPlotterTest> {
   final graphsA = [
     GraphAttributes(
       name: "x^3",
-      color: Colors.blue,
+      color: Colors.blue.shade300,
       evaluatingFunction: (x) => pow(x, 3) as double,
     ),
     GraphAttributes(
       name: "sin(x) * 2.5 + 20",
       evaluatingFunction: (x) => sin(x) * 2.5 + 20,
-      color: Colors.red,
+      color: Colors.red.shade300,
     ),
     GraphAttributes(
       name: "x",
       evaluatingFunction: (x) => x,
-      color: Colors.green,
+      color: Colors.green.shade300,
     ),
     GraphAttributes(
       name: "-0.1x^3+x+0.01x^4",
       evaluatingFunction: (x) => -0.1 * pow(x, 3) + x + 0.01 * pow(x, 4),
-      color: Colors.purple,
+      color: Colors.purple.shade300,
     ),
     GraphAttributes(
       name: "cos(x)*2.5*20",
       evaluatingFunction: (x) => cos(x) * 2.5 + 20,
-      color: Colors.yellow,
+      color: Colors.yellow.shade300,
     ),
     GraphAttributes(
       name: "7*(1/2)^(x/2)",
       evaluatingFunction: (x) => 7 * pow(0.5, x / 2).toDouble(),
-      color: Colors.orange,
+      color: Colors.orange.shade300,
     ),
     // TODO: function still not compatible
     // MathFunctionAttributes(
@@ -101,12 +109,14 @@ class _GraphPlotterTestState extends State<GraphPlotterTest> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("example"),
-      ),
       body: Stack(
         children: [
           GraphPlotter(
+            showAxis: true,
+            axisWidth: 2.0,
+            graphsWidth: 3.0,
+            axisColor: Colors.white,
+            axisLabelsTextStyle: const TextStyle(color: Colors.white),
             controller: functionPlotterViewController,
             scrollAction: GraphPlotterScrollAction.zoom,
             functions: graphsB,
