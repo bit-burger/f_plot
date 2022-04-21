@@ -173,6 +173,7 @@ class MathFunctionPlotterView extends StatefulWidget {
   final bool disablePanning;
   final bool showGrabCursorForMousePanning;
   final MathFunctionPlotterViewScrollAction scrollAction;
+  final double scrollDeltaToZoomRatio;
 
   final List<MathFunctionAttributes> functions;
   final double graphsWidth;
@@ -188,6 +189,7 @@ class MathFunctionPlotterView extends StatefulWidget {
     this.disablePanning = false,
     this.showGrabCursorForMousePanning = true,
     this.scrollAction = MathFunctionPlotterViewScrollAction.zoom,
+    this.scrollDeltaToZoomRatio = 1 / 200,
     this.graphsWidth = 4,
     this.showAxis = true,
     this.axisColor = Colors.black,
@@ -265,8 +267,8 @@ class _MathFunctionPlotterViewState extends State<MathFunctionPlotterView> {
                   _effectiveController.y -= event.scrollDelta.dy * ySizeRatio;
                 } else if (widget.scrollAction ==
                     MathFunctionPlotterViewScrollAction.zoom) {
-                  // TODO: did not implement zoom correctly *ON Y AXIS*, on x axis it works
-                  final zoomRatio = 1 + (event.scrollDelta.dy / 200);
+                  final zoomRatio =
+                      1 + event.scrollDelta.dy * widget.scrollDeltaToZoomRatio;
                   final zoomPoint = event.localPosition;
                   // x-coordinates
                   final currentLeftWidth = zoomPoint.dx;
@@ -279,8 +281,8 @@ class _MathFunctionPlotterViewState extends State<MathFunctionPlotterView> {
                   _effectiveController.x += newX * xSizeRatio;
                   _effectiveController.xOffset = newXOffset * xSizeRatio;
                   // y-coordinates
-                  final currentUpperHeight = zoomPoint.dy;
-                  final currentLowerHeight = sizeHeight - currentUpperHeight;
+                  final currentLowerHeight = zoomPoint.dy;
+                  final currentUpperHeight = sizeHeight - currentLowerHeight;
                   final newUpperHeight = zoomRatio * currentUpperHeight;
                   final newLowerHeight = zoomRatio * currentLowerHeight;
                   final newY = currentUpperHeight - newUpperHeight;
