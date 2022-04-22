@@ -59,6 +59,19 @@ class _GraphPlotterTestState extends State<GraphPlotterTest> {
       evaluatingFunction: (x) => 7 * pow(0.5, x / 2).toDouble(),
       color: Colors.orange.shade300,
     ),
+    GraphAttributes(
+      name: "x^2 with a gap from [2;-2]",
+      evaluatingFunction: (x) {
+        if (x >= -2 && x <= 2) {
+          return double.nan;
+        } else if (x > 2) {
+          return pow(x - 2, 2).toDouble() + 5.0;
+        } else {
+          return pow(x + 2, 2).toDouble() + 5.0;
+        }
+      },
+      color: Colors.white,
+    ),
     // TODO: function still not compatible
     // MathFunctionAttributes(
     //   evaluatingFunction: (x) {
@@ -68,7 +81,7 @@ class _GraphPlotterTestState extends State<GraphPlotterTest> {
     //     return log(x);
     //   },
     //   name: "ln",
-    //   color: Colors.black,
+    //   color: Colors.white,
     // ),
   ];
 
@@ -145,6 +158,14 @@ class _GraphPlotterTestState extends State<GraphPlotterTest> {
               functionPlotterViewController.update();
             },
             child: const Icon(Icons.remove),
+          ),
+          const SizedBox(width: 8),
+          FloatingActionButton(
+            onPressed: () {
+              functionPlotterViewController.applyZoomRatioToCenter(4 / 3);
+              functionPlotterViewController.update();
+            },
+            child: const Text("16.0"),
           ),
         ],
       ),

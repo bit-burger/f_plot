@@ -28,6 +28,13 @@ class GraphPlotter extends StatefulWidget {
   /// if none is given an internal one will be inserted
   final GraphPlotterController? controller;
 
+  /// quality/resolution of the graphs displayed,
+  /// if null is given, a responsive [GraphsPainterQuality]
+  /// will be computed for the surrounding size of the [GraphPlotter]
+  ///
+  /// see [GraphsPainter.quality] for more information
+  final GraphsPainterQuality? quality;
+
   /// if turned on, panning is disabled and
   /// holding and moving the mouse will do nothing
   final bool disablePanning;
@@ -66,6 +73,7 @@ class GraphPlotter extends StatefulWidget {
   GraphPlotter({
     Key? key,
     this.controller,
+    this.quality,
     this.disablePanning = false,
     this.showGrabCursorForMousePanning = true,
     this.scrollAction = GraphPlotterScrollAction.zoom,
@@ -129,6 +137,13 @@ class _GraphPlotterState extends State<GraphPlotter> {
       builder: (context, constraints) {
         final size = constraints.biggest;
         final sizeWidth = size.width;
+        late final GraphsPainterQuality quality;
+        if (widget.quality != null) {
+          quality = widget.quality!;
+        } else {
+          quality = _automaticQualityForRange(sizeWidth);
+        }
+        print(quality);
         final sizeHeight = size.height;
         return Listener(
           onPointerSignal: (event) {
@@ -203,15 +218,16 @@ class _GraphPlotterState extends State<GraphPlotter> {
               builder: (_, __) {
                 return CustomPaint(
                   painter: GraphsPainter(
+                    x: _effectiveController.x,
+                    y: _effectiveController.y,
+                    xOffset: _effectiveController.xOffset,
+                    yOffset: _effectiveController.yOffset,
+                    quality: quality,
                     labelTextStyle: widget.axisLabelsTextStyle,
                     axisColor: widget.axisColor,
                     axisWidth: widget.axisWidth,
                     graphsWidth: widget.graphsWidth,
                     showAxis: widget.showAxis,
-                    x: _effectiveController.x,
-                    y: _effectiveController.y,
-                    xOffset: _effectiveController.xOffset,
-                    yOffset: _effectiveController.yOffset,
                     graphs: widget.graphs,
                   ),
                 );
@@ -238,5 +254,22 @@ class _GraphPlotterState extends State<GraphPlotter> {
   void dispose() {
     _controller?.dispose();
     super.dispose();
+  }
+
+  /// compute a optimal quality for a given range
+  ///
+  /// beware that this "optimal" quality is opinionated
+  static GraphsPainterQuality _automaticQualityForRange(double range) {
+    if (range > 5000) {
+      return GraphsPainterQuality.extremelyLow;
+    } else if (range > 2500) {
+      return GraphsPainterQuality.veryLow;
+    } else if (range > 1000) {
+      return GraphsPainterQuality.low;
+    } else if (range > 250) {
+      return GraphsPainterQuality.medium;
+    } else {
+      return GraphsPainterQuality.high;
+    }
   }
 }

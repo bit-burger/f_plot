@@ -5,6 +5,63 @@ import './type_defs.dart';
 
 import 'package:flutter/material.dart';
 
+/// quality of the [GraphsPainter],
+/// the higher the quality means
+/// the smaller the distance,
+/// between the computed points on the [GraphsPainter]
+enum GraphsPainterQuality {
+  high,
+  medium,
+  low,
+  veryLow,
+  extremelyLow,
+}
+
+/// some utils for easier handling of the [GraphsPainterQuality] enum
+extension GraphsPainterQualityUtils on GraphsPainterQuality {
+  /// the distance between computed points on the [GraphsPainter],
+  /// for each [GraphsPainterQuality]
+  double getStepSize() {
+    switch (this) {
+      case GraphsPainterQuality.high:
+        return 1.0;
+      case GraphsPainterQuality.medium:
+        return 2.0;
+      case GraphsPainterQuality.low:
+        return 4.0;
+      case GraphsPainterQuality.veryLow:
+        return 6.0;
+      case GraphsPainterQuality.extremelyLow:
+        return 8.0;
+    }
+  }
+
+  /// returns a higher step size, if the [GraphsPainterQuality]
+  /// is [GraphsPainterQuality.high] however,
+  /// [GraphsPainterQuality.extremelyLow] is returned
+  GraphsPainterQuality get next {
+    return before.before.before.before;
+  }
+
+  /// the opposite of [next]
+  GraphsPainterQuality get before {
+    switch (this) {
+      case GraphsPainterQuality.high:
+        return GraphsPainterQuality.medium;
+      case GraphsPainterQuality.medium:
+        return GraphsPainterQuality.low;
+      case GraphsPainterQuality.low:
+        return GraphsPainterQuality.veryLow;
+      case GraphsPainterQuality.veryLow:
+        return GraphsPainterQuality.extremelyLow;
+      case GraphsPainterQuality.extremelyLow:
+        return GraphsPainterQuality.high;
+    }
+  }
+}
+
+
+
 /// paints the given [GraphAttributes] given by [graphs]
 /// in the area specified by: [x], [y], [xOffset] and [yOffset] in a given size
 class GraphsPainter extends CustomPainter {
@@ -13,6 +70,9 @@ class GraphsPainter extends CustomPainter {
 
   /// the width and the high
   final double xOffset, yOffset;
+
+  /// the quality of the [GraphsPainter]
+  final GraphsPainterQuality quality;
 
   /// each graph with their [Color], name and [GraphFunction],
   /// see [GraphAttributes].
@@ -38,6 +98,7 @@ class GraphsPainter extends CustomPainter {
     this.y = 0,
     this.xOffset = 1,
     this.yOffset = 1,
+    this.quality = GraphsPainterQuality.medium,
     required this.graphs,
     this.graphsWidth = 4,
     this.showAxis = true,
@@ -156,6 +217,8 @@ class GraphsPainter extends CustomPainter {
 
   /// paint the graphs, always called in [paint] after [_paintAxisMarking]
   void _paintGraphs(Canvas canvas, Size size) {
+    final sizeXSteps = quality.getStepSize();
+
     final paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = graphsWidth
@@ -175,19 +238,27 @@ class GraphsPainter extends CustomPainter {
       var x = this.x;
       while (sizeX < size.width) {
         final rawY = f(x);
+        // TODO: remove rawY.isInfinite for efficiency
         if (rawY.isNaN || rawY.isInfinite) {
-          if (offsets.length < 2) {
+          if (offsets.isNotEmpty) {
             canvas.drawPoints(ui.PointMode.polygon, offsets, paint);
             offsets.clear();
           }
-          continue;
+        } else {
+          var y = size.height - ((rawY - this.y) / stepSizeY);
+          // TODO: remove in favor of not drawing overflowed points at all
+          if (y < -10) {
+            y = -10;
+          } else if (y > size.height + 10) {
+            y = size.height + 10;
+          }
+          offsets.add(Offset(sizeX, y));
         }
-        final y = size.height - ((rawY - this.y) / stepSizeY);
-        offsets.add(Offset(sizeX, y));
-        sizeX++;
-        x += stepSizeX;
+        sizeX += sizeXSteps;
+        x += stepSizeX * sizeXSteps;
       }
       if (offsets.isNotEmpty) {
+        // TODO: more efficient to use canvas.drawRawPoints
         canvas.drawPoints(ui.PointMode.polygon, offsets, paint);
       }
     }
