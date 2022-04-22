@@ -143,7 +143,6 @@ class _GraphPlotterState extends State<GraphPlotter> {
         } else {
           quality = _automaticQualityForRange(sizeWidth);
         }
-        print(quality);
         final sizeHeight = size.height;
         return Listener(
           onPointerSignal: (event) {
@@ -260,9 +259,11 @@ class _GraphPlotterState extends State<GraphPlotter> {
   ///
   /// beware that this "optimal" quality is opinionated
   static GraphsPainterQuality _automaticQualityForRange(double range) {
-    if (range > 5000) {
-      return GraphsPainterQuality.extremelyLow;
+    if (range > 3000) {
+      return GraphsPainterQuality.lowest;
     } else if (range > 2500) {
+      return GraphsPainterQuality.extremelyLow;
+    } else if (range > 2000) {
       return GraphsPainterQuality.veryLow;
     } else if (range > 1000) {
       return GraphsPainterQuality.low;

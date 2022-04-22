@@ -27,66 +27,81 @@ class GraphPlotterTest extends StatefulWidget {
   State<GraphPlotterTest> createState() => _GraphPlotterTestState();
 }
 
-class _GraphPlotterTestState extends State<GraphPlotterTest> {
-  final graphsA = [
-    GraphAttributes(
-      name: "x^3",
-      color: Colors.blue.shade300,
-      evaluatingFunction: (x) => pow(x, 3) as double,
-    ),
-    GraphAttributes(
-      name: "sin(x) * 2.5 + 20",
-      evaluatingFunction: (x) => sin(x) * 2.5 + 20,
-      color: Colors.red.shade300,
-    ),
-    GraphAttributes(
-      name: "x",
-      evaluatingFunction: (x) => x,
-      color: Colors.green.shade300,
-    ),
-    GraphAttributes(
-      name: "-0.1x^3+x+0.01x^4",
-      evaluatingFunction: (x) => -0.1 * pow(x, 3) + x + 0.01 * pow(x, 4),
-      color: Colors.purple.shade300,
-    ),
-    GraphAttributes(
-      name: "cos(x)*2.5*20",
-      evaluatingFunction: (x) => cos(x) * 2.5 + 20,
-      color: Colors.yellow.shade300,
-    ),
-    GraphAttributes(
-      name: "7*(1/2)^(x/2)",
-      evaluatingFunction: (x) => 7 * pow(0.5, x / 2).toDouble(),
-      color: Colors.orange.shade300,
-    ),
-    GraphAttributes(
-      name: "x^2 with a gap from [2;-2]",
-      evaluatingFunction: (x) {
-        if (x >= -2 && x <= 2) {
-          return double.nan;
-        } else if (x > 2) {
-          return pow(x - 2, 2).toDouble() + 5.0;
-        } else {
-          return pow(x + 2, 2).toDouble() + 5.0;
-        }
-      },
-      color: Colors.white,
-    ),
-    // TODO: function still not compatible
-    // MathFunctionAttributes(
-    //   evaluatingFunction: (x) {
-    //     if (x <= 0) {
-    //       return double.nan;
-    //     }
-    //     return log(x);
-    //   },
-    //   name: "ln",
-    //   color: Colors.white,
-    // ),
-  ];
+final someGraphs = [
+  GraphAttributes(
+    name: "x^3",
+    color: Colors.blue.shade300,
+    evaluatingFunction: (x) => pow(x, 3) as double,
+  ),
+  GraphAttributes(
+    name: "sin(x) * 2.5 + 20",
+    evaluatingFunction: (x) => sin(x) * 2.5 + 20,
+    color: Colors.red.shade300,
+  ),
+  GraphAttributes(
+    name: "x",
+    evaluatingFunction: (x) => x,
+    color: Colors.green.shade300,
+  ),
+  GraphAttributes(
+    name: "-0.1x^3+x+0.01x^4",
+    evaluatingFunction: (x) => -0.1 * pow(x, 3) + x + 0.01 * pow(x, 4),
+    color: Colors.purple.shade300,
+  ),
+  GraphAttributes(
+    name: "cos(x)*2.5*20",
+    evaluatingFunction: (x) => cos(x) * 2.5 + 20,
+    color: Colors.yellow.shade300,
+  ),
+  GraphAttributes(
+    name: "7*(1/2)^(x/2)",
+    evaluatingFunction: (x) => 7 * pow(0.5, x / 2).toDouble(),
+    color: Colors.orange.shade300,
+  ),
+  GraphAttributes(
+    name: "x^2 with a gap from [2;-2]",
+    evaluatingFunction: (x) {
+      if (x >= -2 && x <= 2) {
+        return double.nan;
+      } else if (x > 2) {
+        return pow(x - 2, 2).toDouble() + 5.0;
+      } else {
+        return pow(x + 2, 2).toDouble() + 5.0;
+      }
+    },
+    color: Colors.white,
+  ),
+  // TODO: function still not compatible
+  // MathFunctionAttributes(
+  //   evaluatingFunction: (x) {
+  //     if (x <= 0) {
+  //       return double.nan;
+  //     }
+  //     return log(x);
+  //   },
+  //   name: "ln",
+  //   color: Colors.white,
+  // ),
+];
 
+class _GraphPlotterTestState extends State<GraphPlotterTest> {
+  final graphsA = [...someGraphs];
   final graphsB = <GraphAttributes>[];
   var fromAToB = true;
+
+  GraphsPainterQuality? quality;
+
+  void lowerQuality() {
+    setState(() {
+      if(quality == null) {
+        quality = GraphsPainterQuality.high;
+      } else if(quality == GraphsPainterQuality.extremelyLow) {
+        quality = null;
+      } else {
+        quality = quality!.before;
+      }
+    });
+  }
 
   /// either move first graph from [graphsA] to [graphsB]
   /// or from [graphsB] to [graphsA] depending on [fromAToB].
@@ -125,6 +140,7 @@ class _GraphPlotterTestState extends State<GraphPlotterTest> {
       body: Stack(
         children: [
           GraphPlotter(
+            quality: quality,
             showAxis: true,
             axisWidth: 2.0,
             graphsWidth: 3.0,
@@ -139,12 +155,22 @@ class _GraphPlotterTestState extends State<GraphPlotterTest> {
       floatingActionButton: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          FloatingActionButton.extended(
+            tooltip: "quality",
+            onPressed: lowerQuality,
+            label: Text(
+              quality == null ? "automatic" : quality!.getStepSize().toString(),
+            ),
+          ),
+          const SizedBox(width: 8),
           FloatingActionButton(
+            tooltip: "add or remove function",
             onPressed: addFunction,
             child: const Icon(Icons.functions),
           ),
           const SizedBox(width: 8),
           FloatingActionButton(
+            tooltip: "zoom in",
             onPressed: () {
               functionPlotterViewController.applyZoomRatioToCenter(3 / 4);
               functionPlotterViewController.update();
@@ -153,20 +179,14 @@ class _GraphPlotterTestState extends State<GraphPlotterTest> {
           ),
           const SizedBox(width: 8),
           FloatingActionButton(
+            tooltip: "zoom out",
             onPressed: () {
               functionPlotterViewController.applyZoomRatioToCenter(4 / 3);
               functionPlotterViewController.update();
             },
             child: const Icon(Icons.remove),
           ),
-          const SizedBox(width: 8),
-          FloatingActionButton(
-            onPressed: () {
-              functionPlotterViewController.applyZoomRatioToCenter(4 / 3);
-              functionPlotterViewController.update();
-            },
-            child: const Text("16.0"),
-          ),
+
         ],
       ),
     );

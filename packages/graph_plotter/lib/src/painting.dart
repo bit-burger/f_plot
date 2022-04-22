@@ -15,6 +15,7 @@ enum GraphsPainterQuality {
   low,
   veryLow,
   extremelyLow,
+  lowest,
 }
 
 /// some utils for easier handling of the [GraphsPainterQuality] enum
@@ -28,10 +29,12 @@ extension GraphsPainterQualityUtils on GraphsPainterQuality {
       case GraphsPainterQuality.medium:
         return 2.0;
       case GraphsPainterQuality.low:
-        return 4.0;
+        return 3.0;
       case GraphsPainterQuality.veryLow:
-        return 6.0;
+        return 4.0;
       case GraphsPainterQuality.extremelyLow:
+        return 6.0;
+      case GraphsPainterQuality.lowest:
         return 8.0;
     }
   }
@@ -55,6 +58,8 @@ extension GraphsPainterQualityUtils on GraphsPainterQuality {
       case GraphsPainterQuality.veryLow:
         return GraphsPainterQuality.extremelyLow;
       case GraphsPainterQuality.extremelyLow:
+        return GraphsPainterQuality.lowest;
+      case GraphsPainterQuality.lowest:
         return GraphsPainterQuality.high;
     }
   }
