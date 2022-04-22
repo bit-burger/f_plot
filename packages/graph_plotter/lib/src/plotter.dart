@@ -1,8 +1,8 @@
 import 'dart:ui' as ui;
 
-import './controller.dart';
-import './type_defs.dart';
-import './painting.dart';
+import 'controller.dart';
+import 'type_defs.dart';
+import 'painting.dart';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';

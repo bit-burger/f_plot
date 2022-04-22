@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
-import './type_defs.dart';
+import 'type_defs.dart';
 
 import 'package:flutter/material.dart';
 
