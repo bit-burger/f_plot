@@ -3,7 +3,7 @@ import 'package:test/test.dart';
 
 void main() {
   final context = ParserContext({"fnc": 3, "f": 1}, {"a", "b", "c"});
-  final parser = RegularStringExpressionParser();
+  final parser = StringExpressionParser();
 
   test('simple variable', () {
     expect(
@@ -22,21 +22,21 @@ void main() {
   test('variable does not exist', () {
     expect(
       () => parser.parse("a + d", context),
-      throwsA(TypeMatcher<ParseError>()),
+      throwsA(TypeMatcher<StringExpressionParseError>()),
     );
   });
 
   test('function does not exist', () {
     expect(
       () => parser.parse("fnc(asdf, asdf) + func(asdf, asdf)", context),
-      throwsA(TypeMatcher<ParseError>()),
+      throwsA(TypeMatcher<StringExpressionParseError>()),
     );
   });
 
   test('function has wrong number of parameters', () {
     expect(
       () => parser.parse("fnc(asdf, asdf)", context),
-      throwsA(TypeMatcher<ParseError>()),
+      throwsA(TypeMatcher<StringExpressionParseError>()),
     );
   });
 }

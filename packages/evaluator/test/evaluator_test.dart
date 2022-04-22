@@ -8,7 +8,7 @@ EvaluatorFunction evaluate(
   String s, [
   EvaluatorContext c = const EvaluatorContext(),
 ]) {
-  final parser = RegularStringExpressionParser();
+  final parser = StringExpressionParser();
   final parsed = parser.parse(s);
   return expressionToEvaluatorFunction(parsed, c);
 }

@@ -1,24 +1,24 @@
-import 'package:expressions/src/errors.dart';
-import 'package:expressions/src/expression.dart';
-import 'package:expressions/src/parser.dart';
+import '../../expressions/expression.dart';
+import '../parser.dart';
 
-// TODO: operator only one long, to allow: a*-b
+part 'error.dart';
+part 'options.dart';
 
 /// implements [ExpressionParser] to parse strings to expressions.
 ///
-/// throws [ParseError]s
-class RegularStringExpressionParser implements ExpressionParser<String> {
-  final RegularStringExpressionParserOptions _options;
+/// throws [StringExpressionParseError] on an error
+class StringExpressionParser implements ExpressionParser<String> {
+  final StringExpressionParserOptions _options;
 
-  RegularStringExpressionParser({RegularStringExpressionParserOptions? options})
-      : _options = options ?? RegularStringExpressionParserOptions();
+  StringExpressionParser({StringExpressionParserOptions? options})
+      : _options = options ?? StringExpressionParserOptions();
 
   /// throws an error if a variable identifier is used,
   /// that is not in the [SetParserContext] (if there is a context)
   void checkVariable(String s, int begin, int end, ParserContext? c) {
     final v = s.substring(begin, end);
     if (!(c?.variableAllowed(v) ?? true)) {
-      throw ParseError("variable '$v' unknown", begin, end);
+      throw StringExpressionParseError("variable '$v' unknown", begin, end);
     }
   }
 
@@ -36,9 +36,9 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
     if (c != null) {
       final allowedParameterCount = c.allowedFunctionParameterCount(f);
       if (allowedParameterCount == null) {
-        throw ParseError("function '$f' unknown", begin, nameEnd);
+        throw StringExpressionParseError("function '$f' unknown", begin, nameEnd);
       } else if (functionParameterCount != allowedParameterCount) {
-        throw ParseError(
+        throw StringExpressionParseError(
           "function '$f' should be called with "
           "$allowedParameterCount parameter"
           "${allowedParameterCount > 1 ? "s" : ""}, it was instead called with "
@@ -55,7 +55,7 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
   void checkIdentifier(String s, int begin, int end) {
     for (var i = begin; i < end; i++) {
       if (!isIdentifierChar(s[i])) {
-        throw ParseError("an identifier cannot contain '${s[i]}'", begin);
+        throw StringExpressionParseError("an identifier cannot contain '${s[i]}'", begin);
       }
     }
   }
@@ -66,11 +66,11 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
     for (var i = begin; i < end; i++) {
       if (s[i] == ".") {
         if (afterDecimalSeparator) {
-          throw ParseError("one number cannot contain 2 decimal separators", i);
+          throw StringExpressionParseError("one number cannot contain 2 decimal separators", i);
         }
         afterDecimalSeparator = true;
       } else if (!isNumberChar(s[i])) {
-        throw ParseError(
+        throw StringExpressionParseError(
             "a decimal number cannot contain the character '${s[i]}'", i);
       }
     }
@@ -101,7 +101,7 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
   /// the higher the int the lower the precedence.
   ///
   /// uses
-  /// [RegularStringExpressionParserOptions.defaultOperatorsWithPrecedence]
+  /// [StringExpressionParserOptions.defaultOperatorsWithPrecedence]
   /// to get the precedence from the operators given by [_options].
   ///
   /// will also throw error if the operator is not valid
@@ -115,7 +115,7 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
         return precedence;
       }
     }
-    throw ParseError("operator '${s[operatorIndex]}' not valid", operatorIndex);
+    throw StringExpressionParseError("operator '${s[operatorIndex]}' not valid", operatorIndex);
   }
 
   /// gives the list of expressions found inside of a function call.
@@ -135,10 +135,10 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
       end--;
     }
     if (s[begin] == ",") {
-      throw ParseError("comma cannot be in front of function arguments", begin);
+      throw StringExpressionParseError("comma cannot be in front of function arguments", begin);
     }
     if (s[end - 1] == ",") {
-      throw ParseError("comma cannot be in back of function arguments", begin);
+      throw StringExpressionParseError("comma cannot be in back of function arguments", begin);
     }
     var brackets = 0;
     final expressions = <Expression>[];
@@ -179,14 +179,14 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
           bracketsBegin = i;
           break;
         } else if (!isIdentifierChar(s[i])) {
-          throw ParseError("an identifier cannot contain '${s[i]}'", i);
+          throw StringExpressionParseError("an identifier cannot contain '${s[i]}'", i);
         }
       } else {
         if (s[i] == "(") {
           bracketsBegin = i;
           break;
         } else if (!isWhitespaceChar(s[i])) {
-          throw ParseError(
+          throw StringExpressionParseError(
               "between the function name and its arguments list, "
               "which is in brackets, "
               "only whitespace is permitted",
@@ -224,7 +224,7 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
       checkNumber(s, begin, end);
       return Number(double.parse(s.substring(begin, end)));
     } else {
-      throw ParseError("character '${s[begin]}' not expected here", begin);
+      throw StringExpressionParseError("character '${s[begin]}' not expected here", begin);
     }
   }
 
@@ -280,7 +280,7 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
         continue;
       } else {
         if (char == ")") {
-          throw ParseError("one closing bracket too much", i);
+          throw StringExpressionParseError("one closing bracket too much", i);
         } else if (char == "(") {
           braces++;
         }
@@ -293,7 +293,7 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
       } else {
         if (isOperatorChar(char)) {
           if (char != _options.negationOperator) {
-            throw ParseError(
+            throw StringExpressionParseError(
                 "a second operand was expected, not another operator", i);
           }
         } else if (!isWhitespaceChar(char)) {
@@ -308,14 +308,14 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
       }
     }
     if (operatorOpen) {
-      throw ParseError(
+      throw StringExpressionParseError(
           "operator '${s[currentOperatorIndex]}' needs a right operand", end);
     }
     if (firstNonWhitespaceIndex == -1) {
-      throw ParseError("expression expected", begin, end);
+      throw StringExpressionParseError("expression expected", begin, end);
     }
     if (braces > 0) {
-      throw ParseError("closing brace missing", end - 1);
+      throw StringExpressionParseError("closing brace missing", end - 1);
     }
     if (lowestPrecedenceOperatorIndex == -1) {
       return implicitOperatorParse(s, firstNonWhitespaceIndex, end, c);
@@ -325,7 +325,7 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
         return NegateOperator(
             operatorParse(s, firstNonWhitespaceIndex + 1, end, c));
       } else {
-        throw ParseError(
+        throw StringExpressionParseError(
             "expected operand before operator", lowestPrecedenceOperatorIndex);
       }
     }
@@ -352,91 +352,5 @@ class RegularStringExpressionParser implements ExpressionParser<String> {
   @override
   Expression parse(String rawExpression, [ParserContext? c]) {
     return operatorParse(rawExpression, 0, rawExpression.length, c);
-  }
-}
-
-/// options for the [RegularStringExpressionParser]
-class RegularStringExpressionParserOptions {
-  /// all characters that should be allowed for identifiers,
-  /// like function names and variables
-  ///
-  /// no character should be:
-  ///   1. a number
-  ///   2. a character contained a operator from [operatorsWithPrecedence]
-  ///   3. whitespace (spaces, line breaks, tabs)
-  ///   4. repeated
-  final String identifierCharacters;
-
-  /// all characters that should be allowed for identifiers in a [Set],
-  /// generated from [identifierCharacters]
-  final Set<String> identifierCharactersSet;
-
-  /// all characters that should be allowed for operators in a [Set],
-  /// generated from [operatorsWithPrecedence]
-  final Set<String> operatorCharactersSet;
-
-  /// all operators that are allowed.
-  ///
-  /// each string [Set] inside of the [operatorsWithPrecedence],
-  /// represents one precedence,
-  /// meaning that those operators inside of that [Set],
-  /// are given the same precedence.
-  ///
-  /// the last string [Set] inside of [operatorsWithPrecedence],
-  /// has the lowest precedence.
-  ///
-  /// per default this is the last [Set]: {'+', '-'} and
-  /// the first string [Set] (which therefore has the highest precedence),
-  /// is per default this: {'^'}
-  ///
-  /// each operator should only be inside of [operatorsWithPrecedence] once,
-  /// no character of any operator should be:
-  ///   1. a number
-  ///   2. a character which is contained in identifier characters
-  ///   3. whitespace (spaces, line breaks, tabs)
-  ///   4. no longer than one character
-  final List<Set<String>> operatorsWithPrecedence;
-
-  /// the implicit operator that should be used, such as (a)(b) or func(a)(b).
-  ///
-  /// if null is given as the [implicitOperator],
-  /// then implicit operators are disabled
-  ///
-  /// the [implicitOperator] should be contained
-  /// inside of the [operatorsWithPrecedence]
-  final String? implicitOperator; // TODO: implicit operators not yet supported
-
-  /// the operator that is used for negating, the default is '-'
-  ///
-  /// the [implicitOperator] should be contained
-  /// inside of the [operatorsWithPrecedence]
-  final String negationOperator;
-
-  RegularStringExpressionParserOptions({
-    this.identifierCharacters = defaultIdentifierCharacters,
-    this.operatorsWithPrecedence = defaultOperatorsWithPrecedence,
-    this.implicitOperator = "*",
-    this.negationOperator = "-",
-  })  : identifierCharactersSet = <String>{}
-          ..addAll(identifierCharacters.split("")),
-        operatorCharactersSet =
-            _twoDimensionalStringListToCharSet(operatorsWithPrecedence);
-
-  static const defaultIdentifierCharacters =
-      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  static const defaultOperatorsWithPrecedence = [
-    {"^"},
-    {"*", "/"},
-    {"+", "-"},
-  ];
-
-  /// converts a two dimensional string list into a [String],
-  /// where each character of the string list is only allowed to be contained once
-  static Set<String> _twoDimensionalStringListToCharSet(List<Set<String>> ls) {
-    final chars = <String>{};
-    for (var s in ls) {
-      chars.addAll(s);
-    }
-    return chars;
   }
 }

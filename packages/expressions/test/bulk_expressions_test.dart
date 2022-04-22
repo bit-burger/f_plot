@@ -33,14 +33,14 @@ final validExpressions = [
 ];
 
 void main() {
-  final parser = RegularStringExpressionParser();
+  final parser = StringExpressionParser();
 
   test("invalid expressions", () {
     for (final expression in invalidExpressions) {
       try {
         parser.parse(expression);
         fail("no error found on invalid expression '$expression'");
-      } on ParseError catch (e) {
+      } on StringExpressionParseError catch (e) {
         print("$expression        |        $e");
       }
     }

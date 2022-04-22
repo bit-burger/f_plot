@@ -4,7 +4,7 @@ import 'package:expressions/expressions.dart';
 import 'package:test/test.dart';
 
 void main() {
-  final parser = RegularStringExpressionParser();
+  final parser = StringExpressionParser();
 
   group('values', () {
     test('number', () {
