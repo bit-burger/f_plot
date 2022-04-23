@@ -339,26 +339,55 @@ void main() {
     });
 
     test("complex function insert", () {
+      // use the function 'f' for insertion and for calling,
+      // as it is called with variables and with numbers
+
+      // first expect by giving the context a insertion function
+      // and a resolving function for 'f'
+
+      // second expect by giving the context only the insertion function
+
+      // both tests should result in the same Expression been given back
       final expression = parser.parse("-\n- f (x, timesFour(f(2, 4)) + pi)");
-      expect(
-        expression.resolve(
-          ResolveContext.custom(
-            functions: {
-              "timesFour": (l) => 4 * l[0],
-              "f": (l) => l[0] + 2 * l[1],
-            },
-            insertFunctions: {
-              "f": ExpressionInsertFunction(
-                expression: parser.parse("x + 2*y"),
-                parameterNames: ["x", "y"],
-              ),
-            },
-            variables: {
-              "pi": pi,
-            },
-          ),
+      final contextFunctions = {
+        "timesFour": (List<double> l) => 4 * l[0],
+        "f": (List<double> l) => l[0] + 2 * l[1],
+      };
+      final contextInsertFunctions = {
+        "f": ExpressionInsertFunction(
+          expression: parser.parse("x + 2*y"),
+          parameterNames: ["x", "y"],
         ),
-        parser.parse("x + 2*(40 + $pi)").simplify(),
+      };
+      final contextVariables = {
+        "pi": pi,
+      };
+
+      final expected = parser.parse("x + 2*(40 + $pi)").simplify();
+      // with insertion function and resolving function for 'f'
+      expect(
+        expression.copy().resolve(
+              ResolveContext.custom(
+                functions: contextFunctions,
+                insertFunctions: contextInsertFunctions,
+                variables: contextVariables,
+              ),
+            ),
+        expected,
+      );
+      // only with insertion function for 'f'
+      expect(
+        expression.copy().resolve(
+              ResolveContext.custom(
+                functions: contextFunctions
+                  ..removeWhere(
+                    (key, value) => key == "f",
+                  ),
+                insertFunctions: contextInsertFunctions,
+                variables: contextVariables,
+              ),
+            ),
+        expected,
       );
     });
   });
