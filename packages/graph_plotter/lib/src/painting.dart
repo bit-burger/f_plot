@@ -232,7 +232,7 @@ class GraphsPainter extends CustomPainter {
       );
     if (stepSize < 1) {
       paragraphBuilder.addText(step.toStringAsFixed(stepSizeFractionDigits));
-    } else if (step >= 100000) {
+    } else if (step >= 100000 || step <= -100000) {
       paragraphBuilder.addText(step.toStringAsExponential(6));
     } else {
       paragraphBuilder.addText(step.toInt().toString());
