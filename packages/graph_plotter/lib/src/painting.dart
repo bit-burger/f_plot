@@ -223,11 +223,9 @@ class GraphsPainter extends CustomPainter {
     double y,
     bool horizontal,
   ) {
-
     final paragraphBuilder = ui.ParagraphBuilder(
       ui.ParagraphStyle(textAlign: ui.TextAlign.center),
-    )
-      ..pushStyle(
+    )..pushStyle(
         labelTextStyle,
       );
     if (stepSize < 1) {
