@@ -65,8 +65,6 @@ extension GraphsPainterQualityUtils on GraphsPainterQuality {
   }
 }
 
-
-
 /// paints the given [GraphAttributes] given by [graphs]
 /// in the area specified by: [x], [y], [xOffset] and [yOffset] in a given size
 class GraphsPainter extends CustomPainter {
@@ -137,11 +135,20 @@ class GraphsPainter extends CustomPainter {
         paint,
       );
       final yAxisStepSize = computeAxisStepSize(yOffset);
+      final yAxisStepSizeFractionDigits = yAxisStepSize.toString().length - 2;
       final yStepOfYAxis = yAxisStepSize / stepSizeY;
       var currentYAxisStep = yAxisStepSize;
       for (var y = yOfZeroX - yStepOfYAxis; y >= 0; y -= yStepOfYAxis) {
         _paintAxisMarking(
-            canvas, paint, currentYAxisStep.toString(), xOfZeroY, y, true);
+          canvas,
+          paint,
+          currentYAxisStep,
+          yAxisStepSize,
+          yAxisStepSizeFractionDigits,
+          xOfZeroY,
+          y,
+          true,
+        );
         currentYAxisStep += yAxisStepSize;
       }
       currentYAxisStep = -yAxisStepSize;
@@ -149,7 +156,15 @@ class GraphsPainter extends CustomPainter {
           y <= size.height;
           y += yStepOfYAxis) {
         _paintAxisMarking(
-            canvas, paint, currentYAxisStep.toString(), xOfZeroY, y, true);
+          canvas,
+          paint,
+          currentYAxisStep,
+          yAxisStepSize,
+          yAxisStepSizeFractionDigits,
+          xOfZeroY,
+          y,
+          true,
+        );
         currentYAxisStep -= yAxisStepSize;
       }
     }
@@ -161,41 +176,68 @@ class GraphsPainter extends CustomPainter {
         paint,
       );
       final xAxisStepSize = computeAxisStepSize(xOffset);
+      final yAxisStepSizeFractionDigits = xAxisStepSize.toString().length - 2;
       final xStepOfXAxis = xAxisStepSize / stepSizeX;
       var currentXAxisStep = xAxisStepSize;
       for (var x = xOfZeroY + xStepOfXAxis;
           x <= size.width;
           x += xStepOfXAxis) {
         _paintAxisMarking(
-            canvas, paint, currentXAxisStep.toString(), x, yOfZeroX, false);
+          canvas,
+          paint,
+          currentXAxisStep,
+          xAxisStepSize,
+          yAxisStepSizeFractionDigits,
+          x,
+          yOfZeroX,
+          false,
+        );
         currentXAxisStep += xAxisStepSize;
       }
       currentXAxisStep = -xAxisStepSize;
       for (var x = xOfZeroY - xStepOfXAxis; x >= 0; x -= xStepOfXAxis) {
         _paintAxisMarking(
-            canvas, paint, currentXAxisStep.toString(), x, yOfZeroX, false);
+          canvas,
+          paint,
+          currentXAxisStep,
+          xAxisStepSize,
+          yAxisStepSizeFractionDigits,
+          x,
+          yOfZeroX,
+          false,
+        );
         currentXAxisStep -= xAxisStepSize;
       }
     }
   }
 
-  /// paint an axis marking reading [label] at ([x]|[y]) on the canvas,
+  /// paint an axis marking reading [step] at ([x]|[y]) on the canvas,
   /// uses [horizontal] to determine if on the x-axis or y-axis
   void _paintAxisMarking(
     ui.Canvas canvas,
     ui.Paint linePaint,
-    String label,
+    double step,
+    double stepSize,
+    int stepSizeFractionDigits,
     double x,
     double y,
     bool horizontal,
   ) {
+
     final paragraphBuilder = ui.ParagraphBuilder(
       ui.ParagraphStyle(textAlign: ui.TextAlign.center),
     )
       ..pushStyle(
         labelTextStyle,
-      )
-      ..addText(label);
+      );
+    if (stepSize < 1) {
+      paragraphBuilder.addText(step.toStringAsFixed(stepSizeFractionDigits));
+    } else if (step >= 100000) {
+      paragraphBuilder.addText(step.toStringAsExponential(6));
+    } else {
+      paragraphBuilder.addText(step.toInt().toString());
+    }
+
     final paragraph = paragraphBuilder.build();
 
     paragraph.layout(
@@ -298,8 +340,9 @@ class GraphsPainter extends CustomPainter {
   ///
   /// if axisRange >= 5 the step size is 1,
   /// if the axisRange >= 10 the step size is 2, etc...
+  // TODO: also take size (width/height) of GraphsPainter into account
   static double computeAxisStepSize(double axisRange) {
-    // rawStepSize * 10^e is the axisStepSize
+    // rawStepSize * 10^e is the axis step size that will be computed
     var e = 0;
     var rawStepSize = 1; // either 1, 2 or 5
     if (axisRange >= 5) {
@@ -316,10 +359,10 @@ class GraphsPainter extends CustomPainter {
         }
         rawStepSize = _nextStepSize(_nextStepSize(rawStepSize));
       }
-      if (rawStepSize == 5 || rawStepSize == 2) {
+      if (rawStepSize == 5) {
         e++;
       }
-      rawStepSize = _nextStepSize(_nextStepSize(rawStepSize));
+      rawStepSize = _nextStepSize(rawStepSize);
     }
     return rawStepSize * math.pow(10, e).toDouble();
   }
