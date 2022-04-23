@@ -48,7 +48,10 @@ void main() {
 
   test("valid expressions", () {
     for (final expression in validExpressions) {
-      expect(parser.parse(expression), isNotNull);
+      expect(
+        parser.parse(expression),
+        parser.parse(parser.parse(expression).toString()),
+      );
     }
   });
 }
