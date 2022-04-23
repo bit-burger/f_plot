@@ -213,21 +213,21 @@ void main() {
   group("simplifying", () {
     test("adding numbers", () {
       expect(
-        parser.parse("2 + 2").simplifyWithDefaults(),
+        parser.parse("2 + 2").simplify(),
         Number(4),
       );
     });
 
     test("more complicated arithmetic", () {
       expect(
-        parser.parse("2*4^2. + -2").simplifyWithDefaults(),
+        parser.parse("2*4^2. + -2").simplify(),
         Number(30),
       );
     });
 
     test("negation simplifying", () {
       expect(
-        parser.parse("-(-a-b)").simplifyWithDefaults(),
+        parser.parse("-(-a-b)").simplify(),
         OperatorCall("+", Variable("a"), Variable("b")),
       );
     });
@@ -253,7 +253,7 @@ void main() {
         ),
       );
       expect(
-        e.simplify(SimplifyContext.customFunctions({"func": (l) => 0})),
+        e.resolve(ResolveContext.custom(functions: {"func": (l) => 0})),
         FunctionCall(
           "func",
           [
@@ -294,9 +294,9 @@ void main() {
         ),
       );
       expect(
-        e.simplify(
-          SimplifyContext.customFunctions(
-            {
+        e.resolve(
+          ResolveContext.custom(
+            functions: {
               "sqrt": (l) => sqrt(l[0]),
               "pow": (l) {
                 return pow(l[0], l[1]) as double;
@@ -305,6 +305,60 @@ void main() {
           ),
         ),
         Number(625 / 2),
+      );
+    });
+
+    test("insert into variables", () {
+      final a = OperatorCall(
+        "+",
+        Variable("x"),
+        Variable("l"),
+      );
+      final b = OperatorCall(
+        "*",
+        OperatorCall(
+          "^",
+          Variable("f"),
+          Number(1),
+        ),
+        Number(6),
+      );
+      final expression = parser.parse("- asdf(a, 2*b)");
+      expect(
+        expression.copyWithInsertVariables({"a": a, "b": b}),
+        NegateOperator(
+          FunctionCall(
+            "asdf",
+            [
+              a,
+              OperatorCall("*", Number(2), b),
+            ],
+          ),
+        ),
+      );
+    });
+
+    test("complex function insert", () {
+      final expression = parser.parse("-\n- f (x, timesFour(f(2, 4)) + pi)");
+      expect(
+        expression.resolve(
+          ResolveContext.custom(
+            functions: {
+              "timesFour": (l) => 4 * l[0],
+              "f": (l) => l[0] + 2 * l[1],
+            },
+            insertFunctions: {
+              "f": ExpressionInsertFunction(
+                expression: parser.parse("x + 2*y"),
+                parameterNames: ["x", "y"],
+              ),
+            },
+            variables: {
+              "pi": pi,
+            },
+          ),
+        ),
+        parser.parse("x + 2*(40 + $pi)").simplify(),
       );
     });
   });

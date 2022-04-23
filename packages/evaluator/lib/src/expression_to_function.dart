@@ -21,7 +21,7 @@ import 'package:expressions/expressions.dart';
 ///
 /// please also note that [expressionToEvaluatorFunction] does not simplify
 /// the functions, to achieve the most efficient functions,
-/// use [Expression.simplify] to first get a simplified function
+/// use [Expression.resolve] to first get a simplified function
 ///
 /// to evaluate [FunctionCall]s that should reference other [Expression]s,
 /// use [Expression.insert]

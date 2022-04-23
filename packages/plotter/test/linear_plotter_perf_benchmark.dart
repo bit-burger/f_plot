@@ -7,19 +7,19 @@ import 'package:plotter/src/linear_plotter.dart';
 void main() async {
   late final LinearPlotter plotter;
   {
-    final parser = RegularStringExpressionParser();
+    final parser = StringExpressionParser();
     final EvaluatorFunction functionA, functionB;
     {
       const rawFunctionA = "(1/4)*x^3 + 12*x^5";
       var functionExpressionA = parser.parse(rawFunctionA);
-      functionExpressionA = functionExpressionA.simplifyWithDefaults();
+      functionExpressionA = functionExpressionA.simplify();
       functionA = expressionToEvaluatorFunction(functionExpressionA);
     }
     {
       const rawFunctionB = "(1/4)*x^3 + 12*x^5 + sqrt(sqrt(x))*(x^x) "
           "+ x*x*x*x - x*x*x*x*x +x*x*x*x*x*x -x*x*x*x*x";
       var functionExpressionB = parser.parse(rawFunctionB);
-      functionExpressionB = functionExpressionB.simplifyWithDefaults();
+      functionExpressionB = functionExpressionB.simplify();
       functionB = expressionToEvaluatorFunction(
         functionExpressionB,
         EvaluatorContext(

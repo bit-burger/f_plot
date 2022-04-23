@@ -1,85 +1,27 @@
-import 'dart:math' as math;
-
-typedef SimplifyFunction = double Function(List<double> values);
-typedef SimplifyOperator = double Function(double val1, double val2);
-
-class _CustomSimplifyContext extends _CustomFunctionsSimplifyContext {
-  final Map<String, SimplifyOperator> operators;
-
-  const _CustomSimplifyContext(
-      Map<String, SimplifyFunction> functions, this.operators)
-      : super(functions);
-}
-
-class _CustomFunctionsSimplifyContext extends _DefaultSimplifyContext {
-  final Map<String, SimplifyFunction> functions;
-
-  const _CustomFunctionsSimplifyContext([this.functions = const {}]);
-
-  @override
-  double? callFunction(String name, List<double> values) {
-    return functions[name]?.call(values);
-  }
-}
-
-class _DefaultSimplifyContext implements SimplifyContext {
-  const _DefaultSimplifyContext();
-
-  @override
-  double? callFunction(String name, List<double> values) => null;
-
-  @override
-  double? callOperator(String operator, double operand1, double operand2) {
-    switch (operator) {
-      case "+":
-        return operand1 + operand2;
-      case "-":
-        return operand1 - operand2;
-      case "*":
-        return operand1 * operand2;
-      case "/":
-        return operand1 / operand2;
-      case "^":
-        return math.pow(operand1, operand2) as double;
-    }
-  }
-}
-
-/// a context for simplifying an expression,
-/// if a function or an operator is called exclusively with literals,
-/// the appropriate function or operator will be called.
-///
-/// if the result of that call is not null, the [Expression.simplify] call,
-/// will give back a [Number] instead of itself
-abstract class SimplifyContext {
-  double? callFunction(String name, List<double> values);
-  double? callOperator(String operator, double operand1, double operand2);
-
-  const factory SimplifyContext.defaults() = _DefaultSimplifyContext;
-
-  const factory SimplifyContext.customFunctions(
-          Map<String, SimplifyFunction> functions) =
-      _CustomFunctionsSimplifyContext;
-
-  factory SimplifyContext.custom(Map<String, SimplifyFunction> functions,
-      Map<String, SimplifyOperator> operators) = _CustomSimplifyContext;
-}
+import 'package:expressions/src/expressions/resolve_context.dart';
 
 /// represents a mathematical expression
 abstract class Expression {
   Set<String> get referencedVariables;
   Set<String> get referencedFunctions;
 
-  Expression simplifyWithDefaults() {
-    return simplify(const _DefaultSimplifyContext());
+  /// resolve with defaults
+  Expression simplify() {
+    return resolve(const ResolveContext.defaults());
   }
 
+  /// the [Expression] will resolve and simplify itself as much as possible,
+  /// with the functions and variables given by [c].
+  ///
   /// the [Expression] will modify itself (and give itself back)
-  /// or give back an alternative expression,
-  /// in both cases the given back expression will try to be simplified
-  Expression simplify(SimplifyContext c);
+  /// or give back an alternative expression
+  Expression resolve(ResolveContext c);
 
-  /// all methods under [simplify],
+  /// copies the [Expression]s by [variables] into the correct variables
+  /// of a copied version of the current expressio
+  Expression copyWithInsertVariables(Map<String, Expression> variables);
+
+  /// all methods under [resolve],
   /// expect [Expression] to already have been simplified
 
   /// returns true on a negative [Number], a [NegateOperator] and
@@ -98,9 +40,8 @@ abstract class Expression {
   /// else it will throw a [UnimplementedError]
   double numberValue();
 
-  // void insert(); TODO
-
-  // double eval(Map<String, double> values); TODO
+  /// exact copy of [Expression]
+  Expression copy();
 }
 
 /// represents a number literal with the value of [value]
@@ -114,6 +55,9 @@ class Number extends Expression {
 
   @override
   String toString() {
+    if (value.toInt().compareTo(value) == 0) {
+      return value.toInt().toString();
+    }
     return value.toString();
   }
 
@@ -124,7 +68,7 @@ class Number extends Expression {
   Set<String> get referencedVariables => {};
 
   @override
-  Expression simplify(SimplifyContext c) => this;
+  Expression resolve(ResolveContext c) => this;
 
   @override
   bool isNegative() => value.isNegative;
@@ -140,6 +84,12 @@ class Number extends Expression {
 
   @override
   double numberValue() => value;
+
+  @override
+  Expression copyWithInsertVariables(Map<String, Expression> variables) => copy();
+
+  @override
+  Expression copy() => Number(value);
 }
 
 /// represents a variable reference with the variable name being [name]
@@ -163,7 +113,13 @@ class Variable extends Expression {
   Set<String> get referencedVariables => {name};
 
   @override
-  Expression simplify(SimplifyContext c) => this;
+  Expression resolve(ResolveContext c) {
+    final substituteValue = c.getVariableValue(name);
+    if (substituteValue != null) {
+      return Number(substituteValue);
+    }
+    return this;
+  }
 
   @override
   bool isNegative() => false;
@@ -176,6 +132,13 @@ class Variable extends Expression {
 
   @override
   double numberValue() => throw UnimplementedError();
+
+  @override
+  Expression copyWithInsertVariables(Map<String, Expression> variables) =>
+      variables[name]?.copy() ?? copy();
+
+  @override
+  Expression copy() => Variable(name);
 }
 
 /// represents a function call, such as f(1).
@@ -218,11 +181,16 @@ class FunctionCall extends Expression {
   }
 
   @override
-  Expression simplify(SimplifyContext c) {
+  Expression resolve(ResolveContext c) {
+    // first resolve all arguments
     arguments = arguments
-        .map((expression) => expression.simplify(c))
+        .map((expression) => expression.resolve(c))
         .toList(growable: false);
-    if (arguments.every((expression) => expression.isNumber())) {
+    // check if all arguments were resolved to numbers
+    final allArgumentsNumber =
+        arguments.every((expression) => expression.isNumber());
+    if (allArgumentsNumber) {
+      // if all arguments are a number, try to call a function
       final result = c.callFunction(
         name,
         arguments
@@ -233,7 +201,11 @@ class FunctionCall extends Expression {
         return Number(result);
       }
     }
-    return this;
+    // if function exists as an Expression, return the inserted function,
+    // else return the current FunctionCall
+    // (which is however modified, see first comment)
+    final insertFunctionResult = c.insertFunction(name, arguments);
+    return insertFunctionResult?.resolve(c) ?? this;
   }
 
   @override
@@ -247,6 +219,24 @@ class FunctionCall extends Expression {
 
   @override
   double numberValue() => throw UnimplementedError();
+
+  @override
+  Expression copyWithInsertVariables(Map<String, Expression> variables) {
+    final expressionCopy = copy();
+    expressionCopy.arguments = expressionCopy.arguments
+        .map((expression) => expression.copyWithInsertVariables(variables))
+        .toList(growable: false);
+    return expressionCopy;
+  }
+
+  // needs to be of type FunctionCall, so copyInsertVariables can use its result
+  @override
+  FunctionCall copy() => FunctionCall(
+        name,
+        arguments
+            .map((expression) => expression.copy())
+            .toList(growable: false),
+      );
 }
 
 bool _listsAreEqual<T>(List<T> a, List<T> b) {
@@ -286,26 +276,26 @@ class OperatorCall extends Expression {
       expression1.referencedVariables.union(expression2.referencedVariables);
 
   @override
-  Expression simplify(SimplifyContext c) {
-    final e1 = expression1.simplify(c);
-    final e2 = expression2.simplify(c);
-    if (e1.isNumber() && e2.isNumber()) {
-      final n1 = e1.numberValue();
-      final n2 = e2.numberValue();
+  Expression resolve(ResolveContext c) {
+    expression1 = expression1.resolve(c);
+    expression2 = expression2.resolve(c);
+    if (expression1.isNumber() && expression2.isNumber()) {
+      final n1 = expression1.numberValue();
+      final n2 = expression2.numberValue();
       final result = c.callOperator(operator, n1, n2);
       if (result != null) {
         return Number(result);
       }
     }
     if (operator == "/" || operator == "*") {
-      if (e1.isNegative() && e2.isNegative()) {
-        expression1 = e1.negated();
-        expression2 = e2.negated();
+      if (expression1.isNegative() && expression2.isNegative()) {
+        expression1 = expression1.negated();
+        expression2 = expression2.negated();
       }
     } else if (operator == "-" || operator == "+") {
-      if (e2.isNegative()) {
-        expression1 = e1;
-        expression2 = e2.negated();
+      if (expression2.isNegative()) {
+        expression1 = expression1;
+        expression2 = expression2.negated();
         operator = operator == "+" ? "-" : "+";
       }
     }
@@ -346,6 +336,21 @@ class OperatorCall extends Expression {
 
   @override
   double numberValue() => throw UnimplementedError();
+
+  @override
+  Expression copyWithInsertVariables(Map<String, Expression> variables) =>
+      OperatorCall(
+        operator,
+        expression1.copyWithInsertVariables(variables),
+        expression2.copyWithInsertVariables(variables),
+      );
+
+  @override
+  Expression copy() => OperatorCall(
+        operator,
+        expression1.copy(),
+        expression2.copy(),
+      );
 }
 
 /// negate [expression]
@@ -372,8 +377,8 @@ class NegateOperator extends Expression {
   @override
   bool isNegative() => true;
 
-  // expects number to already been simplified away
-  // into negative number
+  /// expects number to already been simplified away
+  /// into negative number, as per documentation in [Expression.isNumber]
   @override
   bool isNumber() => false;
 
@@ -384,11 +389,18 @@ class NegateOperator extends Expression {
   double numberValue() => throw UnimplementedError();
 
   @override
-  Expression simplify(SimplifyContext c) {
-    expression = expression.simplify(c);
+  Expression resolve(ResolveContext c) {
+    expression = expression.resolve(c);
     if (expression.isNumber() || expression.isNegative()) {
       return expression.negated();
     }
     return this;
   }
+
+  @override
+  Expression copyWithInsertVariables(Map<String, Expression> variables) =>
+      NegateOperator(expression.copyWithInsertVariables(variables));
+
+  @override
+  Expression copy() => NegateOperator(expression.copy());
 }
