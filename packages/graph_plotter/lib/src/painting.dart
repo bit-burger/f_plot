@@ -248,7 +248,7 @@ class GraphsPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = graphsWidth
       ..strokeCap = StrokeCap.round;
-    // ..blendMode = BlendMode.src;
+    // ..blendMode = BlendMode.src; TODO: maybe use other BlendMode
 
     final stepSizeX = xOffset / size.width;
     final stepSizeY = yOffset / size.height;
@@ -257,10 +257,11 @@ class GraphsPainter extends CustomPainter {
       paint.color = functionAttributes.color;
 
       final f = functionAttributes.evaluatingFunction;
-      final offsets = <Offset>[];
+      var offsets = <Offset>[];
 
       var sizeX = 0.0;
       var x = this.x;
+      var outOfBounds = false;
       while (sizeX < size.width) {
         final rawY = f(x);
         // TODO: remove rawY.isInfinite for efficiency
@@ -271,13 +272,26 @@ class GraphsPainter extends CustomPainter {
           }
         } else {
           var y = size.height - ((rawY - this.y) / stepSizeY);
-          // TODO: remove in favor of not drawing overflowed points at all
-          if (y < -10) {
-            y = -10;
-          } else if (y > size.height + 10) {
-            y = size.height + 10;
+          final offset = Offset(sizeX, y);
+          if (outOfBounds) {
+            if(y < 0 || y > size.width) {
+              if(offsets.isEmpty) {
+                offsets.add(offset);
+              } else {
+                offsets[0] = offset;
+              }
+            } else {
+              offsets.add(offset);
+              outOfBounds = false;
+            }
+          } else {
+            offsets.add(offset);
+            if (y < 0 || y > size.width) {
+              outOfBounds = true;
+              canvas.drawPoints(ui.PointMode.polygon, offsets, paint);
+              offsets = [offsets[offsets.length - 1]];
+            }
           }
-          offsets.add(Offset(sizeX, y));
         }
         sizeX += sizeXSteps;
         x += stepSizeX * sizeXSteps;
@@ -285,6 +299,8 @@ class GraphsPainter extends CustomPainter {
       if (offsets.isNotEmpty) {
         // TODO: more efficient to use canvas.drawRawPoints
         // TODO: use a Float32List that uses 'clean' x-values, like 0.1 instead of 0.10270356
+        // TODO: use a second index to track which points have already been drawn
+        // TODO: and use Float32List.sublistView
         canvas.drawPoints(ui.PointMode.polygon, offsets, paint);
       }
     }
