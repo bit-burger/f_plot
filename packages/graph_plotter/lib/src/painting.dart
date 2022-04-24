@@ -124,94 +124,71 @@ class GraphsPainter extends CustomPainter {
       ..color = axisColor
       ..strokeWidth = axisWidth;
     // y-axis
-    final stepSizeX = xOffset / size.width;
-    final xOfZeroY = -this.x / stepSizeX;
-    final stepSizeY = yOffset / size.height;
-    final yOfZeroX = size.height - (-this.y / stepSizeY);
+    final stepSizeX = xOffset / size.width; // ratio of width to canvas width
+    final canvasXOfYAxis = -x / stepSizeX; // canvas x-coordinate of y = 0
+    final stepSizeY = yOffset / size.height; // ratio of height to canvas height
+    final canvasYOfXAxis =
+        size.height - (-y / stepSizeY); // canvas y-coords of x = 0
     if (x <= 0 && 0 <= x + xOffset) {
       canvas.drawLine(
-        ui.Offset(xOfZeroY, 0),
-        ui.Offset(xOfZeroY, size.height),
+        ui.Offset(canvasXOfYAxis, 0),
+        ui.Offset(canvasXOfYAxis, size.height),
         paint,
       );
       final yAxisStepSize = computeAxisStepSize(yOffset);
+      final canvasYAxisStepSize = yAxisStepSize / stepSizeY;
       final yAxisStepSizeFractionDigits = yAxisStepSize.toString().length - 2;
-      final yStepOfYAxis = yAxisStepSize / stepSizeY;
-      var currentYAxisStep = yAxisStepSize;
-      for (var y = yOfZeroX - yStepOfYAxis; y >= 0; y -= yStepOfYAxis) {
+      var currentYAxisStep = (y / yAxisStepSize).ceilToDouble() * yAxisStepSize;
+      // turned around, has to be converted
+      var currentCanvasYAxisStep = (currentYAxisStep - y) / stepSizeY;
+      while (currentCanvasYAxisStep < size.width) {
         _paintAxisMarking(
           canvas,
           paint,
           currentYAxisStep,
           yAxisStepSize,
           yAxisStepSizeFractionDigits,
-          xOfZeroY,
-          y,
+          canvasXOfYAxis,
+          // converting turned around currentCanvasYAxisStep
+          (size.height - currentCanvasYAxisStep),
           true,
         );
         currentYAxisStep += yAxisStepSize;
-      }
-      currentYAxisStep = -yAxisStepSize;
-      for (var y = yOfZeroX + yStepOfYAxis;
-          y <= size.height;
-          y += yStepOfYAxis) {
-        _paintAxisMarking(
-          canvas,
-          paint,
-          currentYAxisStep,
-          yAxisStepSize,
-          yAxisStepSizeFractionDigits,
-          xOfZeroY,
-          y,
-          true,
-        );
-        currentYAxisStep -= yAxisStepSize;
+        currentCanvasYAxisStep += canvasYAxisStepSize;
       }
     }
     // x-axis
     if (y <= 0 && 0 <= y + yOffset) {
       canvas.drawLine(
-        ui.Offset(0, yOfZeroX),
-        ui.Offset(size.width, yOfZeroX),
+        ui.Offset(0, canvasYOfXAxis),
+        ui.Offset(size.width, canvasYOfXAxis),
         paint,
       );
       final xAxisStepSize = computeAxisStepSize(xOffset);
-      final yAxisStepSizeFractionDigits = xAxisStepSize.toString().length - 2;
-      final xStepOfXAxis = xAxisStepSize / stepSizeX;
-      var currentXAxisStep = xAxisStepSize;
-      for (var x = xOfZeroY + xStepOfXAxis;
-          x <= size.width;
-          x += xStepOfXAxis) {
+      final canvasXAxisStepSize = xAxisStepSize / stepSizeX;
+      final xAxisStepSizeFractionDigits = xAxisStepSize.toString().length - 2;
+      var currentXAxisStep = (x / xAxisStepSize).ceilToDouble() * xAxisStepSize;
+      var currentCanvasXAxisStep = (currentXAxisStep - x) / stepSizeX;
+      while (currentCanvasXAxisStep < size.width) {
         _paintAxisMarking(
           canvas,
           paint,
           currentXAxisStep,
           xAxisStepSize,
-          yAxisStepSizeFractionDigits,
-          x,
-          yOfZeroX,
+          xAxisStepSizeFractionDigits,
+          currentCanvasXAxisStep,
+          canvasYOfXAxis,
           false,
         );
         currentXAxisStep += xAxisStepSize;
-      }
-      currentXAxisStep = -xAxisStepSize;
-      for (var x = xOfZeroY - xStepOfXAxis; x >= 0; x -= xStepOfXAxis) {
-        _paintAxisMarking(
-          canvas,
-          paint,
-          currentXAxisStep,
-          xAxisStepSize,
-          yAxisStepSizeFractionDigits,
-          x,
-          yOfZeroX,
-          false,
-        );
-        currentXAxisStep -= xAxisStepSize;
+        currentCanvasXAxisStep += canvasXAxisStepSize;
       }
     }
   }
 
-  /// paint an axis marking reading [step] at ([x]|[y]) on the canvas,
+  /// paint an axis marking reading [step] *if it is not 0 or very near 0*,
+  /// at ([x]|[y]) on the canvas
+  ///
   /// uses [horizontal] to determine if on the x-axis or y-axis
   void _paintAxisMarking(
     ui.Canvas canvas,
@@ -228,10 +205,13 @@ class GraphsPainter extends CustomPainter {
     )..pushStyle(
         labelTextStyle,
       );
+    if (step == 0) return;
+
     if (stepSize < 1) {
+      if (step >= -1e-10 && step <= 1e-10) return;
       paragraphBuilder.addText(step.toStringAsFixed(stepSizeFractionDigits));
     } else if (step >= 100000 || step <= -100000) {
-      paragraphBuilder.addText(step.toStringAsExponential(6));
+      paragraphBuilder.addText(step.toStringAsExponential(3));
     } else {
       paragraphBuilder.addText(step.toInt().toString());
     }
