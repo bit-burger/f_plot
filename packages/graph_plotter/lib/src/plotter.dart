@@ -216,6 +216,7 @@ class _GraphPlotterState extends State<GraphPlotter> {
               animation: _effectiveController,
               builder: (_, __) {
                 return CustomPaint(
+                  size: Size.infinite,
                   painter: GraphsPainter(
                     x: _effectiveController.x,
                     y: _effectiveController.y,
@@ -237,16 +238,14 @@ class _GraphPlotterState extends State<GraphPlotter> {
       },
     );
     if (widget.showGrabCursorForMousePanning) {
-      return SizedBox.expand(
-        child: MouseRegion(
-          cursor: _isPanning == false
-              ? SystemMouseCursors.grab
-              : SystemMouseCursors.grabbing,
-          child: w,
-        ),
+      return MouseRegion(
+        cursor: _isPanning == false
+            ? SystemMouseCursors.grab
+            : SystemMouseCursors.grabbing,
+        child: w,
       );
     }
-    return SizedBox.expand(child: w);
+    return w;
   }
 
   @override
