@@ -71,17 +71,22 @@ final someGraphs = [
     },
     color: Colors.white,
   ),
-  // TODO: function still not compatible
-  // MathFunctionAttributes(
-  //   evaluatingFunction: (x) {
-  //     if (x <= 0) {
-  //       return double.nan;
-  //     }
-  //     return log(x);
-  //   },
-  //   name: "ln",
-  //   color: Colors.white,
-  // ),
+  // TODO: functions (x-2) % 5 + 5 and ln(x) displayed badly
+  GraphAttributes(
+    name: "(x-2) % 5 + 5",
+    evaluatingFunction: (x) => (x - 2) % 5 + 5,
+    color: Colors.cyan.shade300,
+  ),
+  GraphAttributes(
+    evaluatingFunction: (x) {
+      if (x <= 0) {
+        return double.nan;
+      }
+      return log(x);
+    },
+    name: "ln(x)",
+    color: Colors.grey,
+  ),
 ];
 
 class _GraphPlotterTestState extends State<GraphPlotterTest> {
