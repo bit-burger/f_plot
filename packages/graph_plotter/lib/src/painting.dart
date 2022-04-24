@@ -284,6 +284,7 @@ class GraphsPainter extends CustomPainter {
       }
       if (offsets.isNotEmpty) {
         // TODO: more efficient to use canvas.drawRawPoints
+        // TODO: use a Float32List that uses 'clean' x-values, like 0.1 instead of 0.10270356
         canvas.drawPoints(ui.PointMode.polygon, offsets, paint);
       }
     }
