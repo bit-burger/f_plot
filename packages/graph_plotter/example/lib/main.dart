@@ -178,7 +178,6 @@ class _GraphPlotterTestState extends State<GraphPlotterTest> {
             tooltip: "zoom in",
             onPressed: () {
               functionPlotterViewController.applyZoomRatioToCenter(3 / 4);
-              functionPlotterViewController.update();
             },
             child: const Icon(Icons.add),
           ),
@@ -187,7 +186,6 @@ class _GraphPlotterTestState extends State<GraphPlotterTest> {
             tooltip: "zoom out",
             onPressed: () {
               functionPlotterViewController.applyZoomRatioToCenter(4 / 3);
-              functionPlotterViewController.update();
             },
             child: const Icon(Icons.remove),
           ),

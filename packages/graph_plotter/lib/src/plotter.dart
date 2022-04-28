@@ -155,12 +155,27 @@ class _GraphPlotterState extends State<GraphPlotter> {
                 final xSizeRatio = _effectiveController.xOffset / sizeWidth;
                 final ySizeRatio = _effectiveController.yOffset / sizeHeight;
                 if (widget.scrollAction == GraphPlotterScrollAction.move) {
-                  _effectiveController.x += event.scrollDelta.dx * xSizeRatio;
-                  _effectiveController.y -= event.scrollDelta.dy * ySizeRatio;
+                  // move with the mouse
+                  final dx = event.scrollDelta.dx * xSizeRatio;
+                  final dy = event.scrollDelta.dy * ySizeRatio;
+                  _effectiveController.applyVector(dx, dy);
+                  // _effectiveController.x += event.scrollDelta.dx * xSizeRatio;
+                  // _effectiveController.y -= event.scrollDelta.dy * ySizeRatio;
                 } else if (widget.scrollAction ==
                     GraphPlotterScrollAction.zoom) {
-                  final zoomRatio =
+                  // zoom with the mouse
+                  var zoomRatio =
                       1 + event.scrollDelta.dy * widget.scrollDeltaToZoomRatio;
+                  zoomRatio = _effectiveController
+                      .enforceZoomRatioBoundaries(zoomRatio);
+
+                  if (zoomRatio > 1 && (_effectiveController.xOffset >
+                          GraphPlotterController.maxX * 2 ||
+                      _effectiveController.yOffset >
+                          GraphPlotterController.maxY * 2)) {
+                    return;
+                  }
+
                   final zoomPoint = event.localPosition;
                   // x-coordinates
                   final currentLeftWidth = zoomPoint.dx;
@@ -200,9 +215,9 @@ class _GraphPlotterState extends State<GraphPlotter> {
                           _effectiveController.xOffset / sizeWidth;
                       final ySizeRatio =
                           _effectiveController.yOffset / sizeHeight;
-                      _effectiveController.x -= details.delta.dx * xSizeRatio;
-                      _effectiveController.y += details.delta.dy * ySizeRatio;
-                      _effectiveController.update();
+                      final dx = -details.delta.dx * xSizeRatio;
+                      final dy = details.delta.dy * ySizeRatio;
+                      _effectiveController.applyVector(dx, dy);
                     });
                   },
             onPanEnd: (_) {
