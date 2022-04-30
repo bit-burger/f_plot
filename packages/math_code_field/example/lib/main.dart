@@ -13,9 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData.dark().copyWith(
-        textTheme: GoogleFonts.jetBrainsMonoTextTheme(),
-      ),
+      theme: ThemeData.dark(),
       debugShowCheckedModeBanner: false,
       home: const MyHomePage(),
     );
@@ -34,9 +32,11 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("MathCodeField example"),
+        title: const Text("MathCodeField"),
       ),
-      body: const MathCodeField(),
+      body: MathCodeField(
+        monoTextTheme: GoogleFonts.jetBrainsMonoTextTheme(),
+      ),
     );
   }
 }

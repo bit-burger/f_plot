@@ -2,23 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:math_code_field/src/code_editing_controller.dart';
 import 'package:math_code_field/src/style.dart';
 
-class MathCodeField extends StatefulWidget {
-  const MathCodeField({Key? key}) : super(key: key);
+class MathCodeField extends StatelessWidget {
+  final TextTheme monoTextTheme;
+  const MathCodeField({
+    Key? key,
+    required this.monoTextTheme,
+  }) : super(key: key);
 
   @override
-  State<MathCodeField> createState() => _MathCodeFieldState();
+  Widget build(BuildContext context) {
+    return Theme(
+      data: ThemeData(
+        textTheme: monoTextTheme,
+      ),
+      child: const _MathCodeField(),
+    );
+  }
 }
 
-class _MathCodeFieldState extends State<MathCodeField> {
+class _MathCodeField extends StatefulWidget {
+  const _MathCodeField({Key? key}) : super(key: key);
+
+  @override
+  State<_MathCodeField> createState() => _MathCodeFieldState();
+}
+
+class _MathCodeFieldState extends State<_MathCodeField> {
   final _controller = CodeEditingController();
 
   @override
   Widget build(BuildContext context) {
     final themeData = CodeFieldTheme.of(context) ?? CodeFieldThemeData();
     return TextSelectionTheme(
-      data: TextSelectionTheme.of(
-        context
-      ).copyWith(selectionColor: themeData.selectionColor, cursorColor: themeData.cursorColor,),
+      data: TextSelectionTheme.of(context).copyWith(
+        selectionColor: themeData.selectionColor,
+        cursorColor: themeData.cursorColor,
+      ),
       child: SingleChildScrollView(
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -27,8 +46,8 @@ class _MathCodeFieldState extends State<MathCodeField> {
             const SizedBox(width: 4),
             ValueListenableBuilder(
               valueListenable: _controller,
-              builder:
-                  (BuildContext context, TextEditingValue value, Widget? widget) =>
+              builder: (BuildContext context, TextEditingValue value,
+                      Widget? widget) =>
                   lineNumberBuilder(context, value, widget, themeData),
             ),
             const SizedBox(width: 10),
@@ -37,7 +56,7 @@ class _MathCodeFieldState extends State<MathCodeField> {
               child: IntrinsicHeight(
                 child: TextField(
                   toolbarOptions:
-                  const ToolbarOptions(copy: true, paste: true, cut: true),
+                      const ToolbarOptions(copy: true, paste: true, cut: true),
                   controller: _controller,
                   maxLines: null,
                   decoration: const InputDecoration(
@@ -70,7 +89,9 @@ class _MathCodeFieldState extends State<MathCodeField> {
       padding: const EdgeInsets.only(top: 9),
       child: Text(
         linesText,
-        style: TextStyle(color: themeData.lineNumberColor,fontSize: 16),
+        style: Theme.of(context).textTheme.bodyText1!.merge(
+              TextStyle(color: themeData.lineNumberColor, fontSize: 16),
+            ),
       ),
     );
   }

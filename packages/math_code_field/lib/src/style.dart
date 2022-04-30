@@ -46,10 +46,19 @@ class CodeFieldThemeData {
     this.selectionColor = const Color(0xFF5e5e5e),
   }) : assert(bracketColors.isNotEmpty);
 
-  /// first bracket starts at 1
+  /// first bracket starts at [depth] = 1
   Color bracketColorForDepth(int depth) {
     assert(depth > 0);
-    return bracketColors[0];
-    // return bracketColors[(bracketColors.length % depth) - 1];
+    depth--;
+    var index = 0;
+    var i = 0;
+    while (i < depth) {
+      index++;
+      if (index == bracketColors.length) {
+        index = 0;
+      }
+      i++;
+    }
+    return bracketColors[index];
   }
 }
