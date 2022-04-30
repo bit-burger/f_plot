@@ -13,22 +13,15 @@ class CodeEditingController extends TextEditingController {
   static const validDigits = "1234567890.";
   static const separators = "$whiteSpace$operators)(,";
 
-  final CodeFieldThemeData themeData;
-
-  CodeEditingController(this.themeData);
-
   @override
   TextSpan buildTextSpan({
     required BuildContext context,
     TextStyle? style,
     required bool withComposing,
   }) {
+    final themeData = CodeFieldTheme.of(context) ?? CodeFieldThemeData();
     final spans = _spansForText(text, 0, text.length, 0, themeData);
-    return TextSpan(
-      children: spans,
-      style: (style ?? const TextStyle())
-          .copyWith(fontFamily: themeData.monoFontFamily),
-    );
+    return TextSpan(children: spans, style: style);
   }
 
   List<TextSpan> _spansForText(

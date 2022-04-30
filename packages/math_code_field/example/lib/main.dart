@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:math_code_field/math_code_field.dart';
 
 void main() {
@@ -12,7 +13,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData.dark(),
+      theme: ThemeData.dark().copyWith(
+        textTheme: GoogleFonts.jetBrainsMonoTextTheme(),
+      ),
       debugShowCheckedModeBanner: false,
       home: const MyHomePage(),
     );
@@ -33,11 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: const Text("MathCodeField example"),
       ),
-      body: MathCodeField(
-        theme: CodeFieldThemeData(
-          monoFontFamily: "RobotoMono",
-        ),
-      ),
+      body: const MathCodeField(),
     );
   }
 }

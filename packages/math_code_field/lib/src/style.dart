@@ -9,15 +9,10 @@ class CodeFieldTheme extends InheritedWidget {
     required Widget child,
   }) : super(key: key, child: child);
 
-  static CodeFieldThemeData of(BuildContext context) {
+  static CodeFieldThemeData? of(BuildContext context) {
     final CodeFieldTheme? result =
         context.dependOnInheritedWidgetOfExactType<CodeFieldTheme>();
-    assert(
-      result != null,
-      "A CodeFieldTheme widget has to be found either in the widget hierarchy,"
-      "or provided to the MathCodeField constructor",
-    );
-    return result!.data;
+    return result?.data;
   }
 
   @override
@@ -27,7 +22,6 @@ class CodeFieldTheme extends InheritedWidget {
 }
 
 class CodeFieldThemeData {
-  final String monoFontFamily;
   final Color operatorColor;
   final Color numberColor;
   final Color variableColor;
@@ -38,7 +32,6 @@ class CodeFieldThemeData {
   final Color selectionColor;
 
   CodeFieldThemeData({
-    required this.monoFontFamily,
     this.operatorColor = Colors.blue,
     this.numberColor = const Color(0xFFDAC776),
     this.variableColor = const Color(0xFF00b2d2),

@@ -3,30 +3,22 @@ import 'package:math_code_field/src/code_editing_controller.dart';
 import 'package:math_code_field/src/style.dart';
 
 class MathCodeField extends StatefulWidget {
-  final CodeFieldThemeData? theme;
-
-  const MathCodeField({
-    Key? key,
-    this.theme,
-  }) : super(key: key);
+  const MathCodeField({Key? key}) : super(key: key);
 
   @override
   State<MathCodeField> createState() => _MathCodeFieldState();
 }
 
 class _MathCodeFieldState extends State<MathCodeField> {
-  CodeFieldThemeData get _effectiveThemeData =>
-      widget.theme ?? CodeFieldTheme.of(context);
-
-  late final CodeEditingController _controller;
+  final _controller = CodeEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final themeData = CodeFieldTheme.of(context) ?? CodeFieldThemeData();
     return TextSelectionTheme(
-      data: TextSelectionTheme.of(context).copyWith(
-        selectionColor: _effectiveThemeData.selectionColor,
-        cursorColor: _effectiveThemeData.cursorColor,
-      ),
+      data: TextSelectionTheme.of(
+        context
+      ).copyWith(selectionColor: themeData.selectionColor, cursorColor: themeData.cursorColor,),
       child: SingleChildScrollView(
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -35,7 +27,9 @@ class _MathCodeFieldState extends State<MathCodeField> {
             const SizedBox(width: 4),
             ValueListenableBuilder(
               valueListenable: _controller,
-              builder: lineNumberBuilder,
+              builder:
+                  (BuildContext context, TextEditingValue value, Widget? widget) =>
+                  lineNumberBuilder(context, value, widget, themeData),
             ),
             const SizedBox(width: 10),
             // Container(width: 1, color: themeData.lineNumberColor),
@@ -43,7 +37,7 @@ class _MathCodeFieldState extends State<MathCodeField> {
               child: IntrinsicHeight(
                 child: TextField(
                   toolbarOptions:
-                      const ToolbarOptions(copy: true, paste: true, cut: true),
+                  const ToolbarOptions(copy: true, paste: true, cut: true),
                   controller: _controller,
                   maxLines: null,
                   decoration: const InputDecoration(
@@ -63,6 +57,7 @@ class _MathCodeFieldState extends State<MathCodeField> {
     BuildContext context,
     TextEditingValue value,
     Widget? widget,
+    CodeFieldThemeData themeData,
   ) {
     final linesCount = value.text.split("\n").length;
     final linesText = List.generate(
@@ -75,20 +70,9 @@ class _MathCodeFieldState extends State<MathCodeField> {
       padding: const EdgeInsets.only(top: 9),
       child: Text(
         linesText,
-        style: TextStyle(
-          color: _effectiveThemeData.lineNumberColor,
-          fontSize: 16,
-        ).copyWith(
-          fontFamily: _effectiveThemeData.monoFontFamily,
-        ),
+        style: TextStyle(color: themeData.lineNumberColor,fontSize: 16),
       ),
     );
-  }
-
-  @override
-  void initState() {
-    _controller = CodeEditingController(_effectiveThemeData);
-    super.initState();
   }
 
   @override
