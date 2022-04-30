@@ -30,17 +30,59 @@ class _MathCodeField extends StatefulWidget {
 class _MathCodeFieldState extends State<_MathCodeField> {
   final _controller = MathCodeEditingController();
 
+  static double _textWidth(String text, TextStyle style) {
+    final TextPainter textPainter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      maxLines: 1,
+      textDirection: TextDirection.ltr,
+    )..layout(minWidth: 0, maxWidth: double.infinity);
+    return textPainter.size.width;
+  }
+
+  String get _longestLine {
+    if (_controller.value.text.isEmpty) {
+      return "";
+    }
+    final lines = _controller.value.text.split("\n");
+    var longestLine = lines[0];
+    for (var i = 1; i < lines.length; i++) {
+      if (lines[i].length > longestLine.length) {
+        longestLine = lines[i];
+      }
+    }
+    return longestLine;
+  }
+
+  Widget _buildTextField() {
+    return IntrinsicHeight(
+      child: TextField(
+        toolbarOptions:
+            const ToolbarOptions(copy: true, paste: true, cut: true),
+        controller: _controller,
+        maxLines: null,
+        decoration: const InputDecoration(
+          border: InputBorder.none,
+        ),
+        expands: true,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final themeData = MathCodeFieldTheme.of(context) ?? MathCodeFieldThemeData();
+    final themeData =
+        MathCodeFieldTheme.of(context) ?? MathCodeFieldThemeData();
+    final textStyle = Theme.of(context).textTheme.bodyText1!.merge(
+          TextStyle(color: themeData.lineNumberColor, fontSize: 16),
+        );
     return TextSelectionTheme(
       data: TextSelectionTheme.of(context).copyWith(
         selectionColor: themeData.selectionColor,
         cursorColor: themeData.cursorColor,
       ),
       child: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 128),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(width: 4),
@@ -48,22 +90,34 @@ class _MathCodeFieldState extends State<_MathCodeField> {
               valueListenable: _controller,
               builder: (BuildContext context, TextEditingValue value,
                       Widget? widget) =>
-                  lineNumberBuilder(context, value, widget, themeData),
+                  lineNumberBuilder(context, value, widget, textStyle),
             ),
             const SizedBox(width: 10),
             // Container(width: 1, color: themeData.lineNumberColor),
             Expanded(
-              child: IntrinsicHeight(
-                child: TextField(
-                  toolbarOptions:
-                      const ToolbarOptions(copy: true, paste: true, cut: true),
-                  controller: _controller,
-                  maxLines: null,
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
-                  ),
-                  expands: true,
-                ),
+              child: ValueListenableBuilder(
+                valueListenable: _controller,
+                child: _buildTextField(),
+                builder: (context, value, child) {
+                  return LayoutBuilder(
+                    builder: (context, constraints) {
+                      final width = _textWidth(_longestLine, textStyle) + 24;
+                      late final double widthOfScroll;
+                      if(width > constraints.maxWidth) {
+                        widthOfScroll = width;
+                      } else {
+                        widthOfScroll = constraints.maxWidth;
+                      }
+                      return SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: SizedBox(
+                          width: widthOfScroll,
+                          child: child,
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
             ),
           ],
@@ -76,7 +130,7 @@ class _MathCodeFieldState extends State<_MathCodeField> {
     BuildContext context,
     TextEditingValue value,
     Widget? widget,
-    MathCodeFieldThemeData themeData,
+    TextStyle textStyle,
   ) {
     final linesCount = value.text.split("\n").length;
     final linesText = List.generate(
@@ -89,9 +143,7 @@ class _MathCodeFieldState extends State<_MathCodeField> {
       padding: const EdgeInsets.only(top: 9),
       child: Text(
         linesText,
-        style: Theme.of(context).textTheme.bodyText1!.merge(
-              TextStyle(color: themeData.lineNumberColor, fontSize: 16),
-            ),
+        style: textStyle,
       ),
     );
   }
