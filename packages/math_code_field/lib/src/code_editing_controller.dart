@@ -174,14 +174,17 @@ class CodeEditingController extends TextEditingController {
     );
     return TextSpan(
       children: [
-        TextSpan(text: "(", style: bracketStyle),
+        TextSpan(
+          text: "(",
+          style: lastBracketMissing
+              ? TextStyle(color: themeData.errorColor)
+              : bracketStyle,
+        ),
         TextSpan(children: spans),
         if (!lastBracketMissing)
           TextSpan(
             text: ")",
-            style: lastBracketMissing
-                ? TextStyle(color: themeData.errorColor)
-                : bracketStyle,
+            style: bracketStyle,
           ),
       ],
     );
