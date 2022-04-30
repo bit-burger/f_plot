@@ -36,9 +36,10 @@ class CodeFieldThemeData {
     this.numberColor = const Color(0xFFDAC776),
     this.variableColor = const Color(0xFF00b2d2),
     this.bracketColors = const [
+      Colors.white,
       Colors.lightGreen,
-      Colors.deepPurple,
-      Colors.teal,
+      Colors.blueGrey,
+      Colors.lightBlueAccent,
     ],
     this.errorColor = Colors.red,
     this.lineNumberColor = const Color(0xFF616161),
