@@ -33,10 +33,10 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  google_fonts: ^2.3.2
   math_code_field:
     path: ..
   cupertino_icons: ^1.0.2
+  shared_preferences: any
 
 dev_dependencies:
   flutter_test:
@@ -76,6 +76,10 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
+  fonts:
+    - family: RobotoMono
+      fonts:
+        - asset: fonts/RobotoMono.ttf
   # fonts:
   #   - family: Schyler
   #     fonts:
