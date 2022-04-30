@@ -28,11 +28,11 @@ class _MathCodeField extends StatefulWidget {
 }
 
 class _MathCodeFieldState extends State<_MathCodeField> {
-  final _controller = CodeEditingController();
+  final _controller = MathCodeEditingController();
 
   @override
   Widget build(BuildContext context) {
-    final themeData = CodeFieldTheme.of(context) ?? CodeFieldThemeData();
+    final themeData = MathCodeFieldTheme.of(context) ?? MathCodeFieldThemeData();
     return TextSelectionTheme(
       data: TextSelectionTheme.of(context).copyWith(
         selectionColor: themeData.selectionColor,
@@ -76,7 +76,7 @@ class _MathCodeFieldState extends State<_MathCodeField> {
     BuildContext context,
     TextEditingValue value,
     Widget? widget,
-    CodeFieldThemeData themeData,
+    MathCodeFieldThemeData themeData,
   ) {
     final linesCount = value.text.split("\n").length;
     final linesText = List.generate(

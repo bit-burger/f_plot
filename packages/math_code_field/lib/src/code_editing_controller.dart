@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:math_code_field/src/style.dart';
 
-class CodeEditingController extends TextEditingController {
+class MathCodeEditingController extends TextEditingController {
   static const operators = "+-*/^=";
   static const identifierLetters =
       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJLKMNOPQRSTUVWXYZ";
@@ -19,7 +19,7 @@ class CodeEditingController extends TextEditingController {
     TextStyle? style,
     required bool withComposing,
   }) {
-    final themeData = CodeFieldTheme.of(context) ?? CodeFieldThemeData();
+    final themeData = MathCodeFieldTheme.of(context) ?? MathCodeFieldThemeData();
     final spans = _spansForText(text, 0, text.length, 0, themeData);
     return TextSpan(children: spans, style: style);
   }
@@ -29,7 +29,7 @@ class CodeEditingController extends TextEditingController {
     int begin,
     int end,
     int bracketDepth,
-    CodeFieldThemeData themeData,
+    MathCodeFieldThemeData themeData,
   ) {
     final children = <TextSpan>[const TextSpan(text: "")];
     var separated =
@@ -138,7 +138,7 @@ class CodeEditingController extends TextEditingController {
     String text,
     int begin,
     int end,
-    CodeFieldThemeData themeData,
+    MathCodeFieldThemeData themeData,
   ) =>
       TextSpan(
           text: text.substring(begin, end),
@@ -148,7 +148,7 @@ class CodeEditingController extends TextEditingController {
     String text,
     int begin,
     int end,
-    CodeFieldThemeData themeData,
+    MathCodeFieldThemeData themeData,
   ) =>
       TextSpan(
           text: text.substring(begin, end),
@@ -159,7 +159,7 @@ class CodeEditingController extends TextEditingController {
     int begin,
     int end,
     int bracketDepth,
-    CodeFieldThemeData themeData, [
+    MathCodeFieldThemeData themeData, [
     bool lastBracketMissing = false,
   ]) {
     final bracketStyle = TextStyle(
@@ -193,7 +193,7 @@ class CodeEditingController extends TextEditingController {
   TextSpan _spanForOperator(
     String text,
     int index,
-    CodeFieldThemeData themeData,
+    MathCodeFieldThemeData themeData,
   ) =>
       TextSpan(
         text: text[index],
@@ -204,7 +204,7 @@ class CodeEditingController extends TextEditingController {
     String text,
     int begin,
     int end,
-    CodeFieldThemeData themeData,
+    MathCodeFieldThemeData themeData,
   ) =>
       TextSpan(
         text: text.substring(begin, end),

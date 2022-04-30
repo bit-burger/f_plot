@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
 
-class CodeFieldTheme extends InheritedWidget {
-  final CodeFieldThemeData data;
+class MathCodeFieldTheme extends InheritedWidget {
+  final MathCodeFieldThemeData data;
 
-  const CodeFieldTheme({
+  const MathCodeFieldTheme({
     Key? key,
     required this.data,
     required Widget child,
   }) : super(key: key, child: child);
 
-  static CodeFieldThemeData? of(BuildContext context) {
-    final CodeFieldTheme? result =
-        context.dependOnInheritedWidgetOfExactType<CodeFieldTheme>();
+  static MathCodeFieldThemeData? of(BuildContext context) {
+    final MathCodeFieldTheme? result =
+        context.dependOnInheritedWidgetOfExactType<MathCodeFieldTheme>();
     return result?.data;
   }
 
   @override
-  bool updateShouldNotify(CodeFieldTheme oldWidget) {
+  bool updateShouldNotify(MathCodeFieldTheme oldWidget) {
     return oldWidget.data != data;
   }
 }
 
-class CodeFieldThemeData {
+class MathCodeFieldThemeData {
   final Color operatorColor;
   final Color numberColor;
   final Color variableColor;
@@ -31,7 +31,7 @@ class CodeFieldThemeData {
   final Color cursorColor;
   final Color selectionColor;
 
-  CodeFieldThemeData({
+  MathCodeFieldThemeData({
     this.operatorColor = Colors.blue,
     this.numberColor = const Color(0xFFDAC776),
     this.variableColor = const Color(0xFF00b2d2),
