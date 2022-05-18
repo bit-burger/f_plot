@@ -5,7 +5,7 @@ abstract class Expression {
   Set<String> get referencedVariables;
   Set<String> get referencedFunctions;
 
-  /// resolve with defaults
+  /// [resolve] with defaults
   Expression simplify() {
     return resolve(const ResolveContext.defaults());
   }
@@ -18,7 +18,7 @@ abstract class Expression {
   Expression resolve(ResolveContext c);
 
   /// copies the [Expression]s by [variables] into the correct variables
-  /// of a copied version of the current expressio
+  /// of a copied version of the current expression
   Expression copyWithInsertVariables(Map<String, Expression> variables);
 
   /// all methods under [resolve],
