@@ -392,6 +392,48 @@ void main() {
     });
   });
 
+  test('Complicated variable resolving', () {
+    // not working yet, need to improve resolving
+    final expression = parser.parse("a + 1 + 1");
+    expect(expression.simplify(), parser.parse("a + 2"));
+  }, skip: true);
+
+  test('ResolveContext overriding variables', () {
+    final expression = parser.parse("1 + a + b");
+    final context = ResolveContext.custom(variables: {"a": 2, "b": 2});
+    final expectedExpression = parser.parse("3 + b");
+    expect(expression.resolve(context, {"b"}), expectedExpression);
+  });
+
+  test('resolve to a number', () {
+    final context = ResolveContext.custom(
+      insertFunctions: {
+        "f": ExpressionInsertFunction(
+          parameterNames: ["a", "b"],
+          expression: parser.parse("a + 2 * b"),
+        ),
+        "g": ExpressionInsertFunction(
+          parameterNames: ["a", "f"],
+          expression: parser.parse("a + 2 * f + c"),
+        ),
+      },
+      functions: {
+        "h": (List<double> args) => args[0] + 5,
+      },
+      variables: {
+        "a": 1,
+        "b": 2,
+        "c": 3,
+      },
+    );
+    // f(a, 0.25) = 1.5
+    // g(1, 5)    = 14
+    // h(c)       = 8
+    //          * = 3150
+    final expression = parser.parse("f(a, 0.25) * g(1, 5) * h(c)");
+    expect(expression.resolveToNumber(context), 168);
+  });
+
   test('complicated expression with variable and function analysing', () {
     final expression = parser.parse("- asdf(x+y, (f^1.*6)) * (x + y) * -3");
     expect(

@@ -5,7 +5,7 @@ abstract class Expression {
   Set<String> get referencedVariables;
   Set<String> get referencedFunctions;
 
-  /// [resolve] with defaults
+  /// [resolve] with defaults.
   Expression simplify() {
     return resolve(const ResolveContext.defaults());
   }
@@ -14,14 +14,42 @@ abstract class Expression {
   /// with the functions and variables given by [c].
   ///
   /// the [Expression] will modify itself (and give itself back)
-  /// or give back an alternative expression
-  Expression resolve(ResolveContext c);
+  /// or give back an alternative expression.
+  ///
+  /// if [overriddenVariables] are given, every variable contained in them,
+  /// will not be replaced by a variable, even if it is found inside of of [c].
+  ///
+  /// if a function in [c] is called with the wrong amount of parameters,
+  /// be it a inserted or callable function, this *can* throw an error
+  Expression resolve(
+    ResolveContext c, [
+    Set<String> overriddenVariables = const {},
+  ]);
+
+  /// [resolveToNumber] with defaults.
+  double simplifyToNumber() {
+    return resolveToNumber(const ResolveContext.defaults());
+  }
+
+  /// resolve to a [double] using the functions and variables given by [c],
+  /// without modifying the current [Expression].
+  ///
+  /// if the expression cannot be resolved using to a single number [c],
+  /// a [StateError] is thrown.
+  ///
+  /// instead use the [resolve] method and check with [isNumber],
+  /// if it was able to simplify the expression to a number
+  /// and use [numberValue] if true
+  ///
+  /// if a function in [c] is called with the wrong amount of parameters,
+  /// be it a inserted or callable function, this *can* throw an error
+  double resolveToNumber(ResolveContext c);
 
   /// copies the [Expression]s by [variables] into the correct variables
   /// of a copied version of the current expression
   Expression copyWithInsertVariables(Map<String, Expression> variables);
 
-  /// all methods under [resolve],
+  /// all methods [isNegative], [negated], [isNumber], and [numberValue],
   /// expect [Expression] to already have been simplified
 
   /// returns true on a negative [Number], a [NegateOperator] and
@@ -68,7 +96,18 @@ class Number extends Expression {
   Set<String> get referencedVariables => {};
 
   @override
-  Expression resolve(ResolveContext c) => this;
+  Expression resolve(
+    ResolveContext c, [
+    Set<String> overriddenVariables = const {},
+  ]) =>
+      this;
+
+  @override
+  double resolveToNumber(ResolveContext c) => value;
+
+  @override
+  Expression copyWithInsertVariables(Map<String, Expression> variables) =>
+      copy();
 
   @override
   bool isNegative() => value.isNegative;
@@ -84,9 +123,6 @@ class Number extends Expression {
 
   @override
   double numberValue() => value;
-
-  @override
-  Expression copyWithInsertVariables(Map<String, Expression> variables) => copy();
 
   @override
   Expression copy() => Number(value);
@@ -113,13 +149,33 @@ class Variable extends Expression {
   Set<String> get referencedVariables => {name};
 
   @override
-  Expression resolve(ResolveContext c) {
+  Expression resolve(
+    ResolveContext c, [
+    Set<String> overriddenVariables = const {},
+  ]) {
+    if (overriddenVariables.contains(name)) {
+      return this;
+    }
     final substituteValue = c.getVariableValue(name);
     if (substituteValue != null) {
       return Number(substituteValue);
     }
     return this;
   }
+
+  @override
+  double resolveToNumber(ResolveContext c) {
+    final value = c.getVariableValue(name);
+    if (value == null) {
+      throw StateError("All variables need to be contained "
+          "in the ResolveContext 'c', variable '$name' is not contained");
+    }
+    return value;
+  }
+
+  @override
+  Expression copyWithInsertVariables(Map<String, Expression> variables) =>
+      variables[name]?.copy() ?? copy();
 
   @override
   bool isNegative() => false;
@@ -132,10 +188,6 @@ class Variable extends Expression {
 
   @override
   double numberValue() => throw UnimplementedError();
-
-  @override
-  Expression copyWithInsertVariables(Map<String, Expression> variables) =>
-      variables[name]?.copy() ?? copy();
 
   @override
   Expression copy() => Variable(name);
@@ -181,10 +233,13 @@ class FunctionCall extends Expression {
   }
 
   @override
-  Expression resolve(ResolveContext c) {
-    // first resolve all arguments
+  Expression resolve(
+    ResolveContext c, [
+    Set<String> overriddenVariables = const {},
+  ]) {
+    // first resolve all arguments (therefore modifying the current expression)
     arguments = arguments
-        .map((expression) => expression.resolve(c))
+        .map((expression) => expression.resolve(c, overriddenVariables))
         .toList(growable: false);
     // check if all arguments were resolved to numbers
     final allArgumentsNumber =
@@ -205,7 +260,43 @@ class FunctionCall extends Expression {
     // else return the current FunctionCall
     // (which is however modified, see first comment)
     final insertFunctionResult = c.insertFunction(name, arguments);
-    return insertFunctionResult?.resolve(c) ?? this;
+    return insertFunctionResult?.resolve(c, overriddenVariables) ?? this;
+  }
+
+  @override
+  double resolveToNumber(ResolveContext c) {
+    final numberArguments = this
+        .arguments
+        .map((expression) => expression.resolveToNumber(c))
+        .toList(growable: false);
+    final callFunctionResult = c.callFunction(name, numberArguments);
+    if (callFunctionResult != null) {
+      return callFunctionResult;
+    }
+    final arguments = numberArguments
+        .map((expression) => Number(expression))
+        .toList(growable: false);
+    final insertFunctionResult = c.insertFunction(name, arguments);
+    if (insertFunctionResult == null) {
+      throw StateError("All variables need to be contained "
+          "in the ResolveContext 'c', "
+          "either as a insert function or a callable function, "
+          "function'$name' is not contained");
+    }
+    return insertFunctionResult.resolveToNumber(c);
+  }
+
+  @override
+  Expression copyWithInsertVariables(Map<String, Expression> variables) {
+    // does not make much sense to insert the variables into a function,
+    // that has not been simplified/resolved
+    //
+    // to prevent this, first resolve the current expression
+    final expressionCopy = copy();
+    expressionCopy.arguments = expressionCopy.arguments
+        .map((expression) => expression.copyWithInsertVariables(variables))
+        .toList(growable: false);
+    return expressionCopy;
   }
 
   @override
@@ -219,15 +310,6 @@ class FunctionCall extends Expression {
 
   @override
   double numberValue() => throw UnimplementedError();
-
-  @override
-  Expression copyWithInsertVariables(Map<String, Expression> variables) {
-    final expressionCopy = copy();
-    expressionCopy.arguments = expressionCopy.arguments
-        .map((expression) => expression.copyWithInsertVariables(variables))
-        .toList(growable: false);
-    return expressionCopy;
-  }
 
   // needs to be of type FunctionCall, so copyInsertVariables can use its result
   @override
@@ -276,9 +358,12 @@ class OperatorCall extends Expression {
       expression1.referencedVariables.union(expression2.referencedVariables);
 
   @override
-  Expression resolve(ResolveContext c) {
-    expression1 = expression1.resolve(c);
-    expression2 = expression2.resolve(c);
+  Expression resolve(
+    ResolveContext c, [
+    Set<String> overriddenVariables = const {},
+  ]) {
+    expression1 = expression1.resolve(c, overriddenVariables);
+    expression2 = expression2.resolve(c, overriddenVariables);
     if (expression1.isNumber() && expression2.isNumber()) {
       final n1 = expression1.numberValue();
       final n2 = expression2.numberValue();
@@ -301,6 +386,26 @@ class OperatorCall extends Expression {
     }
     return this;
   }
+
+  @override
+  double resolveToNumber(ResolveContext c) {
+    final value1 = expression1.resolveToNumber(c);
+    final value2 = expression2.resolveToNumber(c);
+    final result = c.callOperator(operator, value1, value2);
+    if (result == null) {
+      throw StateError("All operators need to be contained "
+          "in the ResolveContext 'c', operator '$operator' is not contained");
+    }
+    return result;
+  }
+
+  @override
+  Expression copyWithInsertVariables(Map<String, Expression> variables) =>
+      OperatorCall(
+        operator,
+        expression1.copyWithInsertVariables(variables),
+        expression2.copyWithInsertVariables(variables),
+      );
 
   @override
   bool isNegative() {
@@ -338,14 +443,6 @@ class OperatorCall extends Expression {
   double numberValue() => throw UnimplementedError();
 
   @override
-  Expression copyWithInsertVariables(Map<String, Expression> variables) =>
-      OperatorCall(
-        operator,
-        expression1.copyWithInsertVariables(variables),
-        expression2.copyWithInsertVariables(variables),
-      );
-
-  @override
   Expression copy() => OperatorCall(
         operator,
         expression1.copy(),
@@ -375,6 +472,25 @@ class NegateOperator extends Expression {
   Set<String> get referencedVariables => expression.referencedVariables;
 
   @override
+  Expression resolve(
+    ResolveContext c, [
+    Set<String> overriddenVariables = const {},
+  ]) {
+    expression = expression.resolve(c, overriddenVariables);
+    if (expression.isNumber() || expression.isNegative()) {
+      return expression.negated();
+    }
+    return this;
+  }
+
+  @override
+  double resolveToNumber(ResolveContext c) => -expression.resolveToNumber(c);
+
+  @override
+  Expression copyWithInsertVariables(Map<String, Expression> variables) =>
+      NegateOperator(expression.copyWithInsertVariables(variables));
+
+  @override
   bool isNegative() => true;
 
   /// expects number to already been simplified away
@@ -387,19 +503,6 @@ class NegateOperator extends Expression {
 
   @override
   double numberValue() => throw UnimplementedError();
-
-  @override
-  Expression resolve(ResolveContext c) {
-    expression = expression.resolve(c);
-    if (expression.isNumber() || expression.isNegative()) {
-      return expression.negated();
-    }
-    return this;
-  }
-
-  @override
-  Expression copyWithInsertVariables(Map<String, Expression> variables) =>
-      NegateOperator(expression.copyWithInsertVariables(variables));
 
   @override
   Expression copy() => NegateOperator(expression.copy());
