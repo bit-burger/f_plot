@@ -20,7 +20,21 @@ abstract class Expression {
   /// will not be replaced by a variable, even if it is found inside of of [c].
   ///
   /// if a function in [c] is called with the wrong amount of parameters,
-  /// be it a inserted or callable function, this *can* throw an error
+  /// be it a inserted or callable function, this *can* throw an error.
+  ///
+  /// example:
+  ///   context:
+  ///     given variables:
+  ///       a = 4
+  ///       b = 9
+  ///     given functions:
+  ///       c(x,y) = x * y + b
+  ///   expression:
+  ///     c(a * 2, d)
+  ///   simplified version:
+  ///     8 * d + 9
+  ///
+  /// for more information see: [ResolveContext]
   Expression resolve(
     ResolveContext c, [
     Set<String> overriddenVariables = const {},
