@@ -13,9 +13,9 @@ double multiply(double a, double b) {
 }
 
 double divide(double a, double b) {
-  final res = a * b;
-  if (res.isInfinite) {
-    return double.nan;
-  }
-  return res;
+  return a / b;
+}
+
+double pow(double a, double b) {
+  return pow(a, b);
 }
