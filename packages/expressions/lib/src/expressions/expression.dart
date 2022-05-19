@@ -37,7 +37,7 @@ abstract class Expression {
   /// for more information see: [ResolveContext]
   Expression resolve(
     ResolveContext c, [
-    Set<String> overriddenVariables = const {},
+    Iterable<String> overriddenVariables = const {},
   ]);
 
   /// [resolveToNumber] with defaults.
@@ -112,7 +112,7 @@ class Number extends Expression {
   @override
   Expression resolve(
     ResolveContext c, [
-    Set<String> overriddenVariables = const {},
+    Iterable<String> overriddenVariables = const {},
   ]) =>
       this;
 
@@ -165,7 +165,7 @@ class Variable extends Expression {
   @override
   Expression resolve(
     ResolveContext c, [
-    Set<String> overriddenVariables = const {},
+    Iterable<String> overriddenVariables = const {},
   ]) {
     if (overriddenVariables.contains(name)) {
       return this;
@@ -249,7 +249,7 @@ class FunctionCall extends Expression {
   @override
   Expression resolve(
     ResolveContext c, [
-    Set<String> overriddenVariables = const {},
+    Iterable<String> overriddenVariables = const {},
   ]) {
     // first resolve all arguments (therefore modifying the current expression)
     arguments = arguments
@@ -374,7 +374,7 @@ class OperatorCall extends Expression {
   @override
   Expression resolve(
     ResolveContext c, [
-    Set<String> overriddenVariables = const {},
+    Iterable<String> overriddenVariables = const {},
   ]) {
     expression1 = expression1.resolve(c, overriddenVariables);
     expression2 = expression2.resolve(c, overriddenVariables);
@@ -488,7 +488,7 @@ class NegateOperator extends Expression {
   @override
   Expression resolve(
     ResolveContext c, [
-    Set<String> overriddenVariables = const {},
+    Iterable<String> overriddenVariables = const {},
   ]) {
     expression = expression.resolve(c, overriddenVariables);
     if (expression.isNumber() || expression.isNegative()) {
