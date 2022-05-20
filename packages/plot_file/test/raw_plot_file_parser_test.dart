@@ -1,5 +1,5 @@
 import 'package:expressions/expressions.dart';
-import 'package:plot_file/src/multiple_parser_context.dart';
+import 'package:plot_file/src/raw_plot_file_parser/raw_plot_file_parser.dart';
 import 'package:test/test.dart';
 
 String declarationsToString(
@@ -20,19 +20,19 @@ void main() {
   final stringExpressionParser = StringExpressionParser();
 
   test('simple plot file parsing', () {
-    final plotfile = """
+    final plotFile = """
     a  (   x  )=   34t
     #asdf
     x = 2 3 4
 
     fb  \n   (x) = 345""";
-    final parser = MultipleParserContext(
+    final parser = RawPlotFileParser(
       stringExpressionParser: stringExpressionParser,
     );
-    parser.parsePlotFile(plotfile);
+    parser.parsePlotFile(plotFile);
 
     expect(
-      declarationsToString(parser.declarations, plotfile),
+      declarationsToString(parser.declarations, plotFile),
       """
 a(x) = 34t
 x = 2 3 4
@@ -44,11 +44,11 @@ fb(x) = 345""",
 
   group("errors", () {
     test('unfinished declaration', () {
-      final plotfile = "a = ";
-      final parser = MultipleParserContext(
+      final plotFile = "a = ";
+      final parser = RawPlotFileParser(
         stringExpressionParser: stringExpressionParser,
       );
-      parser.parsePlotFile(plotfile);
+      parser.parsePlotFile(plotFile);
 
       expect(
         parser.parseErrors,
@@ -57,11 +57,11 @@ fb(x) = 345""",
     });
 
     test('parameter repeated', () {
-      final plotfile = "f(a,a) = a";
-      final parser = MultipleParserContext(
+      final plotFile = "f(a,a) = a";
+      final parser = RawPlotFileParser(
         stringExpressionParser: stringExpressionParser,
       );
-      parser.parsePlotFile(plotfile);
+      parser.parsePlotFile(plotFile);
 
       expect(
         parser.parseErrors,

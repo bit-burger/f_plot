@@ -1,7 +1,22 @@
 import 'package:expressions/src/expressions/resolve_context.dart';
+import 'package:expressions/src/parsing/string_expression_parser/parser.dart';
 
 /// represents a mathematical expression
 abstract class Expression {
+
+  static final _stringExpressionParser = StringExpressionParser();
+
+  /// a shortcut to parse an [Expression] from a [String],
+  /// using a [StringExpressionParser] without giving any context,
+  /// only standard operators are allowed.
+  ///
+  /// can throw a [StringExpressionParseError]
+  factory Expression.fromString(String s) {
+    return _stringExpressionParser.parse(s);
+  }
+
+  Expression();
+
   Set<String> get referencedVariables;
   Set<String> get referencedFunctions;
 
