@@ -30,6 +30,8 @@ class MathCodeFieldThemeData {
   final Color lineNumberColor;
   final Color cursorColor;
   final Color selectionColor;
+  final Color equalsColor;
+  final bool equalsIsThick;
 
   MathCodeFieldThemeData({
     this.operatorColor = Colors.blue,
@@ -45,7 +47,10 @@ class MathCodeFieldThemeData {
     this.lineNumberColor = const Color(0xFF616161),
     this.cursorColor = Colors.white12,
     this.selectionColor = const Color(0xFF5e5e5e),
-  }) : assert(bracketColors.isNotEmpty);
+    Color? equalsColor = const Color(0xFFFF71B2),
+    this.equalsIsThick = true,
+  })  : assert(bracketColors.isNotEmpty),
+        this.equalsColor = equalsColor ?? operatorColor;
 
   /// first bracket starts at [depth] = 1
   Color bracketColorForDepth(int depth) {

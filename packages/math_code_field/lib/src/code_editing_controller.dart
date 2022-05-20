@@ -224,11 +224,18 @@ class MathCodeEditingController extends TextEditingController {
     String text,
     int index,
     MathCodeFieldThemeData themeData,
-  ) =>
-      TextSpan(
-        text: text[index],
-        style: TextStyle(color: themeData.operatorColor),
-      );
+  ) {
+    final operator = text[index];
+    final isEquals = operator == "=";
+    return TextSpan(
+      text: text[index],
+      style: TextStyle(
+        color: isEquals ? themeData.equalsColor : themeData.operatorColor,
+        fontWeight:
+            isEquals && themeData.equalsIsThick ? FontWeight.bold : null,
+      ),
+    );
+  }
 
   TextSpan _spanForError(
     String text,
