@@ -50,7 +50,7 @@ class MathCodeFieldThemeData {
     Color? equalsColor = const Color(0xFFFF71B2),
     this.equalsIsThick = true,
   })  : assert(bracketColors.isNotEmpty),
-        this.equalsColor = equalsColor ?? operatorColor;
+        equalsColor = equalsColor ?? operatorColor;
 
   /// first bracket starts at [depth] = 1
   Color bracketColorForDepth(int depth) {
