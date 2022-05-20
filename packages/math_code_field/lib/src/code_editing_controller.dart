@@ -77,8 +77,8 @@ class MathCodeEditingController extends TextEditingController {
         if (char == ")") {
           brackets = max(0, brackets - 1);
           if (brackets == 0) {
-            children.add(
-              _spanForBracket(
+            children.addAll(
+              _spansForBracket(
                   text, bracketsBeginIndex, i + 1, bracketDepth + 1, themeData),
             );
             separated = true;
@@ -148,8 +148,8 @@ class MathCodeEditingController extends TextEditingController {
       }
     }
     if (brackets > 0) {
-      children.add(
-        _spanForBracket(
+      children.addAll(
+        _spansForBracket(
             text, bracketsBeginIndex, end, bracketDepth + 1, themeData, true),
       );
     } else if (!separated) {
@@ -164,7 +164,7 @@ class MathCodeEditingController extends TextEditingController {
     return children;
   }
 
-  TextSpan _spanForBracket(
+  List<TextSpan> _spansForBracket(
     String text,
     int begin,
     int end,
@@ -182,8 +182,7 @@ class MathCodeEditingController extends TextEditingController {
       bracketDepth,
       themeData,
     );
-    return TextSpan(
-      children: [
+    return [
         TextSpan(
           text: "(",
           style: lastBracketMissing
@@ -196,8 +195,8 @@ class MathCodeEditingController extends TextEditingController {
             text: ")",
             style: bracketStyle,
           ),
-      ],
-    );
+      ]
+    ;
   }
 
   TextSpan _spanForVariable(
