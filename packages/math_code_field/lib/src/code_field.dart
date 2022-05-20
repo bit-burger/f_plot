@@ -133,10 +133,11 @@ class _MathCodeFieldState extends State<_MathCodeField> {
     TextStyle textStyle,
   ) {
     final linesCount = value.text.split("\n").length;
+    final maxDigits = linesCount.toString().length;
     final linesText = List.generate(
       linesCount,
       (rawLine) {
-        return (rawLine + 1).toString();
+        return (rawLine + 1).toString().padLeft(maxDigits);
       },
     ).reduce((value, element) => "$value\n$element");
     return Padding(
