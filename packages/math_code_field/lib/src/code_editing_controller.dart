@@ -21,11 +21,40 @@ class MathCodeEditingController extends TextEditingController {
   }) {
     final themeData =
         MathCodeFieldTheme.of(context) ?? MathCodeFieldThemeData();
-    final spans = _spansForText(text, 0, text.length, 0, themeData);
+    final spans = _spansForText(text, themeData);
     return TextSpan(children: spans, style: style);
   }
 
   List<TextSpan> _spansForText(
+    String text,
+    MathCodeFieldThemeData themeData,
+  ) {
+    final textSpans = <TextSpan>[];
+    var lineBreaks = 0;
+    var begin = 0;
+    for (var i = 0; i < text.length; i++) {
+      final char = text[i];
+      if (char == "\n") {
+        lineBreaks++;
+        if (lineBreaks == 2) {
+          textSpans
+              .addAll(_spansInDeclarations(text, begin, i + 1, 0, themeData));
+
+          lineBreaks = 0;
+          begin = i + 1;
+        }
+      } else if (char != " " && char != "\t") {
+        lineBreaks = 0;
+      }
+    }
+    if (begin < text.length) {
+      textSpans
+          .addAll(_spansInDeclarations(text, begin, text.length, 0, themeData));
+    }
+    return textSpans;
+  }
+
+  List<TextSpan> _spansInDeclarations(
     String text,
     int begin,
     int end,
@@ -135,26 +164,6 @@ class MathCodeEditingController extends TextEditingController {
     return children;
   }
 
-  TextSpan _spanForVariable(
-    String text,
-    int begin,
-    int end,
-    MathCodeFieldThemeData themeData,
-  ) =>
-      TextSpan(
-          text: text.substring(begin, end),
-          style: TextStyle(color: themeData.variableColor));
-
-  TextSpan _spanForNumber(
-    String text,
-    int begin,
-    int end,
-    MathCodeFieldThemeData themeData,
-  ) =>
-      TextSpan(
-          text: text.substring(begin, end),
-          style: TextStyle(color: themeData.numberColor));
-
   TextSpan _spanForBracket(
     String text,
     int begin,
@@ -166,7 +175,7 @@ class MathCodeEditingController extends TextEditingController {
     final bracketStyle = TextStyle(
       color: themeData.bracketColorForDepth(bracketDepth),
     );
-    final spans = _spansForText(
+    final spans = _spansInDeclarations(
       text,
       begin + 1,
       lastBracketMissing ? end : end - 1,
@@ -190,6 +199,26 @@ class MathCodeEditingController extends TextEditingController {
       ],
     );
   }
+
+  TextSpan _spanForVariable(
+    String text,
+    int begin,
+    int end,
+    MathCodeFieldThemeData themeData,
+  ) =>
+      TextSpan(
+          text: text.substring(begin, end),
+          style: TextStyle(color: themeData.variableColor));
+
+  TextSpan _spanForNumber(
+    String text,
+    int begin,
+    int end,
+    MathCodeFieldThemeData themeData,
+  ) =>
+      TextSpan(
+          text: text.substring(begin, end),
+          style: TextStyle(color: themeData.numberColor));
 
   TextSpan _spanForOperator(
     String text,
