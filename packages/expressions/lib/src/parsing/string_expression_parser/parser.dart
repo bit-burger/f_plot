@@ -36,7 +36,8 @@ class StringExpressionParser implements ExpressionParser<String> {
     if (c != null) {
       final allowedParameterCount = c.allowedFunctionParameterCount(f);
       if (allowedParameterCount == null) {
-        throw StringExpressionParseError("function '$f' unknown", begin, nameEnd);
+        throw StringExpressionParseError(
+            "function '$f' unknown", begin, nameEnd);
       } else if (functionParameterCount != allowedParameterCount) {
         throw StringExpressionParseError(
           "function '$f' should be called with "
@@ -55,7 +56,8 @@ class StringExpressionParser implements ExpressionParser<String> {
   void checkIdentifier(String s, int begin, int end) {
     for (var i = begin; i < end; i++) {
       if (!isIdentifierChar(s[i])) {
-        throw StringExpressionParseError("an identifier cannot contain '${s[i]}'", begin);
+        throw StringExpressionParseError(
+            "an identifier cannot contain '${s[i]}'", begin);
       }
     }
   }
@@ -66,7 +68,8 @@ class StringExpressionParser implements ExpressionParser<String> {
     for (var i = begin; i < end; i++) {
       if (s[i] == ".") {
         if (afterDecimalSeparator) {
-          throw StringExpressionParseError("one number cannot contain 2 decimal separators", i);
+          throw StringExpressionParseError(
+              "one number cannot contain 2 decimal separators", i);
         }
         afterDecimalSeparator = true;
       } else if (!isNumberChar(s[i])) {
@@ -115,7 +118,8 @@ class StringExpressionParser implements ExpressionParser<String> {
         return precedence;
       }
     }
-    throw StringExpressionParseError("operator '${s[operatorIndex]}' not valid", operatorIndex);
+    throw StringExpressionParseError(
+        "operator '${s[operatorIndex]}' not valid", operatorIndex);
   }
 
   /// gives the list of expressions found inside of a function call.
@@ -135,10 +139,12 @@ class StringExpressionParser implements ExpressionParser<String> {
       end--;
     }
     if (s[begin] == ",") {
-      throw StringExpressionParseError("comma cannot be in front of function arguments", begin);
+      throw StringExpressionParseError(
+          "comma cannot be in front of function arguments", begin);
     }
     if (s[end - 1] == ",") {
-      throw StringExpressionParseError("comma cannot be in back of function arguments", begin);
+      throw StringExpressionParseError(
+          "comma cannot be in back of function arguments", begin);
     }
     var brackets = 0;
     final expressions = <Expression>[];
@@ -179,7 +185,8 @@ class StringExpressionParser implements ExpressionParser<String> {
           bracketsBegin = i;
           break;
         } else if (!isIdentifierChar(s[i])) {
-          throw StringExpressionParseError("an identifier cannot contain '${s[i]}'", i);
+          throw StringExpressionParseError(
+              "an identifier cannot contain '${s[i]}'", i);
         }
       } else {
         if (s[i] == "(") {
@@ -224,7 +231,8 @@ class StringExpressionParser implements ExpressionParser<String> {
       checkNumber(s, begin, end);
       return Number(double.parse(s.substring(begin, end)));
     } else {
-      throw StringExpressionParseError("character '${s[begin]}' not expected here", begin);
+      throw StringExpressionParseError(
+          "character '${s[begin]}' not expected here", begin);
     }
   }
 

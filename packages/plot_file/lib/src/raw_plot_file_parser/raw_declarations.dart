@@ -43,21 +43,21 @@ class RawFunctionDeclaration extends RawDeclaration {
   }
 
   RawFunctionDeclaration(
-      super.identifierStart,
-      super.identifierEnd,
-      super.identifier,
-      this.parametersStart,
-      this.parametersEnd,
-      this.parameters,
-      );
+    super.identifierStart,
+    super.identifierEnd,
+    super.identifier,
+    this.parametersStart,
+    this.parametersEnd,
+    this.parameters,
+  );
 }
 
 class RawVariableDeclaration extends RawDeclaration {
   RawVariableDeclaration(
-      super.identifierStart,
-      super.identifierEnd,
-      super.identifier,
-      );
+    super.identifierStart,
+    super.identifierEnd,
+    super.identifier,
+  );
 
   @override
   String toString() {

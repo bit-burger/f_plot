@@ -16,7 +16,7 @@ double estimateRoot(double a, double b) {
 }
 
 double log(double a, double b) {
-  if(a < 0 || b < 0) {
+  if (a < 0 || b < 0) {
     return double.nan;
   }
   return math.log(a) / math.log(b);

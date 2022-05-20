@@ -4,5 +4,4 @@ library graph_plotter;
 export 'src/type_defs.dart';
 export 'src/controller.dart';
 export 'src/plotter.dart';
-export 'src/painting.dart'
-    show GraphsPainterQuality, GraphsPainterQualityUtils;
+export 'src/painting.dart' show GraphsPainterQuality, GraphsPainterQualityUtils;

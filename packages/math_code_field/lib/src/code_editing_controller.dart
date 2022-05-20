@@ -19,7 +19,8 @@ class MathCodeEditingController extends TextEditingController {
     TextStyle? style,
     required bool withComposing,
   }) {
-    final themeData = MathCodeFieldTheme.of(context) ?? MathCodeFieldThemeData();
+    final themeData =
+        MathCodeFieldTheme.of(context) ?? MathCodeFieldThemeData();
     final spans = _spansForText(text, 0, text.length, 0, themeData);
     return TextSpan(children: spans, style: style);
   }

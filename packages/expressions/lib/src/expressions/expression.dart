@@ -3,7 +3,6 @@ import 'package:expressions/src/parsing/string_expression_parser/parser.dart';
 
 /// represents a mathematical expression
 abstract class Expression {
-
   static final _stringExpressionParser = StringExpressionParser();
 
   /// a shortcut to parse an [Expression] from a [String],

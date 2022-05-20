@@ -163,7 +163,8 @@ class RawPlotFileParser {
           var isError = false;
           var lineBreak = false;
           var lastLineBreak = -1;
-          declarations: while (i < s.length) {
+          declarations:
+          while (i < s.length) {
             final char = s[i];
             if (lineBreak) {
               if (char == "\n" || char == "#") {

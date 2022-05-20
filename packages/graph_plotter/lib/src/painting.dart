@@ -274,8 +274,8 @@ class GraphsPainter extends CustomPainter {
           var y = size.height - ((rawY - this.y) / stepSizeY);
           final offset = Offset(sizeX, y);
           if (outOfBounds) {
-            if(y < 0 || y > size.width) {
-              if(offsets.isEmpty) {
+            if (y < 0 || y > size.width) {
+              if (offsets.isEmpty) {
                 offsets.add(offset);
               } else {
                 offsets[0] = offset;

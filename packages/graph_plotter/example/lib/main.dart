@@ -98,9 +98,9 @@ class _GraphPlotterTestState extends State<GraphPlotterTest> {
 
   void lowerQuality() {
     setState(() {
-      if(quality == null) {
+      if (quality == null) {
         quality = GraphsPainterQuality.high;
-      } else if(quality == GraphsPainterQuality.extremelyLow) {
+      } else if (quality == GraphsPainterQuality.extremelyLow) {
         quality = null;
       } else {
         quality = quality!.before;
@@ -189,7 +189,6 @@ class _GraphPlotterTestState extends State<GraphPlotterTest> {
             },
             child: const Icon(Icons.remove),
           ),
-
         ],
       ),
     );

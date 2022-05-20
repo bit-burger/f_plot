@@ -103,7 +103,7 @@ class _MathCodeFieldState extends State<_MathCodeField> {
                     builder: (context, constraints) {
                       final width = _textWidth(_longestLine, textStyle) + 24;
                       late final double widthOfScroll;
-                      if(width > constraints.maxWidth) {
+                      if (width > constraints.maxWidth) {
                         widthOfScroll = width;
                       } else {
                         widthOfScroll = constraints.maxWidth;

@@ -97,12 +97,12 @@ class GraphPlotterController extends ChangeNotifier {
     //     ratio -= maxYExcess / yOffset;
     //   }
     // }
-    if(xOffset > yOffset) {
-      if(xOffset * ratio > maxWidth) {
+    if (xOffset > yOffset) {
+      if (xOffset * ratio > maxWidth) {
         return maxWidth / xOffset;
       }
     } else {
-      if(yOffset * ratio > maxHeight) {
+      if (yOffset * ratio > maxHeight) {
         return maxHeight / yOffset;
       }
     }

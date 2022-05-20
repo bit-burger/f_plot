@@ -33,7 +33,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     // final e = Parser().parse("0.");
     final e = Parser().parse("(4)*(1)");
-    final evl = e.evaluate(EvaluationType.REAL, ContextModel()..bindVariable(Variable("y"), Number(2)));
+    final evl = e.evaluate(EvaluationType.REAL,
+        ContextModel()..bindVariable(Variable("y"), Number(2)));
     print("evl:" + evl.toString());
     return Scaffold(
       appBar: AppBar(
@@ -43,9 +44,9 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SelectableMath.tex(r'\frac a b', textStyle: TextStyle(fontSize: 42)),
+            SelectableMath.tex(r'\frac a b',
+                textStyle: TextStyle(fontSize: 42)),
             MathField(
-
               keyboardType: MathKeyboardType.expression,
               variables: const ['x'],
               onChanged: (s) {
@@ -53,7 +54,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   final Expression b = TeXParser(s).parse();
                   final context = ContextModel()
                     ..bindVariable(Variable('x'), Number(2));
-                  print('eval;:,' + b.evaluate(EvaluationType.REAL, context).toString());
+                  print('eval;:,' +
+                      b.evaluate(EvaluationType.REAL, context).toString());
                 } catch (e) {
                   print("error: $e");
                 }

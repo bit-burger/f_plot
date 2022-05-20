@@ -27,8 +27,6 @@ void main() {
       });
       expect(parser.errors, isEmpty);
     });
-
-
   });
 
   group("invalid plot files", () {

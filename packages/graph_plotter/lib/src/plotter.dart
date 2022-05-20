@@ -169,10 +169,11 @@ class _GraphPlotterState extends State<GraphPlotter> {
                   zoomRatio = _effectiveController
                       .enforceZoomRatioBoundaries(zoomRatio);
 
-                  if (zoomRatio > 1 && (_effectiveController.xOffset >
-                          GraphPlotterController.maxX * 2 ||
-                      _effectiveController.yOffset >
-                          GraphPlotterController.maxY * 2)) {
+                  if (zoomRatio > 1 &&
+                      (_effectiveController.xOffset >
+                              GraphPlotterController.maxX * 2 ||
+                          _effectiveController.yOffset >
+                              GraphPlotterController.maxY * 2)) {
                     return;
                   }
 
