@@ -34,9 +34,22 @@ class MathCodeEditingController extends TextEditingController {
         MathCodeFieldTheme.of(context) ?? MathCodeFieldThemeData();
     final spans = _spansForText(text, themeData);
     if (spans.isNotEmpty) {
-      _replaceSpansWithErrors(spans, _currentErrors, themeData.errorTextStyle);
+      _replaceSpansWithErrors(
+          spans, _errorsInbound(_currentErrors), themeData.errorTextStyle);
     }
     return TextSpan(children: spans, style: style);
+  }
+
+  List<CodeError> _errorsInbound(List<CodeError> errors) {
+    final length = text.length;
+    return errors
+        .where((error) => error.begin < length)
+        .map((error) => CodeError(
+              begin: error.begin,
+              end: min(error.realEnd, length),
+              message: error.message,
+            ))
+        .toList(growable: false);
   }
 
   /// apply the [CodeError]s to the given spans.
