@@ -100,7 +100,7 @@ class MathCodeEditingController extends TextEditingController {
   ) {
     for (var i = firstSpan; i <= lastSpan; i++) {
       late final int firstCharacterOfSpan;
-      if (i == 0) {
+      if (i == firstSpan) {
         firstCharacterOfSpan = firstCharacterFirstSpan;
       } else {
         firstCharacterOfSpan = 0;
