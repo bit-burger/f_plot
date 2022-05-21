@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'code_field.dart';
 
+/// the [MathCodeFieldThemeData] providing widget
 class MathCodeFieldTheme extends InheritedWidget {
   final MathCodeFieldThemeData data;
 
@@ -21,6 +23,7 @@ class MathCodeFieldTheme extends InheritedWidget {
   }
 }
 
+/// a theme for the [MathCodeField]
 class MathCodeFieldThemeData {
   final Color operatorColor;
   final Color numberColor;
@@ -32,6 +35,7 @@ class MathCodeFieldThemeData {
   final Color selectionColor;
   final Color equalsColor;
   final bool equalsIsThick;
+  final TextStyle errorTextStyle;
 
   MathCodeFieldThemeData({
     this.operatorColor = Colors.blue,
@@ -49,6 +53,10 @@ class MathCodeFieldThemeData {
     this.selectionColor = const Color(0xFF5e5e5e),
     Color? equalsColor = const Color(0xFFFF71B2),
     this.equalsIsThick = true,
+    this.errorTextStyle = const TextStyle(
+      decoration: TextDecoration.underline,
+      decorationColor: Colors.red,
+    ),
   })  : assert(bracketColors.isNotEmpty),
         equalsColor = equalsColor ?? operatorColor;
 

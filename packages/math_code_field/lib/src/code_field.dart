@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:math_code_field/src/code_editing_controller.dart';
-import 'package:math_code_field/src/style.dart';
 
+import 'code_editing_controller.dart';
+import 'style.dart';
+import 'code_error.dart';
+
+/// a text field with highlighting and line numbers for math
 class MathCodeField extends StatelessWidget {
+  final List<CodeError> codeErrors;
   final TextTheme monoTextTheme;
+
   const MathCodeField({
     Key? key,
+    this.codeErrors = const [],
     required this.monoTextTheme,
+
   }) : super(key: key);
 
   @override
@@ -15,13 +22,15 @@ class MathCodeField extends StatelessWidget {
       data: ThemeData(
         textTheme: monoTextTheme,
       ),
-      child: const _MathCodeField(),
+      child: _MathCodeField(errors : codeErrors),
     );
   }
 }
 
 class _MathCodeField extends StatefulWidget {
-  const _MathCodeField({Key? key}) : super(key: key);
+  final List<CodeError> errors;
+
+  const _MathCodeField({required this.errors, Key? key}) : super(key: key);
 
   @override
   State<_MathCodeField> createState() => _MathCodeFieldState();
@@ -66,6 +75,12 @@ class _MathCodeFieldState extends State<_MathCodeField> {
         expands: true,
       ),
     );
+  }
+
+  @override
+  void didUpdateWidget(covariant _MathCodeField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _controller.setErrors(widget.errors);
   }
 
   @override

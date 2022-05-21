@@ -2,8 +2,11 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:math_code_field/src/style.dart';
+import 'package:math_code_field/src/code_field.dart';
+import 'style.dart';
+import 'code_error.dart';
 
+/// the [TextEditingController] of the [MathCodeField]
 class MathCodeEditingController extends TextEditingController {
   static const operators = "+-*/^=";
   static const identifierLetters =
@@ -12,6 +15,12 @@ class MathCodeEditingController extends TextEditingController {
   static const alphaNumeric = identifierLetters + validDigits;
   static const validDigits = "1234567890.";
   static const separators = "$whiteSpace$operators)(,";
+
+  List<CodeError> _currentErrors = [];
+
+  void setErrors(List<CodeError> errors) {
+    _currentErrors = errors;
+  }
 
   @override
   TextSpan buildTextSpan({
@@ -22,7 +31,145 @@ class MathCodeEditingController extends TextEditingController {
     final themeData =
         MathCodeFieldTheme.of(context) ?? MathCodeFieldThemeData();
     final spans = _spansForText(text, themeData);
+    if (spans.isNotEmpty) {
+      _replaceSpansWithErrors(spans, _currentErrors, themeData.errorTextStyle);
+    }
     return TextSpan(children: spans, style: style);
+  }
+
+  /// apply the [CodeError]s to the given spans.
+  ///
+  /// uses the [MathCodeFieldThemeData.errorTextStyle]
+  /// for the styling of the errors
+  void _replaceSpansWithErrors(
+    List<TextSpan> spans,
+    List<CodeError> errors,
+    TextStyle errorStyle,
+  ) {
+    for (final error in errors) {
+      _replaceSpansWithError(spans, error, errorStyle);
+    }
+  }
+
+  void _replaceSpansWithError(
+    List<TextSpan> spans,
+    CodeError error,
+    TextStyle errorStyle,
+  ) {
+    var firstSpan = 0;
+    var currentCharacter = (spans[0].text?.length ?? 0) - 1;
+    while (currentCharacter < error.begin) {
+      firstSpan++;
+      currentCharacter += spans[firstSpan].text?.length ?? 0;
+    }
+    final firstCharacterFirstSpan = ((spans[firstSpan].text?.length ?? 0) - 1) -
+        (currentCharacter - error.begin);
+    var lastSpan = firstSpan;
+    while (currentCharacter < error.realEnd - 1) {
+      lastSpan++;
+      currentCharacter += spans[lastSpan].text?.length ?? 0;
+    }
+    final lastCharacterLastSpan = ((spans[lastSpan].text?.length ?? 0) - 1) -
+        (currentCharacter - (error.realEnd - 1));
+    assert(firstSpan < lastSpan ||
+        (firstSpan == lastSpan &&
+            firstCharacterFirstSpan <= lastCharacterLastSpan));
+
+    _replaceRangeOfSpansWithError(
+      spans,
+      firstSpan,
+      firstCharacterFirstSpan,
+      lastSpan,
+      lastCharacterLastSpan,
+      errorStyle,
+      error.message,
+    );
+  }
+
+  void _replaceRangeOfSpansWithError(
+    List<TextSpan> spans,
+    int firstSpan,
+    int firstCharacterFirstSpan,
+    int lastSpan,
+    int lastCharacterLastSpan,
+    TextStyle errorStyle,
+    String? errorMessage,
+  ) {
+    if (firstSpan == lastSpan) {
+      _replacePartOfSpanWithError(
+        spans,
+        firstSpan,
+        firstCharacterFirstSpan,
+        lastCharacterLastSpan,
+        errorStyle,
+        errorMessage,
+      );
+      return;
+    }
+    for (var i = firstSpan; i <= lastSpan; i++) {
+      late final int firstCharacterOfSpan;
+      if (i == 0) {
+        firstCharacterOfSpan = firstCharacterFirstSpan;
+      } else {
+        firstCharacterOfSpan = 0;
+      }
+      late final int lastCharacterOfSpan;
+      if (i == lastSpan) {
+        lastCharacterOfSpan = lastCharacterLastSpan;
+      } else {
+        lastCharacterOfSpan =
+            (spans[i].text?.length ?? 0) - 1; // span has already been removed
+      }
+      assert(firstCharacterOfSpan <= lastCharacterOfSpan);
+      _replacePartOfSpanWithError(
+        spans,
+        i,
+        firstCharacterOfSpan,
+        lastCharacterOfSpan,
+        errorStyle,
+        errorMessage,
+      );
+    }
+  }
+
+  void _replacePartOfSpanWithError(
+    List<TextSpan> spans,
+    int spanIndex,
+    int firstCharacter,
+    int lastCharacter,
+    TextStyle errorStyle,
+    String? errorMessage,
+  ) {
+    final span = spans.removeAt(spanIndex);
+    final text = span.text!;
+    final style = span.style;
+    final mergedErrorStyle =
+        style == null ? errorStyle : errorStyle.merge(style);
+    try {
+      final replacementSpans = [
+        if (firstCharacter != 0)
+          TextSpan(
+            text: text.substring(0, firstCharacter),
+            style: style,
+          ),
+        TextSpan(
+          text: text.substring(firstCharacter, lastCharacter + 1),
+          style: mergedErrorStyle,
+        ),
+        if (lastCharacter != text.length - 1)
+          TextSpan(
+            text: text.substring(lastCharacter + 1),
+            style: style,
+          ),
+      ];
+
+      spans.insert(
+        spanIndex,
+        TextSpan(children: replacementSpans),
+      );
+    } catch (e) {
+      print("asdf");
+    }
   }
 
   List<TextSpan> _spansForText(
@@ -61,7 +208,7 @@ class MathCodeEditingController extends TextEditingController {
     int bracketDepth,
     MathCodeFieldThemeData themeData,
   ) {
-    final children = <TextSpan>[const TextSpan(text: "")];
+    final children = <TextSpan>[/*const TextSpan(text: "")*/];
     var separated =
         true; // is true if a bracket, whitespace, comma or operator was the last character
     var nonSeparatedIndex = -1;
@@ -183,20 +330,19 @@ class MathCodeEditingController extends TextEditingController {
       themeData,
     );
     return [
+      TextSpan(
+        text: "(",
+        style: lastBracketMissing
+            ? TextStyle(color: themeData.errorColor)
+            : bracketStyle,
+      ),
+      TextSpan(children: spans),
+      if (!lastBracketMissing)
         TextSpan(
-          text: "(",
-          style: lastBracketMissing
-              ? TextStyle(color: themeData.errorColor)
-              : bracketStyle,
+          text: ")",
+          style: bracketStyle,
         ),
-        TextSpan(children: spans),
-        if (!lastBracketMissing)
-          TextSpan(
-            text: ")",
-            style: bracketStyle,
-          ),
-      ]
-    ;
+    ];
   }
 
   TextSpan _spanForVariable(
