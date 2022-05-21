@@ -22,6 +22,8 @@ class MathCodeEditingController extends TextEditingController {
     _currentErrors = errors;
   }
 
+  // TODO: better error system, perhaps callback with async on each text change, to get errors
+  // TODO: if a CodeError is on a new line, draw the red line to that
   @override
   TextSpan buildTextSpan({
     required BuildContext context,
@@ -42,6 +44,7 @@ class MathCodeEditingController extends TextEditingController {
   /// uses the [MathCodeFieldThemeData.errorTextStyle]
   /// for the styling of the errors
   void _replaceSpansWithErrors(
+    // TODO: CodeErrors out of the range of the text should not cause errors
     List<TextSpan> spans,
     List<CodeError> errors,
     TextStyle errorStyle,
@@ -95,17 +98,6 @@ class MathCodeEditingController extends TextEditingController {
     TextStyle errorStyle,
     String? errorMessage,
   ) {
-    if (firstSpan == lastSpan) {
-      _replacePartOfSpanWithError(
-        spans,
-        firstSpan,
-        firstCharacterFirstSpan,
-        lastCharacterLastSpan,
-        errorStyle,
-        errorMessage,
-      );
-      return;
-    }
     for (var i = firstSpan; i <= lastSpan; i++) {
       late final int firstCharacterOfSpan;
       if (i == 0) {
@@ -121,7 +113,7 @@ class MathCodeEditingController extends TextEditingController {
             (spans[i].text?.length ?? 0) - 1; // span has already been removed
       }
       assert(firstCharacterOfSpan <= lastCharacterOfSpan);
-      _replacePartOfSpanWithError(
+      final insertedSpans = _replaceSpanWithMultipleSpansForError(
         spans,
         i,
         firstCharacterOfSpan,
@@ -129,10 +121,11 @@ class MathCodeEditingController extends TextEditingController {
         errorStyle,
         errorMessage,
       );
+      i += insertedSpans - 1;
     }
   }
 
-  void _replacePartOfSpanWithError(
+  int _replaceSpanWithMultipleSpansForError(
     List<TextSpan> spans,
     int spanIndex,
     int firstCharacter,
@@ -145,31 +138,28 @@ class MathCodeEditingController extends TextEditingController {
     final style = span.style;
     final mergedErrorStyle =
         style == null ? errorStyle : errorStyle.merge(style);
-    try {
-      final replacementSpans = [
-        if (firstCharacter != 0)
-          TextSpan(
-            text: text.substring(0, firstCharacter),
-            style: style,
-          ),
+    final replacementSpans = [
+      if (firstCharacter != 0)
         TextSpan(
-          text: text.substring(firstCharacter, lastCharacter + 1),
-          style: mergedErrorStyle,
+          text: text.substring(0, firstCharacter),
+          style: style,
         ),
-        if (lastCharacter != text.length - 1)
-          TextSpan(
-            text: text.substring(lastCharacter + 1),
-            style: style,
-          ),
-      ];
+      TextSpan(
+        text: text.substring(firstCharacter, lastCharacter + 1),
+        style: mergedErrorStyle,
+      ),
+      if (lastCharacter != text.length - 1)
+        TextSpan(
+          text: text.substring(lastCharacter + 1),
+          style: style,
+        ),
+    ];
 
-      spans.insert(
-        spanIndex,
-        TextSpan(children: replacementSpans),
-      );
-    } catch (e) {
-      print("asdf");
-    }
+    spans.insertAll(
+      spanIndex,
+      replacementSpans,
+    );
+    return replacementSpans.length;
   }
 
   List<TextSpan> _spansForText(
