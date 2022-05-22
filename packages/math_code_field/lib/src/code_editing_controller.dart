@@ -6,7 +6,6 @@ import 'package:math_code_field/src/code_field.dart';
 import 'style.dart';
 import 'code_error.dart';
 
-
 /// the [TextEditingController] of the [MathCodeField]
 class MathCodeEditingController extends TextEditingController {
   static const operators = "+-*/^=";
@@ -58,7 +57,6 @@ class MathCodeEditingController extends TextEditingController {
   /// uses the [MathCodeFieldThemeData.errorTextStyle]
   /// for the styling of the errors
   void _replaceSpansWithErrors(
-    // TODO: CodeErrors out of the range of the text should not cause errors
     List<TextSpan> spans,
     List<CodeError> errors,
     TextStyle errorStyle,
@@ -79,8 +77,8 @@ class MathCodeEditingController extends TextEditingController {
       firstSpan++;
       currentCharacter += spans[firstSpan].text!.length;
     }
-    final firstCharacterFirstSpan = (spans[firstSpan].text!.length - 1) -
-        (currentCharacter - error.begin);
+    final firstCharacterFirstSpan =
+        (spans[firstSpan].text!.length - 1) - (currentCharacter - error.begin);
     var lastSpan = firstSpan;
     while (currentCharacter < error.realEnd - 1) {
       lastSpan++;

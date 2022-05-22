@@ -49,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
         foregroundColor: Colors.white,
         child: const Icon(Icons.error_outline_sharp),
         onPressed: () {
-          setState((){
+          setState(() {
             errorsOn = !errorsOn;
           });
         },

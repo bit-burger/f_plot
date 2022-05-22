@@ -28,8 +28,6 @@ class MathCodeField extends StatelessWidget {
   }
 }
 
-
-
 class _MathCodeField extends StatefulWidget {
   final List<CodeError> errors;
 
