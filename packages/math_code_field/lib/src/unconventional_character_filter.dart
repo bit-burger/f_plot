@@ -24,8 +24,8 @@ class UnconventionalCharacterFilter extends TextInputFormatter {
     if (newValue.selection.isCollapsed &&
         newValue.selection.baseOffset > s.length) {
       selection = TextSelection(
-        baseOffset: s.length - 1,
-        extentOffset: s.length - 1,
+        baseOffset: s.length,
+        extentOffset: s.length,
       );
     } else {
       selection = newValue.selection;

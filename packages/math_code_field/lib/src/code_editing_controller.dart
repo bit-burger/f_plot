@@ -93,11 +93,11 @@ class MathCodeEditingController extends TextEditingController {
 
   List<CodeError> _errorsInbound(List<CodeError> errors) {
     final length = text.length;
-    return errors
+    return errors.reversed
         .where((error) => error.begin < length)
         .map((error) => CodeError(
               begin: error.begin,
-              end: min(error.realEnd, length),
+              end: min(error.end, length),
               message: error.message,
             ))
         .toList(growable: false);
@@ -131,12 +131,12 @@ class MathCodeEditingController extends TextEditingController {
     final firstCharacterFirstSpan =
         (spans[firstSpan].cText.length - 1) - (currentCharacter - error.begin);
     var lastSpan = firstSpan;
-    while (currentCharacter < error.realEnd - 1) {
+    while (currentCharacter < error.end - 1) {
       lastSpan++;
       currentCharacter += spans[lastSpan].cText.length;
     }
     final lastCharacterLastSpan = (spans[lastSpan].cText.length - 1) -
-        (currentCharacter - (error.realEnd - 1));
+        (currentCharacter - (error.end - 1));
     assert(firstSpan < lastSpan ||
         (firstSpan == lastSpan &&
             firstCharacterFirstSpan <= lastCharacterLastSpan));

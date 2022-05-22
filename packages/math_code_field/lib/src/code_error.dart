@@ -6,20 +6,21 @@ class CodeError {
   final int begin;
 
   /// the first character after the error
-  ///
-  /// if [end] is null, only the character at [begin] will be marked
-  final int? end;
+  final int end;
 
   /// the message that should be displayed, if hovering over an error.
   ///
   /// if [message] is null, nothing will happen on hovering over the editor
   final String? message;
 
-  int get realEnd => end ?? begin + 1;
-
   const CodeError({
     required this.begin,
-    this.end,
+    int? end,
     this.message,
-  });
+  }) : end = end ?? begin + 1;
+
+  @override
+  String toString() {
+    return '$message at $begin to ${end - 1}';
+  }
 }

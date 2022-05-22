@@ -34,15 +34,36 @@ class _MyHomePageState extends State<MyHomePage> {
     CodeError(begin: 8, end: 20, message: "third"),
   ];
   var errorsOn = false;
+  String? errorMessage;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("MathCodeField"),
       ),
-      body: MathCodeField(
-        monoTextTheme: GoogleFonts.jetBrainsMonoTextTheme(),
-        codeErrors: errorsOn ? _errors : [],
+      body: Column(
+        children: [
+          Expanded(
+            child: MathCodeField(
+              monoTextTheme: GoogleFonts.jetBrainsMonoTextTheme(),
+              codeErrors: errorsOn ? _errors : <CodeError>[],
+              errorSelectionChanged: (e) {
+                setState(() {
+                  errorMessage = e?.toString();
+                });
+              },
+            ),
+          ),
+          if (errorMessage != null)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Text(errorMessage!),
+              ),
+            ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.red,

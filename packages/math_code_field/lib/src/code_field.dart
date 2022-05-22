@@ -7,14 +7,36 @@ import 'unconventional_character_filter.dart';
 
 // TODO: add tabs and automatic parentheses completion
 /// a text field with highlighting and line numbers for math
-class MathCodeField extends StatelessWidget {
-  final List<CodeError> codeErrors;
+class MathCodeField<ErrorType extends CodeError> extends StatelessWidget {
+  /// the errors that should be displayed,
+  /// errors that are not at all inside of the text bounds are not displayed,
+  /// and errors that are partly outside of it are only shown the parts inside
+  ///
+  /// the first error is the most important error
+  /// and the last one the least important.
+  ///
+  /// if two errors overlap,
+  /// the part that overlaps shows the error that is more important.
+  final List<ErrorType> codeErrors;
+
+  /// the text theme to be used, should be mono sized.
   final TextTheme monoTextTheme;
+
+  /// a function that is called when the text changes
+  final ValueChanged<String>? textChanged;
+
+  /// a function that is called when the selection/cursor or text changes.
+  ///
+  /// is called with the first error in [codeErrors],
+  /// where the cursor lies in the error
+  final ValueChanged<ErrorType?>? errorSelectionChanged;
 
   const MathCodeField({
     Key? key,
     this.codeErrors = const [],
     required this.monoTextTheme,
+    this.textChanged,
+    this.errorSelectionChanged,
   }) : super(key: key);
 
   @override
@@ -23,22 +45,72 @@ class MathCodeField extends StatelessWidget {
       data: ThemeData(
         textTheme: monoTextTheme,
       ),
-      child: _MathCodeField(errors: codeErrors),
+      child: _MathCodeField(
+        errors: codeErrors,
+        textChanged: textChanged,
+        errorSelectionChanged: errorSelectionChanged,
+      ),
     );
   }
 }
 
-class _MathCodeField extends StatefulWidget {
+class _MathCodeField<ErrorType> extends StatefulWidget {
   final List<CodeError> errors;
+  final ValueChanged<String>? textChanged;
+  final ValueChanged<ErrorType?>? errorSelectionChanged;
 
-  const _MathCodeField({required this.errors, Key? key}) : super(key: key);
+  const _MathCodeField({
+    required this.errors,
+    Key? key,
+    this.textChanged,
+    this.errorSelectionChanged,
+  }) : super(key: key);
 
   @override
   State<_MathCodeField> createState() => _MathCodeFieldState();
 }
 
 class _MathCodeFieldState extends State<_MathCodeField> {
-  final _controller = MathCodeEditingController();
+  late final MathCodeEditingController _controller;
+  late TextSelection _lastSelection;
+  late CodeError? _lastSelectedError;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = MathCodeEditingController();
+    _lastSelection = _controller.selection;
+    _lastSelectedError = null;
+    _controller.addListener(_didUpdateController);
+  }
+
+  void _didUpdateController() {
+    if (_controller.selection != _lastSelection) {
+      final error =
+          _firstErrorThatLiesInCursor(_controller.selection.baseOffset);
+      if (error != _lastSelectedError) {
+        widget.errorSelectionChanged?.call(error);
+      }
+      _lastSelectedError = error;
+    }
+    _lastSelection = _controller.selection;
+  }
+
+  CodeError? _firstErrorThatLiesInCursor(int cursorPosition) {
+    for (final error in widget.errors) {
+      if (cursorPosition >= error.begin && cursorPosition < error.end) {
+        return error;
+      }
+      // make sure a error cannot be marked if it is on the line above,
+      // even if it goes to the new line
+      if (cursorPosition != 0 &&
+          cursorPosition == error.end &&
+          _controller.text[cursorPosition - 1] != "\n") {
+        return error;
+      }
+    }
+    return null;
+  }
 
   static double _textWidth(String text, TextStyle style) {
     final TextPainter textPainter = TextPainter(
@@ -66,6 +138,7 @@ class _MathCodeFieldState extends State<_MathCodeField> {
   Widget _buildTextField() {
     return IntrinsicHeight(
       child: TextField(
+        onChanged: widget.textChanged,
         inputFormatters: [UnconventionalCharacterFilter()],
         toolbarOptions:
             const ToolbarOptions(copy: true, paste: true, cut: true),
@@ -169,6 +242,7 @@ class _MathCodeFieldState extends State<_MathCodeField> {
   @override
   void dispose() {
     _controller.dispose();
+    _controller.removeListener(_didUpdateController);
     super.dispose();
   }
 }
