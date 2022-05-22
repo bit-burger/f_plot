@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'code_editing_controller.dart';
 import 'style.dart';
 import 'code_error.dart';
 import 'unconventional_character_filter.dart';
 
+// TODO: add tabs and automatic parentheses completion
 /// a text field with highlighting and line numbers for math
 class MathCodeField extends StatelessWidget {
   final List<CodeError> codeErrors;

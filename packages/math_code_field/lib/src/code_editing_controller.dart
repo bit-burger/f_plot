@@ -1,10 +1,61 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:math_code_field/src/code_field.dart';
 import 'style.dart';
 import 'code_error.dart';
+
+// class ErrorSpan extends WidgetSpan {
+//   final String text;
+//
+//   ErrorSpan({
+//     required this.text,
+//     required String errorMessage,
+//     required TextStyle errorStyle,
+//   }) : super(
+//           child: RichText(
+//             text: WidgetSpan(
+//               child: Tooltip(
+//                 message: errorMessage,
+//                 child: RichText(
+//                   text: TextSpan(text: text, style: errorStyle),
+//                 ),
+//               ),
+//             ),
+//           ),
+//         );
+//
+//   @override
+//   String toPlainText({
+//     bool includeSemanticsLabels = true,
+//     bool includePlaceholders = true,
+//   }) {
+//     return text;
+//   }
+// }
+
+// class ErrorSpan extends TextSpan {
+//   final String message;
+//
+//   const ErrorSpan({
+//     required TextStyle errorStyle,
+//     required super.text,
+//     required this.message,
+//   }) : super(style: errorStyle);
+//
+//   @override
+//   void handleEvent(PointerEvent event, HitTestEntry<HitTestTarget> entry) {
+//     if (event is PointerAddedEvent) {
+//
+//     } else if (event is PointerRemovedEvent || event is PointerCancelEvent) {
+//
+//     }
+//   }
+// }
+
+extension _FasterPlainTextAccess on InlineSpan {
+  String get cText => toPlainText(includePlaceholders: true);
+}
 
 /// the [TextEditingController] of the [MathCodeField]
 class MathCodeEditingController extends TextEditingController {
@@ -57,7 +108,7 @@ class MathCodeEditingController extends TextEditingController {
   /// uses the [MathCodeFieldThemeData.errorTextStyle]
   /// for the styling of the errors
   void _replaceSpansWithErrors(
-    List<TextSpan> spans,
+    List<InlineSpan> spans,
     List<CodeError> errors,
     TextStyle errorStyle,
   ) {
@@ -67,24 +118,24 @@ class MathCodeEditingController extends TextEditingController {
   }
 
   void _replaceSpansWithError(
-    List<TextSpan> spans,
+    List<InlineSpan> spans,
     CodeError error,
     TextStyle errorStyle,
   ) {
     var firstSpan = 0;
-    var currentCharacter = spans[0].text!.length - 1;
+    var currentCharacter = spans[0].cText.length - 1;
     while (currentCharacter < error.begin) {
       firstSpan++;
-      currentCharacter += spans[firstSpan].text!.length;
+      currentCharacter += spans[firstSpan].cText.length;
     }
     final firstCharacterFirstSpan =
-        (spans[firstSpan].text!.length - 1) - (currentCharacter - error.begin);
+        (spans[firstSpan].cText.length - 1) - (currentCharacter - error.begin);
     var lastSpan = firstSpan;
     while (currentCharacter < error.realEnd - 1) {
       lastSpan++;
-      currentCharacter += spans[lastSpan].text!.length;
+      currentCharacter += spans[lastSpan].cText.length;
     }
-    final lastCharacterLastSpan = (spans[lastSpan].text!.length - 1) -
+    final lastCharacterLastSpan = (spans[lastSpan].cText.length - 1) -
         (currentCharacter - (error.realEnd - 1));
     assert(firstSpan < lastSpan ||
         (firstSpan == lastSpan &&
@@ -102,7 +153,7 @@ class MathCodeEditingController extends TextEditingController {
   }
 
   void _replaceRangeOfSpansWithError(
-    List<TextSpan> spans,
+    List<InlineSpan> spans,
     int firstSpan,
     int firstCharacterFirstSpan,
     int lastSpan,
@@ -121,7 +172,7 @@ class MathCodeEditingController extends TextEditingController {
       if (i == lastSpan) {
         lastCharacterOfSpan = lastCharacterLastSpan;
       } else {
-        lastCharacterOfSpan = spans[i].text!.length - 1;
+        lastCharacterOfSpan = spans[i].cText.length - 1;
       }
       assert(firstCharacterOfSpan <= lastCharacterOfSpan);
       final insertedSpans = _replaceSpanWithMultipleSpansForError(
@@ -138,7 +189,7 @@ class MathCodeEditingController extends TextEditingController {
   }
 
   int _replaceSpanWithMultipleSpansForError(
-    List<TextSpan> spans,
+    List<InlineSpan> spans,
     int spanIndex,
     int firstCharacter,
     int lastCharacter,
@@ -146,7 +197,7 @@ class MathCodeEditingController extends TextEditingController {
     String? errorMessage,
   ) {
     final span = spans.removeAt(spanIndex);
-    final text = span.text!;
+    final text = span.cText;
     final style = span.style;
     final mergedErrorStyle =
         style == null ? errorStyle : errorStyle.merge(style);
@@ -156,6 +207,13 @@ class MathCodeEditingController extends TextEditingController {
           text: text.substring(0, firstCharacter),
           style: style,
         ),
+      // if (errorMessage != null)
+      //   ErrorSpan(
+      //     text: text.substring(firstCharacter, lastCharacter + 1),
+      //     errorStyle: mergedErrorStyle,
+      //     errorMessage: errorMessage,
+      //   ),
+      // if (errorMessage != null)
       TextSpan(
         text: text.substring(firstCharacter, lastCharacter + 1),
         style: mergedErrorStyle,
@@ -174,11 +232,11 @@ class MathCodeEditingController extends TextEditingController {
     return replacementSpans.length;
   }
 
-  List<TextSpan> _spansForText(
+  List<InlineSpan> _spansForText(
     String text,
     MathCodeFieldThemeData themeData,
   ) {
-    final textSpans = <TextSpan>[];
+    final textSpans = <InlineSpan>[];
     var lineBreaks = 0;
     var begin = 0;
     for (var i = 0; i < text.length; i++) {
@@ -203,14 +261,14 @@ class MathCodeEditingController extends TextEditingController {
     return textSpans;
   }
 
-  List<TextSpan> _spansInDeclarations(
+  List<InlineSpan> _spansInDeclarations(
     String text,
     int begin,
     int end,
     int bracketDepth,
     MathCodeFieldThemeData themeData,
   ) {
-    final children = <TextSpan>[];
+    final children = <InlineSpan>[];
     var separated =
         true; // is true if a bracket, whitespace, comma or operator was the last character
     var nonSeparatedIndex = -1;
@@ -313,7 +371,7 @@ class MathCodeEditingController extends TextEditingController {
     return children;
   }
 
-  List<TextSpan> _spansForBracket(
+  List<InlineSpan> _spansForBracket(
     String text,
     int begin,
     int end,
