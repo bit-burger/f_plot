@@ -6,6 +6,7 @@ import 'package:math_code_field/src/code_field.dart';
 import 'style.dart';
 import 'code_error.dart';
 
+
 /// the [TextEditingController] of the [MathCodeField]
 class MathCodeEditingController extends TextEditingController {
   static const operators = "+-*/^=";
@@ -73,19 +74,19 @@ class MathCodeEditingController extends TextEditingController {
     TextStyle errorStyle,
   ) {
     var firstSpan = 0;
-    var currentCharacter = (spans[0].text?.length ?? 0) - 1;
+    var currentCharacter = spans[0].text!.length - 1;
     while (currentCharacter < error.begin) {
       firstSpan++;
-      currentCharacter += spans[firstSpan].text?.length ?? 0;
+      currentCharacter += spans[firstSpan].text!.length;
     }
-    final firstCharacterFirstSpan = ((spans[firstSpan].text?.length ?? 0) - 1) -
+    final firstCharacterFirstSpan = (spans[firstSpan].text!.length - 1) -
         (currentCharacter - error.begin);
     var lastSpan = firstSpan;
     while (currentCharacter < error.realEnd - 1) {
       lastSpan++;
-      currentCharacter += spans[lastSpan].text?.length ?? 0;
+      currentCharacter += spans[lastSpan].text!.length;
     }
-    final lastCharacterLastSpan = ((spans[lastSpan].text?.length ?? 0) - 1) -
+    final lastCharacterLastSpan = (spans[lastSpan].text!.length - 1) -
         (currentCharacter - (error.realEnd - 1));
     assert(firstSpan < lastSpan ||
         (firstSpan == lastSpan &&
@@ -211,7 +212,7 @@ class MathCodeEditingController extends TextEditingController {
     int bracketDepth,
     MathCodeFieldThemeData themeData,
   ) {
-    final children = <TextSpan>[/*const TextSpan(text: "")*/];
+    final children = <TextSpan>[];
     var separated =
         true; // is true if a bracket, whitespace, comma or operator was the last character
     var nonSeparatedIndex = -1;
