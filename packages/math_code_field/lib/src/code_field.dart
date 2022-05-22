@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'code_editing_controller.dart';
 import 'style.dart';
 import 'code_error.dart';
+import 'unconventional_character_filter.dart';
 
 /// a text field with highlighting and line numbers for math
 class MathCodeField extends StatelessWidget {
@@ -13,7 +15,6 @@ class MathCodeField extends StatelessWidget {
     Key? key,
     this.codeErrors = const [],
     required this.monoTextTheme,
-
   }) : super(key: key);
 
   @override
@@ -22,10 +23,12 @@ class MathCodeField extends StatelessWidget {
       data: ThemeData(
         textTheme: monoTextTheme,
       ),
-      child: _MathCodeField(errors : codeErrors),
+      child: _MathCodeField(errors: codeErrors),
     );
   }
 }
+
+
 
 class _MathCodeField extends StatefulWidget {
   final List<CodeError> errors;
@@ -65,6 +68,7 @@ class _MathCodeFieldState extends State<_MathCodeField> {
   Widget _buildTextField() {
     return IntrinsicHeight(
       child: TextField(
+        inputFormatters: [UnconventionalCharacterFilter()],
         toolbarOptions:
             const ToolbarOptions(copy: true, paste: true, cut: true),
         controller: _controller,
