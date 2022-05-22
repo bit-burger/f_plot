@@ -122,8 +122,7 @@ class MathCodeEditingController extends TextEditingController {
       if (i == lastSpan) {
         lastCharacterOfSpan = lastCharacterLastSpan;
       } else {
-        lastCharacterOfSpan =
-            (spans[i].text?.length ?? 0) - 1; // span has already been removed
+        lastCharacterOfSpan = spans[i].text!.length - 1;
       }
       assert(firstCharacterOfSpan <= lastCharacterOfSpan);
       final insertedSpans = _replaceSpanWithMultipleSpansForError(
@@ -135,6 +134,7 @@ class MathCodeEditingController extends TextEditingController {
         errorMessage,
       );
       i += insertedSpans - 1;
+      lastSpan += insertedSpans - 1;
     }
   }
 
