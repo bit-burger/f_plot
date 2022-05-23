@@ -1,16 +1,41 @@
 import 'package:bloc/bloc.dart';
+import 'package:f_plot/repositories/projects/projects_repository_contract.dart';
 import 'package:meta/meta.dart';
+
+import '../../domain/project.dart';
 
 part 'open_project_state.dart';
 
 class OpenProjectCubit extends Cubit<OpenProjectState> {
-  OpenProjectCubit() : super(InitialOpenProjectState());
+  final IProjectsRepository projectsRepository;
 
-  void openProject(int projectId) {
-    emit(ProjectOpened(projectId));
+  OpenProjectCubit({
+    required this.projectsRepository,
+  }) : super(OpenProjectState.initial());
+
+  void noProjectOpened() {
+    emit(const OpenProjectState());
+  }
+
+  void openProject(int projectId) async {
+    emit(state.copyWith(isLoading: true));
+    final project = await projectsRepository.getProject(projectId);
+    emit(OpenProjectState(isLoading: false, openProject: project));
+  }
+
+  void editName(String newName) async {
+    final openedProjectId = state.openProject!.id;
+    await projectsRepository.editProjectName(openedProjectId, newName);
+  }
+
+  void deleteProject() {
+    final openedProjectId = state.openProject!.id;
+    emit(state.copyWith(isLoading: true));
+    projectsRepository.deleteProject(openedProjectId);
+    emit(const OpenProjectState());
   }
 
   void closeProject() {
-    emit(NoProjectOpened());
+    emit(const OpenProjectState());
   }
 }

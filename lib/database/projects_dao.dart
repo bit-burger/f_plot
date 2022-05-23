@@ -1,6 +1,8 @@
 import "package:f_plot/domain/project.dart";
 import "package:sqflite/sqflite.dart";
 
+import '../domain/project_listing.dart';
+
 class ProjectsDao {
   final String dbPath;
   late final Database db;
@@ -11,7 +13,7 @@ class ProjectsDao {
     await db.execute("create table projects("
         "  id integer primary key autoincrement,"
         "  name varchar not null,"
-        "  math_functions varchar not null default '',"
+        "  plot_file varchar not null default '',"
         "  created_at timestamp not null"
         "    default (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
         ")");
@@ -26,22 +28,33 @@ class ProjectsDao {
     );
   }
 
-  Future<List<Project>> getProjects() async {
+  Future<List<ProjectListing>> getProjects() async {
     final result = await db.query(
       "projects",
       columns: ["id", "name", "created_at"],
       orderBy: "name",
     );
-    return result.map((json) => Project.fromJson(json)).toList(growable: false);
+    return result
+        .map((json) => ProjectListing.fromJson(json))
+        .toList(growable: false);
   }
 
-  Future<Project> newProject(String name) async {
+  Future<Project> getProject(int projectId) async {
+    final result = await db.query(
+      "projects",
+      columns: ["id", "name", "created_at", "plot_file"],
+      limit: 1,
+    );
+    return Project.fromJson(result[0]);
+  }
+
+  Future<ProjectListing> newProject(String name) async {
     final result = await db.rawQuery(
       "insert into projects(name) values (?) "
       "returning id, name, created_at",
       [name],
     );
-    return Project.fromJson(result.first);
+    return ProjectListing.fromJson(result.first);
   }
 
   Future<void> editProjectName(int projectId, String name) async {
@@ -61,23 +74,13 @@ class ProjectsDao {
     );
   }
 
-  Future<String> getMathFunctionsFromProject(int projectId) async {
-    final result = await db.query(
-      "projects",
-      columns: ["math_functions"],
-      where: "id = ?",
-      whereArgs: [projectId],
-    );
-    return result.first["math_functions"]! as String;
-  }
-
-  Future<void> saveMathFunctionsToProject(
+  Future<void> editProjectPlotFile(
     int projectId,
-    String mathFunctions,
+    String plotFile,
   ) async {
     await db.update(
       "projects",
-      {"math_functions": mathFunctions},
+      {"plot_file": plotFile},
       where: "id = ?",
       whereArgs: [projectId],
     );

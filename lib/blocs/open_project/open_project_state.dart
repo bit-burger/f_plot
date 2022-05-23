@@ -1,14 +1,28 @@
 part of 'open_project_cubit.dart';
 
 @immutable
-abstract class OpenProjectState {}
+class OpenProjectState {
+  final bool isLoading;
+  final Project? openProject;
 
-class InitialOpenProjectState extends OpenProjectState {}
+  bool get projectIsOpen => openProject != null;
 
-class NoProjectOpened extends OpenProjectState {}
+  const OpenProjectState({
+    this.isLoading = false,
+    this.openProject,
+  });
 
-class ProjectOpened extends OpenProjectState {
-  final int projectId;
+  factory OpenProjectState.initial() {
+    return const OpenProjectState();
+  }
 
-  ProjectOpened(this.projectId);
+  OpenProjectState copyWith({
+    bool? isLoading,
+    Project? openProject,
+  }) {
+    return OpenProjectState(
+      isLoading: isLoading ?? this.isLoading,
+      openProject: openProject ?? this.openProject,
+    );
+  }
 }
