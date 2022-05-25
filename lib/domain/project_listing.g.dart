@@ -10,12 +10,12 @@ ProjectListing _$ProjectListingFromJson(Map<String, dynamic> json) =>
     ProjectListing(
       id: json['id'] as int,
       name: json['name'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: DateTime.parse(json['created_at'] as String),
     );
 
 Map<String, dynamic> _$ProjectListingToJson(ProjectListing instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
-      'createdAt': instance.createdAt.toIso8601String(),
+      'created_at': instance.createdAt.toIso8601String(),
     };

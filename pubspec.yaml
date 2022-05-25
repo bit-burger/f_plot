@@ -11,14 +11,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  math_keyboard: ^0.1.4+1
   cupertino_icons: ^1.0.2
-  function_tree: ^0.8.12
   bloc: ^8.0.3
   flutter_bloc: ^8.0.1
   json_annotation: ^4.4.0
   sqflite: ^2.0.2
-  math_expressions: ^2.3.0
+  intl: ^0.17.0
 
 dev_dependencies:
   flutter_test:

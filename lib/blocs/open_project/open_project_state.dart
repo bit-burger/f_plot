@@ -25,4 +25,9 @@ class OpenProjectState {
       openProject: openProject ?? this.openProject,
     );
   }
+
+  @override
+  String toString() {
+    return 'OpenProjectState{isLoading: $isLoading, openProject: $openProject}';
+  }
 }

@@ -9,13 +9,13 @@ part of 'project.dart';
 Project _$ProjectFromJson(Map<String, dynamic> json) => Project(
       id: json['id'] as int,
       name: json['name'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      plotFile: json['plotFile'] as String,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      plotFile: json['plot_file'] as String,
     );
 
 Map<String, dynamic> _$ProjectToJson(Project instance) => <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'plotFile': instance.plotFile,
+      'created_at': instance.createdAt.toIso8601String(),
+      'plot_file': instance.plotFile,
     };

@@ -9,7 +9,7 @@ class ProjectsDao {
 
   ProjectsDao({required this.dbPath});
 
-  Future<void> initSchema(Database db) async {
+  Future<void> _initSchema(Database db) async {
     await db.execute("create table projects("
         "  id integer primary key autoincrement,"
         "  name varchar not null,"
@@ -24,7 +24,7 @@ class ProjectsDao {
     db = await openDatabase(
       dbPath,
       version: 1,
-      onCreate: (db, _) => initSchema(db),
+      onCreate: (db, _) => _initSchema(db),
     );
   }
 

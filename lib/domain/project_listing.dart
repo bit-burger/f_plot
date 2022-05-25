@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 part 'project_listing.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(fieldRename: FieldRename.snake)
 class ProjectListing {
   final int id;
   final String name;

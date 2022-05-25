@@ -12,10 +12,11 @@ class ProjectsOverviewCubit extends Cubit<ProjectsOverviewState> {
   final IProjectsRepository projectsRepository;
   late final StreamSubscription<List<ProjectListing>> _sub;
 
-  ProjectsOverviewCubit(this.projectsRepository) : super(ProjectsOverviewState.initial());
+  ProjectsOverviewCubit({
+    required this.projectsRepository,
+  }) : super(ProjectsOverviewState.initial());
 
   void loadProjects() {
-    projectsRepository.startListeningToProjects();
     emit(const ProjectsOverviewState(isLoading: true));
     _sub = projectsRepository.listingStream.listen(listingUpdate);
   }
@@ -29,8 +30,14 @@ class ProjectsOverviewCubit extends Cubit<ProjectsOverviewState> {
     projectsRepository.deleteProject(projectId);
   }
 
-  void newProject(String name) {
+  void newProject(String name) async {
     emit(state.copyWith(isLoading: true));
-    projectsRepository.newProject(name);
+    await projectsRepository.newProject(name);
+  }
+
+  @override
+  Future<void> close() {
+    _sub.cancel();
+    return super.close();
   }
 }
