@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../blocs/projects_overview/projects_overview_cubit.dart';
 
 class AddNewProjectDialog extends StatefulWidget {
-  const AddNewProjectDialog({Key? key}) : super(key: key);
+  final ValueChanged<String> onNewProjectSuccess;
+  const AddNewProjectDialog({super.key, required this.onNewProjectSuccess});
 
   @override
   State<AddNewProjectDialog> createState() => _AddNewProjectDialogState();
@@ -16,7 +14,7 @@ class _AddNewProjectDialogState extends State<AddNewProjectDialog> {
   void _addNewProject() {
     final name = _nameTextController.text;
     if (name.isEmpty) return;
-    context.read<ProjectsOverviewCubit>().newProject(name);
+    widget.onNewProjectSuccess(name);
     Navigator.pop(context);
   }
 

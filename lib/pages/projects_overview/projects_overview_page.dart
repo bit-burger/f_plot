@@ -5,47 +5,14 @@ import 'package:intl/intl.dart';
 
 import '../../blocs/projects_overview/projects_overview_cubit.dart';
 import '../../domain/project_listing.dart';
-import 'add_new_project_dialog.dart';
-import 'delete_project_dialog.dart';
+import '../../widgets/add_new_project_dialog.dart';
+import '../../widgets/delete_project_dialog.dart';
 
 class ProjectsOverviewPage extends StatelessWidget {
   static const dateFormat = "dd.mm.yyyy HH:mm";
   static final dateFormatter = DateFormat(dateFormat);
 
   const ProjectsOverviewPage({super.key});
-
-  void _showNewProjectDialog(
-    BuildContext context,
-    ProjectsOverviewCubit projectsOverviewCubit,
-  ) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return BlocProvider.value(
-          value: projectsOverviewCubit,
-          child: const AddNewProjectDialog(),
-        );
-      },
-    );
-  }
-
-  void _showDeleteProjectDialog(
-    BuildContext context,
-    ProjectsOverviewCubit projectsOverviewCubit,
-    int deletionPendingProjectId,
-  ) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return BlocProvider.value(
-          value: projectsOverviewCubit,
-          child: DeleteProjectDialog(
-            deletionPendingProjectId: deletionPendingProjectId,
-          ),
-        );
-      },
-    );
-  }
 
   Widget _projectsList(List<ProjectListing> projects) {
     return ListView.builder(
@@ -61,10 +28,14 @@ class ProjectsOverviewPage extends StatelessWidget {
           trailing: IconButton(
             icon: const Icon(Icons.delete),
             onPressed: () {
-              _showDeleteProjectDialog(
-                context,
-                context.read<ProjectsOverviewCubit>(),
-                project.id,
+              showDialog(
+                context: context,
+                builder: (_) => DeleteProjectDialog(
+                  projectName: project.name,
+                  onDelete: () => context
+                      .read<ProjectsOverviewCubit>()
+                      .deleteProject(project.id),
+                ),
               );
             },
           ),
@@ -93,10 +64,14 @@ class ProjectsOverviewPage extends StatelessWidget {
         title: const Text("F Plot"),
         actions: [
           IconButton(
-            onPressed: () => _showNewProjectDialog(
-              context,
-              projectsOverviewCubit,
-            ),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (_) => AddNewProjectDialog(
+                  onNewProjectSuccess: projectsOverviewCubit.newProject,
+                ),
+              );
+            },
             icon: const Icon(Icons.add),
           ),
         ],

@@ -1,35 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../blocs/projects_overview/projects_overview_cubit.dart';
-
-class DeleteProjectDialog extends StatefulWidget {
-  final int deletionPendingProjectId;
+class DeleteProjectDialog extends StatelessWidget {
+  final String projectName;
+  final VoidCallback onDelete;
 
   const DeleteProjectDialog({
-    Key? key,
-    required this.deletionPendingProjectId,
-  }) : super(key: key);
+    super.key,
+    required this.onDelete,
+    required this.projectName,
+  });
 
-  @override
-  State<DeleteProjectDialog> createState() => _DeleteProjectDialogState();
-}
-
-class _DeleteProjectDialogState extends State<DeleteProjectDialog> {
-  void _deleteProject() {
-    context
-        .read<ProjectsOverviewCubit>()
-        .deleteProject(widget.deletionPendingProjectId);
+  void _deleteProject(BuildContext context) {
+    onDelete();
     Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    final projectName = context
-        .read<ProjectsOverviewCubit>()
-        .state
-        .projects!
-        .where((project) => project.id == widget.deletionPendingProjectId);
     return AlertDialog(
       title: const Text("Delete a project"),
       content: Text(
@@ -42,7 +29,7 @@ class _DeleteProjectDialogState extends State<DeleteProjectDialog> {
           child: const Text("cancel"),
         ),
         TextButton(
-          onPressed: _deleteProject,
+          onPressed: () => _deleteProject(context),
           child: Text(
             "delete",
             style: TextStyle(color: Theme.of(context).errorColor),
