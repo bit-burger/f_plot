@@ -12,13 +12,17 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
+  # state-management
   flutter_bloc: ^8.0.1
   bloc: ^8.0.3
   equatable: ^2.0.3
+  # data
   json_annotation: ^4.4.0
   sqflite: ^2.0.2
   intl: ^0.17.0
-
+  # ui
+  flutter_nord_theme: ^2.1.0
+  # custom
   math_code_field:
     path: ./packages/math_code_field
   plot_file:
@@ -30,6 +34,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^1.0.0
+  # code gen
   build_runner: ^2.1.8
   json_serializable: ^6.1.5
 
