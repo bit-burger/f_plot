@@ -29,14 +29,14 @@ class OpenProjectCubit extends Cubit<OpenProjectState> {
     emit(state.copyWith(openProject: project));
   }
 
+  void closeProject() {
+    emit(const OpenProjectState());
+  }
+
   void deleteProject() async {
     final openedProjectId = state.openProject!.id;
     emit(state.copyWith(isLoading: true));
     await projectsRepository.deleteProject(openedProjectId);
-    emit(const OpenProjectState());
-  }
-
-  void closeProject() {
     emit(const OpenProjectState());
   }
 }
