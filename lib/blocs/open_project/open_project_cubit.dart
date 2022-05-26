@@ -25,7 +25,8 @@ class OpenProjectCubit extends Cubit<OpenProjectState> {
 
   void editName(String newName) async {
     final openedProjectId = state.openProject!.id;
-    await projectsRepository.editProjectName(openedProjectId, newName);
+    final project = await projectsRepository.editProjectName(openedProjectId, newName);
+    emit(state.copyWith(openProject: project));
   }
 
   void deleteProject() {

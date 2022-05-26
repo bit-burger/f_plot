@@ -57,13 +57,14 @@ class ProjectsDao {
     return ProjectListing.fromJson(result.first);
   }
 
-  Future<void> editProjectName(int projectId, String name) async {
-    await db.update(
-      "projects",
-      {"name": name},
-      where: "id = ?",
-      whereArgs: [projectId],
+  Future<Project> editProjectName(int projectId, String name) async {
+    final result = await db.rawQuery(
+      "update projects set name = ? "
+      "where id = ? "
+      "returning id, name, created_at, plot_file",
+      [name, projectId],
     );
+    return Project.fromJson(result[0]);
   }
 
   Future<void> deleteProject(int projectId) async {

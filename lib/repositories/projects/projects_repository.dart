@@ -41,9 +41,10 @@ class ProjectsRepository implements IProjectsRepository {
   }
 
   @override
-  Future<void> editProjectName(int projectId, String newName) async {
-    await projectsDao.editProjectName(projectId, newName);
+  Future<Project> editProjectName(int projectId, String newName) async {
+    final project = await projectsDao.editProjectName(projectId, newName);
     loadProjects();
+    return project;
   }
 
   @override
