@@ -22,36 +22,15 @@ class DeleteProjectDialog extends StatelessWidget {
       content: Text(
           "are you sure that you want to delete the project $projectName?"),
       actions: [
-        TextButton(
+        OutlinedButton(
           onPressed: () {
             Navigator.pop(context);
           },
           child: const Text("cancel"),
         ),
-        TextButton(
+        OutlinedButton(
           onPressed: () => _deleteProject(context),
-          child: Text(
-            "delete",
-            style: TextStyle(color: Theme.of(context).errorColor),
-          ),
-          style: ButtonStyle(
-            overlayColor: MaterialStateProperty.resolveWith(
-              (states) {
-                if (states.contains(MaterialState.pressed)) {
-                  return Theme.of(context).errorColor.withAlpha(50);
-                }
-                return null;
-              },
-            ),
-            backgroundColor: MaterialStateProperty.resolveWith(
-              (states) {
-                if (states.contains(MaterialState.hovered)) {
-                  return Theme.of(context).errorColor.withAlpha(24);
-                }
-                return null;
-              },
-            ),
-          ),
+          child: const Text("delete"),
         ),
       ],
     );

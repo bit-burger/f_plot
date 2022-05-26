@@ -37,7 +37,7 @@ class _AddNewProjectDialogState extends State<AddNewProjectDialog> {
         ),
       ),
       actions: [
-        TextButton(
+        OutlinedButton(
           onPressed: () {
             Navigator.pop(context);
           },
@@ -47,7 +47,7 @@ class _AddNewProjectDialogState extends State<AddNewProjectDialog> {
           valueListenable: _nameTextController,
           builder: (context, value, widget) {
             final disabled = value.text.isEmpty;
-            return TextButton(
+            return OutlinedButton(
               onPressed: disabled ? null : _addNewProject,
               child: const Text("submit"),
             );

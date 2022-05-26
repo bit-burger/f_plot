@@ -101,15 +101,15 @@ class OpenProjectAppBar extends StatelessWidget implements PreferredSizeWidget {
         builder: (context) => AlertDialog(
           title: const Text("do you want to discard unsaved changes?"),
           actions: [
-            TextButton(
+            OutlinedButton(
               onPressed: () => Navigator.pop(context, null),
               child: const Text("cancel"),
             ),
-            TextButton(
+            OutlinedButton(
               onPressed: () => Navigator.pop(context, false),
               child: const Text("save and exit"),
             ),
-            TextButton(
+            OutlinedButton(
               onPressed: () => Navigator.pop(context, true),
               child: const Text("discard"),
             ),

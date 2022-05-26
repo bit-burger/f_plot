@@ -42,13 +42,13 @@ class _OpenProjectEditNameDialogState extends State<OpenProjectEditNameDialog> {
         ),
       ),
       actions: [
-        TextButton(
+        OutlinedButton(
           onPressed: () {
             Navigator.pop(context);
           },
           child: const Text("cancel"),
         ),
-        TextButton(
+        OutlinedButton(
           onPressed: _changeName,
           child: const Text("change name"),
         ),
