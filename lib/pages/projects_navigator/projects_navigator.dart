@@ -1,6 +1,6 @@
 import 'package:f_plot/blocs/open_project/open_project_cubit.dart';
 import 'package:f_plot/blocs/projects_overview/projects_overview_cubit.dart';
-import 'package:f_plot/pages/projects_navigator/project_loading_overlay.dart';
+import 'package:f_plot/pages/projects_navigator/loading_overlay_page.dart';
 import 'package:f_plot/pages/open_project/open_project_page.dart';
 import 'package:f_plot/pages/projects_navigator/splash_loading_screen.dart';
 import 'package:f_plot/pages/projects_overview/projects_overview_page.dart';
@@ -45,13 +45,9 @@ class ProjectsNavigator extends StatelessWidget {
         if ((projectsOverviewState.isLoading &&
                 projectsOverviewState.projectsHaveLoaded) ||
             openProjectState.isLoading)
-          MaterialPage(
-            key: const ValueKey("loading"),
+          const LoadingOverlayPage(
+            key: ValueKey("loading"),
             name: "loading...",
-            child: WillPopScope(
-              onWillPop: () async => false,
-              child: const ProjectLoadingOverlay(),
-            ),
           ),
       ],
       onPopPage: (route, result) {
@@ -61,3 +57,4 @@ class ProjectsNavigator extends StatelessWidget {
     );
   }
 }
+

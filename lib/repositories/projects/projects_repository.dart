@@ -30,7 +30,7 @@ class ProjectsRepository implements IProjectsRepository {
   @override
   Future<ProjectListing> newProject(String name) async {
     final project = await projectsDao.newProject(name);
-    loadProjects();
+    await loadProjects();
     return project;
   }
 
@@ -43,7 +43,7 @@ class ProjectsRepository implements IProjectsRepository {
   @override
   Future<Project> editProjectName(int projectId, String newName) async {
     final project = await projectsDao.editProjectName(projectId, newName);
-    loadProjects();
+    await loadProjects();
     return project;
   }
 
@@ -56,7 +56,7 @@ class ProjectsRepository implements IProjectsRepository {
   @override
   Future<void> deleteProject(int projectId) async {
     await projectsDao.deleteProject(projectId);
-    loadProjects();
+    await loadProjects();
   }
 
   @override
