@@ -43,6 +43,8 @@ class ProjectsDao {
     final result = await db.query(
       "projects",
       columns: ["id", "name", "created_at", "plot_file"],
+      where: "id = ?",
+      whereArgs: [projectId],
       limit: 1,
     );
     return Project.fromJson(result[0]);
