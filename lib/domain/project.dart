@@ -1,13 +1,15 @@
 import 'package:f_plot/domain/project_listing.dart';
+import 'package:flutter/cupertino.dart';
 import "package:json_annotation/json_annotation.dart";
 
 part "project.g.dart";
 
+@immutable
 @JsonSerializable(fieldRename: FieldRename.snake)
 class Project extends ProjectListing {
   final String plotFile;
 
-  Project({
+  const Project({
     required super.id,
     required super.name,
     required super.createdAt,

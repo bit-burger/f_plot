@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:json_annotation/json_annotation.dart';
 part 'project_listing.g.dart';
 
+@immutable
 @JsonSerializable(fieldRename: FieldRename.snake)
 class ProjectListing {
   final int id;
