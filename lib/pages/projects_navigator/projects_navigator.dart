@@ -44,7 +44,7 @@ class ProjectsNavigator extends StatelessWidget {
           ),
         if ((projectsOverviewState.isLoading &&
                 projectsOverviewState.projectsHaveLoaded) ||
-            openProjectState.isLoading)
+            openProjectState.openingOrDeleting)
           const LoadingOverlayPage(
             key: ValueKey("loading"),
             name: "loading...",

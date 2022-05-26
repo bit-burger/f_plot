@@ -41,7 +41,7 @@ class _OpenProjectAppBarState extends State<OpenProjectAppBar> {
               textAlign: TextAlign.center,
               controller: _projectNameTextController,
               onSubmitted: (projectName) {
-                openProjectCubit.editName(projectName);
+                openProjectCubit.changeName(projectName);
               },
               style: const TextStyle(fontSize: 20, color: Colors.white),
               cursorColor: Colors.white,
