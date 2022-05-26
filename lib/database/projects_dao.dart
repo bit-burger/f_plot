@@ -74,15 +74,16 @@ class ProjectsDao {
     );
   }
 
-  Future<void> editProjectPlotFile(
+  Future<Project> editProjectPlotFile(
     int projectId,
     String plotFile,
   ) async {
-    await db.update(
-      "projects",
-      {"plot_file": plotFile},
-      where: "id = ?",
-      whereArgs: [projectId],
+    final result = await db.rawQuery(
+      "update projects set plot_file = ? "
+      "where id = ? "
+      "returning id, name, created_at, plot_file",
+      [plotFile, projectId],
     );
+    return Project.fromJson(result.first);
   }
 }

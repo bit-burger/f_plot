@@ -9,7 +9,7 @@ abstract class IProjectsRepository {
   Future<ProjectListing> newProject(String name);
   Future<Project> getProject(int projectId);
   Future<void> editProjectName(int projectId, String newName);
-  Future<void> editProjectPlotFile(int projectId, String newPlotFile);
+  Future<Project> editProjectPlotFile(int projectId, String newPlotFile);
   Future<void> deleteProject(int projectId);
   void dispose();
 }

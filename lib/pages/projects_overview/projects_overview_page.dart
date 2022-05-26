@@ -3,14 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
-import '../blocs/projects_overview/projects_overview_cubit.dart';
-import '../domain/project_listing.dart';
+import '../../blocs/projects_overview/projects_overview_cubit.dart';
+import '../../domain/project_listing.dart';
+import 'add_new_project_dialog.dart';
+import 'delete_project_dialog.dart';
 
-class ProjectsViewPage extends StatelessWidget {
+class ProjectsOverviewPage extends StatelessWidget {
   static const dateFormat = "dd.mm.yyyy HH:mm";
   static final dateFormatter = DateFormat(dateFormat);
 
-  const ProjectsViewPage({super.key});
+  const ProjectsOverviewPage({super.key});
 
   void _showNewProjectDialog(
     BuildContext context,
@@ -22,6 +24,24 @@ class ProjectsViewPage extends StatelessWidget {
         return BlocProvider.value(
           value: projectsOverviewCubit,
           child: const AddNewProjectDialog(),
+        );
+      },
+    );
+  }
+
+  void _showDeleteProjectDialog(
+    BuildContext context,
+    ProjectsOverviewCubit projectsOverviewCubit,
+    int deletionPendingProjectId,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return BlocProvider.value(
+          value: projectsOverviewCubit,
+          child: DeleteProjectDialog(
+            deletionPendingProjectId: deletionPendingProjectId,
+          ),
         );
       },
     );
@@ -41,7 +61,11 @@ class ProjectsViewPage extends StatelessWidget {
           trailing: IconButton(
             icon: const Icon(Icons.delete),
             onPressed: () {
-              context.read<ProjectsOverviewCubit>().deleteProject(project.id);
+              _showDeleteProjectDialog(
+                context,
+                context.read<ProjectsOverviewCubit>(),
+                project.id,
+              );
             },
           ),
         );
@@ -79,63 +103,6 @@ class ProjectsViewPage extends StatelessWidget {
       ),
       body:
           projects.isEmpty ? _emptyProjects(context) : _projectsList(projects),
-    );
-  }
-}
-
-class AddNewProjectDialog extends StatefulWidget {
-  const AddNewProjectDialog({Key? key}) : super(key: key);
-
-  @override
-  State<AddNewProjectDialog> createState() => _AddNewProjectDialogState();
-}
-
-class _AddNewProjectDialogState extends State<AddNewProjectDialog> {
-  late final TextEditingController _nameTextController;
-
-  void _addNewProject() {
-    final name = _nameTextController.text;
-    if (name.isEmpty) return;
-    context.read<ProjectsOverviewCubit>().newProject(name);
-    Navigator.pop(context);
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _nameTextController = TextEditingController();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text("Add a new project"),
-      content: TextField(
-        focusNode: FocusNode()..requestFocus(),
-        controller: _nameTextController,
-        onSubmitted: (_) => _addNewProject(),
-        decoration: const InputDecoration(
-          hintText: "project name",
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: const Text("cancel"),
-        ),
-        ValueListenableBuilder<TextEditingValue>(
-          valueListenable: _nameTextController,
-          builder: (context, value, widget) {
-            final disabled = value.text.isEmpty;
-            return TextButton(
-              onPressed: disabled ? null : _addNewProject,
-              child: const Text("submit"),
-            );
-          },
-        ),
-      ],
     );
   }
 }

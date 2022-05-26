@@ -12,11 +12,19 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  bloc: ^8.0.3
   flutter_bloc: ^8.0.1
+  bloc: ^8.0.3
+  equatable: ^2.0.3
   json_annotation: ^4.4.0
   sqflite: ^2.0.2
   intl: ^0.17.0
+
+  math_code_field:
+    path: ./packages/math_code_field
+  plot_file:
+    path: ./packages/plot_file
+  expressions:
+    path: ./packages/expressions
 
 dev_dependencies:
   flutter_test:

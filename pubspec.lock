@@ -169,6 +169,27 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.2.2"
+  equatable:
+    dependency: "direct main"
+    description:
+      name: equatable
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.3"
+  evaluator:
+    dependency: transitive
+    description:
+      path: "packages/evaluator"
+      relative: true
+    source: path
+    version: "1.0.0"
+  expressions:
+    dependency: "direct main"
+    description:
+      path: "packages/expressions"
+      relative: true
+    source: path
+    version: "1.0.0"
   fake_async:
     dependency: transitive
     description:
@@ -312,6 +333,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.4"
+  math_code_field:
+    dependency: "direct main"
+    description:
+      path: "packages/math_code_field"
+      relative: true
+    source: path
+    version: "0.0.1"
+  math_functions:
+    dependency: transitive
+    description:
+      path: "packages/math_functions"
+      relative: true
+    source: path
+    version: "1.0.0"
   meta:
     dependency: transitive
     description:
@@ -347,6 +382,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.8.1"
+  plot_file:
+    dependency: "direct main"
+    description:
+      path: "packages/plot_file"
+      relative: true
+    source: path
+    version: "1.0.0"
   pool:
     dependency: transitive
     description:
@@ -522,4 +564,4 @@ packages:
     version: "3.1.0"
 sdks:
   dart: ">=2.17.0-266.1.beta <3.0.0"
-  flutter: ">=1.16.0"
+  flutter: ">=1.17.0"
