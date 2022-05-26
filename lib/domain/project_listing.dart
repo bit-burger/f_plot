@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:json_annotation/json_annotation.dart';
 part 'project_listing.g.dart';
 
+// TODO: change createdAt to updatedAt
 @immutable
 @JsonSerializable(fieldRename: FieldRename.snake)
 class ProjectListing {
