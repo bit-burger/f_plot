@@ -19,4 +19,16 @@ class StringExpressionParseError implements Exception {
   String toString() {
     return "At character $from to $to an error occurred: $message";
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is StringExpressionParseError &&
+          runtimeType == other.runtimeType &&
+          from == other.from &&
+          to == other.to &&
+          message == other.message;
+
+  @override
+  int get hashCode => from.hashCode ^ to.hashCode ^ message.hashCode;
 }
