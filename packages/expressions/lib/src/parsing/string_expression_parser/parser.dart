@@ -15,8 +15,17 @@ class StringExpressionParser implements ExpressionParser<String> {
 
   /// throws an error if a variable identifier is used,
   /// that is not in the [SetParserContext] (if there is a context)
-  void checkVariable(String s, int begin, int end, ParserContext? c) {
+  void checkVariable(
+    String s,
+    int begin,
+    int end,
+    ParserContext? c,
+    Iterable<String> tempAllowedVariables,
+  ) {
     final v = s.substring(begin, end);
+    if (tempAllowedVariables.contains(v)) {
+      return;
+    }
     if (!(c?.variableAllowed(v) ?? true)) {
       throw StringExpressionParseError("variable '$v' unknown", begin, end);
     }
@@ -24,7 +33,7 @@ class StringExpressionParser implements ExpressionParser<String> {
 
   /// throws an error if a function identifier is used,
   /// that is not in the [SetParserContext] (if there is a context)
-  void checkFunction(
+  void checkFunctionIdentifier(
     String s,
     int begin,
     int nameEnd,
@@ -130,7 +139,12 @@ class StringExpressionParser implements ExpressionParser<String> {
   ///
   /// can be called with white space in front and back
   List<Expression> getFunctionArguments(
-      String s, int begin, int end, ParserContext? c) {
+    String s,
+    int begin,
+    int end,
+    ParserContext? c,
+    Iterable<String> tempAllowedVariables,
+  ) {
     // remove whitespace
     while (isWhitespaceChar(s[begin])) {
       begin++;
@@ -157,11 +171,13 @@ class StringExpressionParser implements ExpressionParser<String> {
       } else if (s[i] == "(") {
         brackets++;
       } else if (s[i] == ",") {
-        expressions.add(operatorParse(s, lastArgumentEnd + 1, i, c));
+        expressions.add(
+            operatorParse(s, lastArgumentEnd + 1, i, c, tempAllowedVariables));
         lastArgumentEnd = i;
       }
     }
-    expressions.add(operatorParse(s, lastArgumentEnd + 1, end, c));
+    expressions.add(
+        operatorParse(s, lastArgumentEnd + 1, end, c, tempAllowedVariables));
     return expressions;
   }
 
@@ -173,6 +189,7 @@ class StringExpressionParser implements ExpressionParser<String> {
     int begin,
     int end,
     ParserContext? c,
+    Iterable<String> tempAllowedVariables,
   ) {
     var identifierEnd = -1;
     var bracketsBegin = -1;
@@ -202,9 +219,9 @@ class StringExpressionParser implements ExpressionParser<String> {
       }
     }
     checkIdentifier(s, begin, identifierEnd);
-    final functionArguments =
-        getFunctionArguments(s, bracketsBegin + 1, end - 1, c);
-    checkFunction(s, begin, identifierEnd, end, functionArguments.length, c);
+    final functionArguments = getFunctionArguments(
+        s, bracketsBegin + 1, end - 1, c, tempAllowedVariables);
+    checkFunctionIdentifier(s, begin, identifierEnd, end, functionArguments.length, c);
     return FunctionCall(s.substring(begin, identifierEnd), functionArguments);
   }
 
@@ -217,15 +234,16 @@ class StringExpressionParser implements ExpressionParser<String> {
   /// (the operators here are nested inside of a lower bracket level).
   ///
   /// should be called with no whitespace in front or back
-  Expression noOperatorParse(String s, int begin, int end, ParserContext? c) {
+  Expression noOperatorParse(String s, int begin, int end, ParserContext? c,
+      Iterable<String> tempAllowedVariables) {
     if (s[begin] == "(") {
-      return operatorParse(s, begin + 1, end - 1, c);
+      return operatorParse(s, begin + 1, end - 1, c, tempAllowedVariables);
     } else if (isIdentifierChar(s[begin])) {
       if (s[end - 1] == ")") {
-        return functionCallParse(s, begin, end, c);
+        return functionCallParse(s, begin, end, c, tempAllowedVariables);
       }
       checkIdentifier(s, begin, end);
-      checkVariable(s, begin, end, c);
+      checkVariable(s, begin, end, c, tempAllowedVariables);
       return Variable(s.substring(begin, end));
     } else if (isNumberChar(s[begin])) {
       checkNumber(s, begin, end);
@@ -237,11 +255,13 @@ class StringExpressionParser implements ExpressionParser<String> {
   }
 
   /// should be called with no whitespace in front or back
-  Expression implicitOperatorParse(
-      String s, int begin, int end, ParserContext? c) {
+  ///
+  /// looks for implicit operators such as a1 which would be interpreted as a*1
+  Expression implicitOperatorParse(String s, int begin, int end,
+      ParserContext? c, Iterable<String> tempAllowedVariables) {
     // TODO: not implemented, should probably be implemented by operatorParse
     //       (operator precedence doesn't make sense otherwise)
-    return noOperatorParse(s, begin, end, c);
+    return noOperatorParse(s, begin, end, c, tempAllowedVariables);
   }
 
   /// searches for the highest precedence operator and
@@ -258,7 +278,8 @@ class StringExpressionParser implements ExpressionParser<String> {
   ///   a+a+a => (a+a)+a
   ///   a+-a  => a+(-a)
   ///   -a^-a => -(a^(-a))
-  Expression operatorParse(String s, int begin, int end, ParserContext? c) {
+  Expression operatorParse(String s, int begin, int end, ParserContext? c,
+      Iterable<String> tempAllowedVariables) {
     // remove whitespace in back
     while (end > begin && isWhitespaceChar(s[end - 1])) {
       end--;
@@ -326,12 +347,13 @@ class StringExpressionParser implements ExpressionParser<String> {
       throw StringExpressionParseError("closing brace missing", end - 1);
     }
     if (lowestPrecedenceOperatorIndex == -1) {
-      return implicitOperatorParse(s, firstNonWhitespaceIndex, end, c);
+      return implicitOperatorParse(
+          s, firstNonWhitespaceIndex, end, c, tempAllowedVariables);
     }
     if (lowestPrecedenceOperatorIndex == firstNonWhitespaceIndex) {
       if (s[lowestPrecedenceOperatorIndex] == _options.negationOperator) {
-        return NegateOperator(
-            operatorParse(s, firstNonWhitespaceIndex + 1, end, c));
+        return NegateOperator(operatorParse(
+            s, firstNonWhitespaceIndex + 1, end, c, tempAllowedVariables));
       } else {
         throw StringExpressionParseError(
             "expected operand before operator", lowestPrecedenceOperatorIndex);
@@ -343,12 +365,14 @@ class StringExpressionParser implements ExpressionParser<String> {
       firstNonWhitespaceIndex,
       lowestPrecedenceOperatorIndex,
       c,
+      tempAllowedVariables,
     );
     final expression2 = operatorParse(
       s,
       lowestPrecedenceOperatorIndex + 1,
       end,
       c,
+      tempAllowedVariables,
     );
     return OperatorCall(
       s[lowestPrecedenceOperatorIndex],
@@ -358,7 +382,17 @@ class StringExpressionParser implements ExpressionParser<String> {
   }
 
   @override
-  Expression parse(String rawExpression, [ParserContext? c]) {
-    return operatorParse(rawExpression, 0, rawExpression.length, c);
+  Expression parse(
+    String rawExpression, [
+    ParserContext? c,
+    Iterable<String> tempAllowedVariables = const {},
+  ]) {
+    return operatorParse(
+      rawExpression,
+      0,
+      rawExpression.length,
+      c,
+      tempAllowedVariables,
+    );
   }
 }

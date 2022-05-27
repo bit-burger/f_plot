@@ -29,6 +29,7 @@ class CachedPlotFileParser {
 
   void parseAndCache(String plotFile) {
     _setAllDeclarationsToNotFound();
+    errors.clear();
     RawPlotFileParser multipleParserContext = RawPlotFileParser(
       stringExpressionParser: _stringExpressionParser,
     );
@@ -40,8 +41,9 @@ class CachedPlotFileParser {
       // for things that concern multiple declarations,
       // such as that every declaration is unique
     }
+    var currentVariableOrder = 0;
+    var currentFunctionOrder = 0;
     final parsingContext = _ParsingContext();
-    errors.clear();
     for (final rawDeclaration in multipleParserContext.declarations) {
       try {
         final identifier = rawDeclaration.identifier;
@@ -66,12 +68,17 @@ class CachedPlotFileParser {
               _newCachedDeclaration(rawDeclaration, parsingContext);
           cachedDeclarationDeleted = true;
         }
+        // add the declaration to the cache (only if they are new/have changed),
+        // add the declaration to the parsing context,
+        // set the functions order and update it
         if (cachedDeclaration is CachedFunctionDeclaration) {
+          cachedDeclaration.order = currentFunctionOrder++;
           parsingContext.addFunction(identifier, cachedDeclaration);
           if (cachedDeclarationDeleted) {
             functions[identifier] = cachedDeclaration;
           }
         } else if (cachedDeclaration is CachedVariableDeclaration) {
+          cachedDeclaration.order = currentVariableOrder++;
           parsingContext.addVariable(identifier, cachedDeclaration);
           if (cachedDeclarationDeleted) {
             variables[identifier] = cachedDeclaration;
@@ -85,10 +92,26 @@ class CachedPlotFileParser {
         // TODO: maybe return here?
       }
     }
+    // remove all functions that have not been found in the plot file
+    _removeNonFoundFunctions();
+  }
+
+  /// remove not found functions in the cache,
+  /// if the [CachedDeclaration.status] is [CachedDeclarationStatus.notFound]
+  void _removeNonFoundFunctions() {
+    functions.removeWhere(
+      (_, declaration) =>
+          declaration.status == CachedDeclarationStatus.notFound,
+    );
+    variables.removeWhere(
+      (_, declaration) =>
+          declaration.status == CachedDeclarationStatus.notFound,
+    );
   }
 
   /// set all functions as if they have not been found,
-  /// is done before parsing, to check if a
+  /// is done before parsing, to check if has not been found
+  /// (useful in [_removeNonFoundFunctions]
   void _setAllDeclarationsToNotFound() {
     functions.forEach((_, declaration) {
       declaration.status = CachedDeclarationStatus.notFound;
@@ -207,8 +230,8 @@ class CachedPlotFileParser {
     _ParsingContext c,
   ) {
     final rawBody = rawDeclaration.body;
-    final body = _stringExpressionParser.parse(rawBody, c);
     if (rawDeclaration is RawFunctionDeclaration) {
+      final body = _stringExpressionParser.parse(rawBody, c, rawDeclaration.parameters);
       final resolvedBody = body.resolve(c, rawDeclaration.parameters);
       late final EvaluatorFunction? evaluatorFunction;
       if (_createEvaluatingFunctionsForSingleVariableFunction &&
@@ -225,6 +248,7 @@ class CachedPlotFileParser {
         status: CachedDeclarationStatus.changed,
       );
     } else {
+      final body = _stringExpressionParser.parse(rawBody, c);
       return CachedVariableDeclaration(
         value: body.resolveToNumber(c),
         rawBody: rawBody,

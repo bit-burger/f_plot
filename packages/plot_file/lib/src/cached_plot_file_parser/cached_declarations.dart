@@ -9,11 +9,13 @@ enum CachedDeclarationStatus {
 class CachedDeclaration {
   final Set<String> variableReferences, functionReferences;
   final String rawBody;
+  int order;
   CachedDeclarationStatus status;
 
   CachedDeclaration(
     this.rawBody,
     this.status,
+    this.order,
   )   : variableReferences = {},
         functionReferences = {};
 }
@@ -30,7 +32,7 @@ class CachedFunctionDeclaration extends CachedDeclaration {
     String rawBody = "",
     this.evaluatorFunction,
     CachedDeclarationStatus status = CachedDeclarationStatus.found,
-  }) : super(rawBody, status);
+  }) : super(rawBody, status, 0);
 
   @override
   bool operator ==(Object other) {
@@ -68,7 +70,7 @@ class CachedVariableDeclaration extends CachedDeclaration {
     required this.value,
     String rawBody = "",
     CachedDeclarationStatus status = CachedDeclarationStatus.found,
-  }) : super(rawBody, status);
+  }) : super(rawBody, status, 0);
 
   @override
   bool operator ==(Object other) =>
