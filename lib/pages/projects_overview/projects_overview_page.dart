@@ -26,6 +26,7 @@ class ProjectsOverviewPage extends StatelessWidget {
             context.read<OpenProjectCubit>().openProject(project.id);
           },
           trailing: IconButton(
+            tooltip: "delete project ${project.name}",
             icon: const Icon(Icons.delete),
             onPressed: () {
               showDialog(
@@ -64,6 +65,8 @@ class ProjectsOverviewPage extends StatelessWidget {
         title: const Text("F Plot"),
         actions: [
           IconButton(
+            icon: const Icon(Icons.add),
+            tooltip: "add new project",
             onPressed: () {
               showDialog(
                 context: context,
@@ -72,7 +75,6 @@ class ProjectsOverviewPage extends StatelessWidget {
                 ),
               );
             },
-            icon: const Icon(Icons.add),
           ),
         ],
       ),
