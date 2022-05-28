@@ -1,4 +1,4 @@
-export "dart:math" show pow;
+import "dart:math" as math show pow ;
 
 double sum(double a, double b) {
   return a + b;
@@ -17,5 +17,5 @@ double divide(double a, double b) {
 }
 
 double pow(double a, double b) {
-  return pow(a, b);
+  return math.pow(a, b) as double;
 }
