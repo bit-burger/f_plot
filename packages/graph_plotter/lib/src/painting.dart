@@ -141,7 +141,7 @@ class GraphsPainter extends CustomPainter {
       var currentYAxisStep = (y / yAxisStepSize).ceilToDouble() * yAxisStepSize;
       // turned around, has to be converted
       var currentCanvasYAxisStep = (currentYAxisStep - y) / stepSizeY;
-      while (currentCanvasYAxisStep < size.width) {
+      while (currentCanvasYAxisStep < size.height) {
         _paintAxisMarking(
           canvas,
           paint,
@@ -274,7 +274,7 @@ class GraphsPainter extends CustomPainter {
           var y = size.height - ((rawY - this.y) / stepSizeY);
           final offset = Offset(sizeX, y);
           if (outOfBounds) {
-            if (y < 0 || y > size.width) {
+            if (y < 0 || y > size.height) {
               if (offsets.isEmpty) {
                 offsets.add(offset);
               } else {
@@ -286,7 +286,7 @@ class GraphsPainter extends CustomPainter {
             }
           } else {
             offsets.add(offset);
-            if (y < 0 || y > size.width) {
+            if (y < 0 || y > size.height) {
               outOfBounds = true;
               canvas.drawPoints(ui.PointMode.polygon, offsets, paint);
               offsets = [offsets[offsets.length - 1]];
