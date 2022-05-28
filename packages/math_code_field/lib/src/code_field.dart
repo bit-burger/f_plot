@@ -7,7 +7,7 @@ import 'unconventional_character_filter.dart';
 
 // TODO: add tabs and automatic parentheses completion
 /// a text field with highlighting and line numbers for math
-class MathCodeField<ErrorType extends CodeError> extends StatelessWidget {
+class MathCodeField extends StatelessWidget {
   /// the errors that should be displayed,
   /// errors that are not at all inside of the text bounds are not displayed,
   /// and errors that are partly outside of it are only shown the parts inside
@@ -17,7 +17,7 @@ class MathCodeField<ErrorType extends CodeError> extends StatelessWidget {
   ///
   /// if two errors overlap,
   /// the part that overlaps shows the error that is more important.
-  final List<ErrorType> codeErrors;
+  final List<CodeError> codeErrors;
 
   /// the text theme to be used, should be mono sized.
   final TextTheme monoTextTheme;
@@ -29,7 +29,9 @@ class MathCodeField<ErrorType extends CodeError> extends StatelessWidget {
   ///
   /// is called with the first error in [codeErrors],
   /// where the cursor lies in the error
-  final ValueChanged<ErrorType?>? errorSelectionChanged;
+  final ValueChanged<CodeError?>? errorSelectionChanged;
+
+  final MathCodeEditingController? codeEditingController;
 
   const MathCodeField({
     Key? key,
@@ -37,6 +39,7 @@ class MathCodeField<ErrorType extends CodeError> extends StatelessWidget {
     required this.monoTextTheme,
     this.textChanged,
     this.errorSelectionChanged,
+    this.codeEditingController,
   }) : super(key: key);
 
   @override
@@ -49,21 +52,24 @@ class MathCodeField<ErrorType extends CodeError> extends StatelessWidget {
         errors: codeErrors,
         textChanged: textChanged,
         errorSelectionChanged: errorSelectionChanged,
+        controller: codeEditingController,
       ),
     );
   }
 }
 
-class _MathCodeField<ErrorType> extends StatefulWidget {
+class _MathCodeField extends StatefulWidget {
   final List<CodeError> errors;
   final ValueChanged<String>? textChanged;
-  final ValueChanged<ErrorType?>? errorSelectionChanged;
+  final ValueChanged<CodeError?>? errorSelectionChanged;
+  final MathCodeEditingController? controller;
 
   const _MathCodeField({
     required this.errors,
     Key? key,
     this.textChanged,
     this.errorSelectionChanged,
+    this.controller,
   }) : super(key: key);
 
   @override
@@ -78,7 +84,7 @@ class _MathCodeFieldState extends State<_MathCodeField> {
   @override
   void initState() {
     super.initState();
-    _controller = MathCodeEditingController();
+    _controller = widget.controller ?? MathCodeEditingController();
     _lastSelection = _controller.selection;
     _lastSelectedError = null;
     _controller.addListener(_didUpdateController);
@@ -155,6 +161,9 @@ class _MathCodeFieldState extends State<_MathCodeField> {
   @override
   void didUpdateWidget(covariant _MathCodeField oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (widget.controller != null && widget.controller != _controller) {
+      _controller = widget.controller!;
+    }
     _controller.setErrors(widget.errors);
   }
 
