@@ -85,11 +85,50 @@ class MathCodeEditingController extends TextEditingController {
         MathCodeFieldTheme.of(context) ?? MathCodeFieldThemeData();
     final spans = _spansForText(text, themeData);
     if (spans.isNotEmpty) {
-      _replaceSpansWithErrors(
-          spans, _errorsInbound(_currentErrors), themeData.errorTextStyle);
+      final inboundErrors = _errorsInbound(_currentErrors);
+      _replaceSpansWithErrors(spans, inboundErrors, themeData.errorTextStyle);
+      // _addNewlineErrors(spans, _currentErrors, themeData.errorTextStyle);
     }
     return TextSpan(children: spans, style: style);
   }
+
+  /// add a error span with the text " " after a newline ("\n") with an error,
+  /// or after the end of the file
+  ///
+  /// this only works because newline spans are separate
+  ///
+  /// not used as does not work
+  // void _addNewlineErrors(
+  //   List<InlineSpan> spans,
+  //   List<CodeError> errors,
+  //   TextStyle errorTextStyle,
+  // ) {
+  //   final errorSpan = TextSpan(text: "_", style: errorTextStyle);
+  //   var character = 0;
+  //   var spanIndex = 0;
+  //   while (spanIndex < spans.length) {
+  //     if (spans[spanIndex].cText == "\n" &&
+  //         _characterIsMarkedAsError(character, errors)) {
+  //       spans.insert(spanIndex, errorSpan);
+  //       spanIndex++;
+  //     }
+  //     character += spans[spanIndex].cText.length;
+  //     spanIndex++;
+  //   }
+  //   // if first character after file end is an error
+    // if(_characterIsMarkedAsError(text.length, errors)) {
+    //   spans.add(errorSpan);
+    // }
+  // }
+
+  // bool _characterIsMarkedAsError(int character, List<CodeError> errors) {
+  //   for (final error in errors) {
+  //     if (error.begin >= character && character < error.end) {
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // }
 
   List<CodeError> _errorsInbound(List<CodeError> errors) {
     final length = text.length;

@@ -88,10 +88,11 @@ class _MathCodeFieldState extends State<_MathCodeField> {
     _lastSelection = _controller.selection;
     _lastSelectedError = null;
     _controller.addListener(_didUpdateController);
+    _controller.setErrors(widget.errors);
   }
 
-  void _didUpdateController() {
-    if (_controller.selection != _lastSelection) {
+  void _didUpdateController({bool override = false}) {
+    if (override || _controller.selection != _lastSelection) {
       final error =
           _firstErrorThatLiesInCursor(_controller.selection.baseOffset);
       if (error != _lastSelectedError) {
@@ -165,6 +166,7 @@ class _MathCodeFieldState extends State<_MathCodeField> {
       _controller = widget.controller!;
     }
     _controller.setErrors(widget.errors);
+    _didUpdateController(override: true);
   }
 
   @override
