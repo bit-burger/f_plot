@@ -116,9 +116,9 @@ class MathCodeEditingController extends TextEditingController {
   //     spanIndex++;
   //   }
   //   // if first character after file end is an error
-    // if(_characterIsMarkedAsError(text.length, errors)) {
-    //   spans.add(errorSpan);
-    // }
+  // if(_characterIsMarkedAsError(text.length, errors)) {
+  //   spans.add(errorSpan);
+  // }
   // }
 
   // bool _characterIsMarkedAsError(int character, List<CodeError> errors) {
@@ -435,7 +435,7 @@ class MathCodeEditingController extends TextEditingController {
             ? TextStyle(color: themeData.errorColor)
             : bracketStyle,
       ),
-      TextSpan(children: spans),
+      if (spans.isNotEmpty) TextSpan(children: spans),
       if (!lastBracketMissing)
         TextSpan(
           text: ")",
