@@ -127,7 +127,16 @@ class PlottingProjectState {
   }
 
   static Color colorFromFunctionNumber(int num) {
-    return _graphColors[num];
+    var index = 0;
+    var i = 0;
+    while (i < num) {
+      index++;
+      if (index == _graphColors.length) {
+        index = 0;
+      }
+      i++;
+    }
+    return _graphColors[index];
   }
 
   static List<GraphFunction> graphFunctionsFromCachedFunctionDeclarationMap(
