@@ -59,13 +59,13 @@ class CachedPlotFileParser {
             _deleteDeclaration(identifier);
             cachedDeclarationDeleted = true;
             cachedDeclaration =
-                _newCachedDeclaration(rawDeclaration, parsingContext);
+                _newCachedDeclaration(plotFile, rawDeclaration, parsingContext);
           } else {
             cachedDeclaration.status = CachedDeclarationStatus.found;
           }
         } else {
           cachedDeclaration =
-              _newCachedDeclaration(rawDeclaration, parsingContext);
+              _newCachedDeclaration(plotFile, rawDeclaration, parsingContext);
           cachedDeclarationDeleted = true;
         }
         // add the declaration to the cache (only if they are new/have changed),
@@ -226,12 +226,19 @@ class CachedPlotFileParser {
   ///
   /// throws [StringExpressionParseError], if a error in the parsing occurs
   CachedDeclaration _newCachedDeclaration(
+    String plotFile,
     RawDeclaration rawDeclaration,
     _ParsingContext c,
   ) {
     final rawBody = rawDeclaration.body;
     if (rawDeclaration is RawFunctionDeclaration) {
-      final body = _stringExpressionParser.parse(rawBody, c, rawDeclaration.parameters);
+      final body = _stringExpressionParser.operatorParse(
+        plotFile,
+        rawDeclaration.bodyStart,
+        rawDeclaration.bodyEnd,
+        c,
+        rawDeclaration.parameters,
+      );
       final resolvedBody = body.resolve(c, rawDeclaration.parameters);
       late final EvaluatorFunction? evaluatorFunction;
       if (_createEvaluatingFunctionsForSingleVariableFunction &&
@@ -248,7 +255,13 @@ class CachedPlotFileParser {
         status: CachedDeclarationStatus.changed,
       );
     } else {
-      final body = _stringExpressionParser.parse(rawBody, c);
+      final body = _stringExpressionParser.operatorParse(
+        plotFile,
+        rawDeclaration.bodyStart,
+        rawDeclaration.bodyEnd,
+        c,
+        const [],
+      );
       return CachedVariableDeclaration(
         value: body.resolveToNumber(c),
         rawBody: rawBody,
