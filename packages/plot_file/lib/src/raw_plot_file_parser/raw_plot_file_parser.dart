@@ -35,8 +35,12 @@ class RawPlotFileParser {
       }
       final parameter = rawParameter.trim();
       if (parameter.isEmpty) {
+        var length = rawParameter.length;
+        if (length == 0) {
+          length = 1;
+        }
         throw StringExpressionParseError("parameter identifier expected",
-            rawParameterBegin, rawParameterBegin + rawParameter.length);
+            rawParameterBegin - 1, rawParameterBegin + length);
       } else if (parameters.contains(parameter)) {
         throw StringExpressionParseError(
           "each parameter name needs to be unique",

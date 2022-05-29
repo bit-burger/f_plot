@@ -13,7 +13,8 @@ class StringExpressionParseError implements Exception {
   /// the error message
   final String message;
 
-  StringExpressionParseError(this.message, this.from, [this.to]);
+  StringExpressionParseError(this.message, this.from, [this.to])
+      : assert(to == null || from < to);
 
   @override
   String toString() {

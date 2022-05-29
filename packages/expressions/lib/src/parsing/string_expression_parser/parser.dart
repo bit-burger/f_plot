@@ -145,12 +145,17 @@ class StringExpressionParser implements ExpressionParser<String> {
     ParserContext? c,
     Iterable<String> tempAllowedVariables,
   ) {
+    final b = begin, e = end;
     // remove whitespace
     while (isWhitespaceChar(s[begin])) {
       begin++;
     }
     while (isWhitespaceChar(s[end - 1])) {
       end--;
+    }
+    if (end == begin) {
+      throw StringExpressionParseError(
+          "At least one function argument has to be given", b - 1, e + 1);
     }
     if (s[begin] == ",") {
       throw StringExpressionParseError(
@@ -221,7 +226,8 @@ class StringExpressionParser implements ExpressionParser<String> {
     checkIdentifier(s, begin, identifierEnd);
     final functionArguments = getFunctionArguments(
         s, bracketsBegin + 1, end - 1, c, tempAllowedVariables);
-    checkFunctionIdentifier(s, begin, identifierEnd, end, functionArguments.length, c);
+    checkFunctionIdentifier(
+        s, begin, identifierEnd, end, functionArguments.length, c);
     return FunctionCall(s.substring(begin, identifierEnd), functionArguments);
   }
 
@@ -280,10 +286,16 @@ class StringExpressionParser implements ExpressionParser<String> {
   ///   -a^-a => -(a^(-a))
   Expression operatorParse(String s, int begin, int end, ParserContext? c,
       Iterable<String> tempAllowedVariables) {
+    final e = end;
     // remove whitespace in back
-    while (end > begin && isWhitespaceChar(s[end - 1])) {
+    while (begin < end && isWhitespaceChar(s[end - 1])) {
       end--;
     }
+    if (begin == end) {
+      throw StringExpressionParseError(
+          "expression in brackets expected", begin - 1, e + 1);
+    }
+
     var braces = 0;
     var firstNonWhitespaceIndex = -1;
     var lowestPrecedenceOperatorIndex = -1;
