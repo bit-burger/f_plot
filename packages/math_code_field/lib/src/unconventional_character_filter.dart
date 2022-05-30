@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 /// letters such as é, are counted as letters, emojis for example, are not
 class UnconventionalCharacterFilter extends TextInputFormatter {
   final normalCharacterRegExp = RegExp(
-    r"\p{L}\p{Mn}*|\p{N}|[ \n]|[\u0021-\u0040\u007B-\u007E]",
+    r"\p{L}\p{Mn}*|\p{N}|[ \n]|[\u0021-\u0040\u007B-\u007E^]",
     unicode: true,
   );
 
