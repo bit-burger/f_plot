@@ -119,14 +119,13 @@ class _GraphPlotterState extends State<GraphPlotter> {
 
   @override
   void didUpdateWidget(covariant GraphPlotter oldWidget) {
-    if (widget.controller != null && _controller != null) {
-      _controller = null;
-    } else {
-      _controller ??= widget.controller;
-      _controller ??= GraphPlotterController.fromZero(
+    if (widget.controller == null && _controller == null) {
+      _controller = GraphPlotterController.fromZero(
         width: 1,
         height: 1,
       );
+    } else if (widget.controller != null && _controller != null) {
+      _controller = null;
     }
     super.didUpdateWidget(oldWidget);
   }
