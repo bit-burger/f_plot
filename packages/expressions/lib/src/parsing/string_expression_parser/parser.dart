@@ -350,7 +350,9 @@ class StringExpressionParser implements ExpressionParser<String> {
     }
     if (operatorOpen) {
       throw StringExpressionParseError(
-          "operator '${s[currentOperatorIndex]}' needs a right operand", end);
+          "operator '${s[currentOperatorIndex]}' needs a right operand",
+          currentOperatorIndex,
+          end);
     }
     if (firstNonWhitespaceIndex == -1) {
       throw StringExpressionParseError("expression expected", begin, end);
