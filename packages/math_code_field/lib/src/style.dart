@@ -36,6 +36,7 @@ class MathCodeFieldThemeData {
   final Color equalsColor;
   final bool equalsIsThick;
   final TextStyle errorTextStyle;
+  final TextStyle restStyle;
 
   MathCodeFieldThemeData({
     this.operatorColor = Colors.blue,
@@ -57,6 +58,7 @@ class MathCodeFieldThemeData {
       decoration: TextDecoration.underline,
       decorationColor: Colors.red,
     ),
+    this.restStyle = const TextStyle(color: Color(0xFF000000)),
   })  : assert(bracketColors.isNotEmpty),
         equalsColor = equalsColor ?? operatorColor;
 

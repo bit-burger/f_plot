@@ -86,10 +86,10 @@ class MathCodeEditingController extends TextEditingController {
     final spans = _spansForText(text, themeData);
     if (spans.isNotEmpty) {
       final inboundErrors = _errorsInbound(_currentErrors);
-      _replaceSpansWithErrors(spans, inboundErrors, themeData.errorTextStyle);
+      _replaceSpansWithErrors(spans, inboundErrors, themeData.restStyle, themeData.errorTextStyle);
       // _addNewlineErrors(spans, _currentErrors, themeData.errorTextStyle);
     }
-    return TextSpan(children: spans, style: style);
+    return TextSpan(children: spans, style: themeData.restStyle.merge(style));
   }
 
   /// add a error span with the text " " after a newline ("\n") with an error,
@@ -149,16 +149,18 @@ class MathCodeEditingController extends TextEditingController {
   void _replaceSpansWithErrors(
     List<InlineSpan> spans,
     List<CodeError> errors,
+    TextStyle restStyle,
     TextStyle errorStyle,
   ) {
     for (final error in errors) {
-      _replaceSpansWithError(spans, error, errorStyle);
+      _replaceSpansWithError(spans, error, restStyle, errorStyle);
     }
   }
 
   void _replaceSpansWithError(
     List<InlineSpan> spans,
     CodeError error,
+    TextStyle restStyle,
     TextStyle errorStyle,
   ) {
     var firstSpan = 0;
@@ -186,6 +188,7 @@ class MathCodeEditingController extends TextEditingController {
       firstCharacterFirstSpan,
       lastSpan,
       lastCharacterLastSpan,
+      restStyle,
       errorStyle,
       error.message,
     );
@@ -197,6 +200,7 @@ class MathCodeEditingController extends TextEditingController {
     int firstCharacterFirstSpan,
     int lastSpan,
     int lastCharacterLastSpan,
+    TextStyle restStyle,
     TextStyle errorStyle,
     String? errorMessage,
   ) {
@@ -219,6 +223,7 @@ class MathCodeEditingController extends TextEditingController {
         i,
         firstCharacterOfSpan,
         lastCharacterOfSpan,
+        restStyle,
         errorStyle,
         errorMessage,
       );
@@ -232,14 +237,14 @@ class MathCodeEditingController extends TextEditingController {
     int spanIndex,
     int firstCharacter,
     int lastCharacter,
+    TextStyle restStyle,
     TextStyle errorStyle,
     String? errorMessage,
   ) {
     final span = spans.removeAt(spanIndex);
     final text = span.cText;
-    final style = span.style;
-    final mergedErrorStyle =
-        style == null ? errorStyle : errorStyle.merge(style);
+    final style = span.style ?? restStyle;
+    final mergedErrorStyle = errorStyle.merge(style);
     final replacementSpans = [
       if (firstCharacter != 0)
         TextSpan(
@@ -389,7 +394,7 @@ class MathCodeEditingController extends TextEditingController {
         } else if (operators.contains(char)) {
           children.add(_spanForOperator(text, i, themeData));
         } else if (whiteSpace.contains(char) || char == ",") {
-          children.add(TextSpan(text: char));
+          children.add(TextSpan(text: char, style: themeData.restStyle));
         }
       }
     }

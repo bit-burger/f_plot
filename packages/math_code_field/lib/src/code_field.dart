@@ -33,12 +33,20 @@ class MathCodeField extends StatelessWidget {
 
   final MathCodeEditingController? codeEditingController;
 
+  /// if an error should only be counted as selected
+  /// if the cursor is inside the error.
+  ///
+  /// else the first error on the line is taken, or, if it exists,
+  /// the error where the cursor is inside
+  final bool errorSelectionExact;
+
   const MathCodeField({
     Key? key,
     this.codeErrors = const [],
     required this.monoTextTheme,
     this.textChanged,
     this.errorSelectionChanged,
+    this.errorSelectionExact = true,
     this.codeEditingController,
   }) : super(key: key);
 
@@ -53,6 +61,7 @@ class MathCodeField extends StatelessWidget {
         textChanged: textChanged,
         errorSelectionChanged: errorSelectionChanged,
         controller: codeEditingController,
+        errorSelectionExact: errorSelectionExact,
       ),
     );
   }
@@ -62,6 +71,7 @@ class _MathCodeField extends StatefulWidget {
   final List<CodeError> errors;
   final ValueChanged<String>? textChanged;
   final ValueChanged<CodeError?>? errorSelectionChanged;
+  final bool errorSelectionExact;
   final MathCodeEditingController? controller;
 
   const _MathCodeField({
@@ -70,6 +80,7 @@ class _MathCodeField extends StatefulWidget {
     this.textChanged,
     this.errorSelectionChanged,
     this.controller,
+    required this.errorSelectionExact,
   }) : super(key: key);
 
   @override
@@ -93,14 +104,74 @@ class _MathCodeFieldState extends State<_MathCodeField> {
 
   void _didUpdateController({bool override = false}) {
     if (override || _controller.selection != _lastSelection) {
-      final error =
-          _firstErrorThatLiesInCursor(_controller.selection.baseOffset);
+      final cursorPosition = _controller.selection.baseOffset;
+      var error = _firstErrorThatLiesInCursor(cursorPosition);
+      if (!widget.errorSelectionExact && error == null) {
+        error = _firstErrorThatLiesInCursorLine(cursorPosition);
+      }
       if (error != _lastSelectedError) {
         widget.errorSelectionChanged?.call(error);
       }
       _lastSelectedError = error;
     }
     _lastSelection = _controller.selection;
+  }
+
+  // line starts at 0
+  bool _errorInLine(int line) {
+    final text = _controller.text;
+    var firstCharacterCursorLine = 0;
+    var currentLine = 0;
+    for (var i = 0; i < text.length; i++) {
+      if (text[i] == "\n") {
+        firstCharacterCursorLine = i + 1;
+        currentLine++;
+      }
+      if (currentLine == line) {
+        break;
+      }
+    }
+    var lastCharacterCursorLine = firstCharacterCursorLine;
+    while (lastCharacterCursorLine < text.length - 1 &&
+        text[lastCharacterCursorLine] != "\n") {
+      lastCharacterCursorLine++;
+    }
+    return _firstErrorInRange(
+            firstCharacterCursorLine, lastCharacterCursorLine) !=
+        null;
+  }
+
+  CodeError? _firstErrorInRange(int begin, int last) {
+    for (final codeError in widget.errors) {
+      final errorIsBeforeCursorLine =
+          last < codeError.begin && last < codeError.begin;
+      final errorIsAfterCursorLine =
+          begin >= codeError.end && begin >= codeError.end;
+      if (!errorIsBeforeCursorLine && !errorIsAfterCursorLine) {
+        return codeError;
+      }
+    }
+    return null;
+  }
+
+  CodeError? _firstErrorThatLiesInCursorLine(int cursorPosition) {
+    final text = _controller.text;
+    var firstCharacterCursorLine = 0;
+    for (var i = 0; i < text.length; i++) {
+      if (text[i] == "\n") {
+        firstCharacterCursorLine = i;
+      }
+      if (i == cursorPosition) {
+        break;
+      }
+    }
+    var lastCharacterCursorLine = firstCharacterCursorLine;
+    while (lastCharacterCursorLine < text.length - 1 &&
+        text[lastCharacterCursorLine] != "\n") {
+      lastCharacterCursorLine++;
+    }
+    return _firstErrorInRange(
+        firstCharacterCursorLine, lastCharacterCursorLine);
   }
 
   CodeError? _firstErrorThatLiesInCursor(int cursorPosition) {
@@ -191,7 +262,13 @@ class _MathCodeFieldState extends State<_MathCodeField> {
               valueListenable: _controller,
               builder: (BuildContext context, TextEditingValue value,
                       Widget? widget) =>
-                  lineNumberBuilder(context, value, widget, textStyle),
+                  lineNumberBuilder(
+                context,
+                value,
+                widget,
+                textStyle,
+                TextStyle(color: themeData.errorColor),
+              ),
             ),
             const SizedBox(width: 10),
             // Container(width: 1, color: themeData.lineNumberColor),
@@ -232,20 +309,28 @@ class _MathCodeFieldState extends State<_MathCodeField> {
     TextEditingValue value,
     Widget? widget,
     TextStyle textStyle,
+    TextStyle errorTextStyle,
   ) {
     final linesCount = value.text.split("\n").length;
     final maxDigits = linesCount.toString().length;
-    final linesText = List.generate(
+    final spans = List<TextSpan>.generate(
       linesCount,
       (rawLine) {
-        return (rawLine + 1).toString().padLeft(maxDigits);
+        final isError = _errorInLine(rawLine);
+        final text = "${(rawLine + 1).toString().padLeft(maxDigits)}\n";
+        if (isError) {
+          return TextSpan(text: text, style: errorTextStyle);
+        }
+        return TextSpan(text: text);
       },
-    ).reduce((value, element) => "$value\n$element");
+    );
     return Padding(
       padding: const EdgeInsets.only(top: 9),
-      child: Text(
-        linesText,
-        style: textStyle,
+      child: RichText(
+        text: TextSpan(
+          children: spans,
+          style: textStyle,
+        ),
       ),
     );
   }
