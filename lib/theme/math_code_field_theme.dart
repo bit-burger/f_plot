@@ -21,4 +21,5 @@ final mathCodeFieldTheme = MathCodeFieldThemeData(
     decoration: TextDecoration.underline,
     decorationColor: NordColors.$11,
   ),
+  restStyle: const TextStyle(color: NordColors.$4),
 );
