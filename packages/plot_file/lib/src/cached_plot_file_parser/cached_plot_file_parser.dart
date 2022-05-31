@@ -36,7 +36,7 @@ class CachedPlotFileParser {
     multipleParserContext.parsePlotFile(plotFile);
     if (multipleParserContext.parseErrors.isNotEmpty) {
       errors = multipleParserContext.parseErrors;
-      return; // problem removing return:
+      //return; // problem removing return:
       // MultipleParserContext already checks
       // for things that concern multiple declarations,
       // such as that every declaration is unique
