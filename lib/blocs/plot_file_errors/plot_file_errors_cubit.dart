@@ -89,7 +89,16 @@ class PlotFileErrorsCubit extends Cubit<PlotFileErrorsState> {
     final newErrors = errors
         .map((error) => PlotFileError.fromStringExpressionParseError(
             error: error, plotFile: plotFile))
-        .toList(growable: false);
+        .toList(growable: false)
+      ..sort(
+        (a, b) {
+          final firstCriteria = a.begin.compareTo(b.begin);
+          if (firstCriteria != 0) {
+            return firstCriteria;
+          }
+          return a.end.compareTo(b.end);
+        },
+      );
     emit(
       PlotFileErrorsState(
         selectedError: _errorInCursorLine(_currentCursorPosition, newErrors),

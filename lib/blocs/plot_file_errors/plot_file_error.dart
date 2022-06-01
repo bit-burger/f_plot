@@ -34,8 +34,8 @@ class PlotFileError extends CodeError {
       }
     }
     return PlotFileError._(
-      lineBegin: line,
-      lineBeginFirstCharacter: lineCharacter,
+      lineBegin: line + 1,
+      lineBeginFirstCharacter: lineCharacter + 1,
       begin: globalCharacterBegin,
       end: globalCharacterEnd,
       message: message,

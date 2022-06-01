@@ -2,36 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:flutter_nord_theme/flutter_nord_theme.dart';
 
 final ThemeData _baseTheme = NordTheme.dark();
-final ThemeData fPlotTheme = ThemeData.from(
-  colorScheme: const ColorScheme(
-    primary: NordColors.$1,
-    onPrimary: NordColors.$4,
-    secondary: NordColors.$8,
-    onSecondary: NordColors.$6,
-    background: NordColors.$0,
-    onBackground: NordColors.$4,
-    surface: NordColors.$1,
-    onSurface: NordColors.$5,
-    error: NordColors.$4,
-    onError: NordColors.$5,
-    brightness: Brightness.dark,
-  ),
-  textTheme: const TextTheme().apply(
-    bodyColor: NordColors.$5,
-    displayColor: NordColors.$0,
-  ),
-  useMaterial3: true,
-).copyWith(
-  tooltipTheme: const TooltipThemeData(
-    decoration: BoxDecoration(
-      color: NordColors.$10,
-    ),
-    textStyle: TextStyle(color: NordColors.$6),
-  ),
-  scrollbarTheme: const ScrollbarThemeData(
-
-  ),
-);
+ThemeData get fPlotTheme => ThemeData.from(
+      colorScheme: const ColorScheme(
+        primary: NordColors.$1,
+        onPrimary: NordColors.$4,
+        secondary: NordColors.$8,
+        onSecondary: NordColors.$6,
+        background: NordColors.$0,
+        onBackground: NordColors.$4,
+        surface: NordColors.$1,
+        onSurface: NordColors.$5,
+        error: NordColors.$4,
+        onError: NordColors.$5,
+        brightness: Brightness.dark,
+      ),
+      textTheme: const TextTheme().apply(
+        bodyColor: NordColors.$5,
+        displayColor: NordColors.$0,
+      ),
+      useMaterial3: true,
+    ).copyWith(
+      tooltipTheme: const TooltipThemeData(
+        decoration: BoxDecoration(
+          color: NordColors.$10,
+        ),
+        textStyle: TextStyle(color: NordColors.$6),
+      ),
+      dividerTheme: const DividerThemeData(
+        color: NordColors.$1,
+        thickness: 2,
+      ),
+    );
 
 final ThemeData bfPlotTheme = _baseTheme.copyWith(
   useMaterial3: true,

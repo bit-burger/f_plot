@@ -14,12 +14,16 @@ class PlotFileEditor extends StatefulWidget {
 }
 
 class _PlotFileEditorState extends State<PlotFileEditor> {
+  late final FocusNode _codeFocusNode;
+
   late final MathCodeEditingController _codeEditingController;
   late int _lastCursorPosition;
 
   @override
   void initState() {
     super.initState();
+
+    _codeFocusNode = FocusNode();
 
     final initialPlotFile =
         context.read<OpenProjectCubit>().state.openProject!.plotFile;
@@ -45,13 +49,25 @@ class _PlotFileEditorState extends State<PlotFileEditor> {
   Widget build(BuildContext context) {
     final openProjectCubit = context.read<OpenProjectCubit>();
     final plottingProjectState = context.watch<PlotFileErrorsCubit>().state;
-    return MathCodeField(
-      codeEditingController: _codeEditingController,
-      monoTextTheme: GoogleFonts.jetBrainsMonoTextTheme(),
-      codeErrors: plottingProjectState.errors,
-      textChanged: (plotFile) {
-        openProjectCubit.editPlotfile(plotFile);
+    return BlocListener<PlotFileErrorsCubit, PlotFileErrorsState>(
+      listener: (context, state) {
+        if (state.lastSelectedErrorCursorPosition != null) {
+          _codeFocusNode.requestFocus();
+          _codeEditingController.selection = TextSelection(
+            baseOffset: state.lastSelectedErrorCursorPosition!,
+            extentOffset: state.lastSelectedErrorCursorPosition!,
+          );
+        }
       },
+      child: MathCodeField(
+        focusNode: _codeFocusNode,
+        codeEditingController: _codeEditingController,
+        monoTextTheme: GoogleFonts.jetBrainsMonoTextTheme(),
+        codeErrors: plottingProjectState.errors,
+        textChanged: (plotFile) {
+          openProjectCubit.editPlotfile(plotFile);
+        },
+      ),
     );
   }
 

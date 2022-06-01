@@ -1,3 +1,4 @@
+import 'package:f_plot/pages/open_project/error_viewer.dart';
 import 'package:f_plot/pages/open_project/plot_file_editor.dart';
 import 'package:f_plot/pages/open_project/plot_file_selected_error.dart';
 import 'package:flutter/material.dart';
@@ -39,10 +40,8 @@ class OpenProjectContent extends StatelessWidget {
                   ],
                 ),
               ),
-              Expanded(
-                child: Container(
-                  color: NordColors.$0,
-                ),
+              const Expanded(
+                child: ErrorViewer(),
               ),
             ],
           ),
