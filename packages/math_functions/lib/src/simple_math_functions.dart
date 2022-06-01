@@ -1,4 +1,4 @@
-import "dart:math" as math show pow ;
+import "dart:math" as math show pow;
 
 double sum(double a, double b) {
   return a + b;

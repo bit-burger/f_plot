@@ -41,7 +41,9 @@ class OpenProjectAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget _buildSaveButton(BuildContext context) {
     return BlocBuilder<OpenProjectCubit, OpenProjectState>(
       buildWhen: (oldState, newState) =>
-          oldState.status != newState.status && !newState.openingOrDeleting && newState.projectIsOpen,
+          oldState.status != newState.status &&
+          !newState.openingOrDeleting &&
+          newState.projectIsOpen,
       builder: (context, state) {
         late final Widget widget;
         switch (state.status) {
@@ -94,8 +96,7 @@ class OpenProjectAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   Future<bool> _shouldExitPage(BuildContext context) async {
     final cubit = context.read<OpenProjectCubit>();
-    if (cubit.state.status ==
-        ProjectStatus.unsaved) {
+    if (cubit.state.status == ProjectStatus.unsaved) {
       final shouldDiscardResult = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
@@ -116,7 +117,7 @@ class OpenProjectAppBar extends StatelessWidget implements PreferredSizeWidget {
           ],
         ),
       );
-      switch(shouldDiscardResult) {
+      switch (shouldDiscardResult) {
         case true:
           return true;
         case false:

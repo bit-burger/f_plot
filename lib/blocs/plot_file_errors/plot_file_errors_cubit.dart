@@ -25,9 +25,9 @@ class PlotFileErrorsCubit extends Cubit<PlotFileErrorsState> {
     List<PlotFileError> errors,
   ) {
     for (final error in errors) {
-      final errorIsBeforeCursorLine = last < error.begin && last < error.begin;
-      final errorIsAfterCursorLine = begin >= error.end && begin >= error.end;
-      if (!errorIsBeforeCursorLine && !errorIsAfterCursorLine) {
+      final errorIsBeforeRange = last < error.begin && last < error.begin;
+      final errorIsAfterRange = begin >= error.end && begin >= error.end;
+      if (!errorIsBeforeRange && !errorIsAfterRange) {
         return error;
       }
     }

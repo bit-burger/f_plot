@@ -86,7 +86,8 @@ class MathCodeEditingController extends TextEditingController {
     final spans = _spansForText(text, themeData);
     if (spans.isNotEmpty) {
       final inboundErrors = _errorsInbound(_currentErrors);
-      _replaceSpansWithErrors(spans, inboundErrors, themeData.restStyle, themeData.errorTextStyle);
+      _replaceSpansWithErrors(
+          spans, inboundErrors, themeData.restStyle, themeData.errorTextStyle);
       // _addNewlineErrors(spans, _currentErrors, themeData.errorTextStyle);
     }
     return TextSpan(children: spans, style: themeData.restStyle.merge(style));

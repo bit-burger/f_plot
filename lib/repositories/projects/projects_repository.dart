@@ -49,7 +49,8 @@ class ProjectsRepository implements IProjectsRepository {
 
   @override
   Future<Project> editProjectPlotFile(int projectId, String newPlotFile) async {
-    final project = await projectsDao.editProjectPlotFile(projectId, newPlotFile);
+    final project =
+        await projectsDao.editProjectPlotFile(projectId, newPlotFile);
     return project;
   }
 
