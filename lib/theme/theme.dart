@@ -20,6 +20,7 @@ final ThemeData fPlotTheme = ThemeData.from(
     bodyColor: NordColors.$5,
     displayColor: NordColors.$0,
   ),
+  useMaterial3: true,
 ).copyWith(
   tooltipTheme: const TooltipThemeData(
     decoration: BoxDecoration(
