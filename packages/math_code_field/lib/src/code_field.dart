@@ -27,12 +27,15 @@ class MathCodeField extends StatelessWidget {
 
   final MathCodeEditingController? codeEditingController;
 
+  final FocusNode focusNode;
+
   const MathCodeField({
     Key? key,
     this.codeErrors = const [],
     required this.monoTextTheme,
     this.textChanged,
     this.codeEditingController,
+    required this.focusNode,
   }) : super(key: key);
 
   @override
@@ -45,6 +48,7 @@ class MathCodeField extends StatelessWidget {
         errors: codeErrors,
         textChanged: textChanged,
         controller: codeEditingController,
+        focusNode: focusNode,
       ),
     );
   }
@@ -54,12 +58,14 @@ class _MathCodeField extends StatefulWidget {
   final List<CodeError> errors;
   final ValueChanged<String>? textChanged;
   final MathCodeEditingController? controller;
+  final FocusNode focusNode;
 
   const _MathCodeField({
     required this.errors,
     Key? key,
     this.textChanged,
     this.controller,
+    required this.focusNode,
   }) : super(key: key);
 
   @override
@@ -139,6 +145,7 @@ class _MathCodeFieldState extends State<_MathCodeField> {
   Widget _buildTextField() {
     return IntrinsicHeight(
       child: TextField(
+        focusNode: widget.focusNode,
         onChanged: widget.textChanged,
         inputFormatters: [UnconventionalCharacterFilter()],
         toolbarOptions:
