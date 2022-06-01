@@ -1,15 +1,14 @@
+import 'package:f_plot/blocs/plot_file_errors/plot_file_errors_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_nord_theme/flutter_nord_theme.dart';
-
-import '../../blocs/selected_error/selected_error_cubit.dart';
 
 class PlotFileSelectedError extends StatelessWidget {
   const PlotFileSelectedError({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SelectedErrorCubit, SelectedErrorState>(
+    return BlocBuilder<PlotFileErrorsCubit, PlotFileErrorsState>(
       builder: (context, state) {
         return TweenAnimationBuilder<double>(
           tween: Tween(begin: 0, end: state.errorIsSelected ? 1 : 0),
@@ -17,7 +16,7 @@ class PlotFileSelectedError extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Tooltip(
-              message: state.selectedErrorMessage ?? "",
+              message: state.selectedError?.message ?? "",
               child: Row(
                 children: [
                   Icon(
@@ -29,7 +28,7 @@ class PlotFileSelectedError extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      state.selectedErrorMessage ?? "",
+                      state.selectedError?.message ?? "",
                       style: const TextStyle(color: NordColors.$9),
                     ),
                   ),

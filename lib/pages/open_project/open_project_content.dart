@@ -1,11 +1,9 @@
 import 'package:f_plot/pages/open_project/plot_file_editor.dart';
 import 'package:f_plot/pages/open_project/plot_file_selected_error.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_nord_theme/flutter_nord_theme.dart';
 import 'package:math_code_field/math_code_field.dart';
 
-import '../../blocs/selected_error/selected_error_cubit.dart';
 import '../../theme/math_code_field_theme.dart';
 import '../../widgets/resizable_pane.dart';
 import 'graphs_viewer.dart';
@@ -15,52 +13,49 @@ class OpenProjectContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => SelectedErrorCubit()..noErrorSelected(),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              children: [
-                ResizablePane(
-                  min: 250,
-                  max: 1000,
-                  initialResizeValue: 150,
-                  dividerColor: NordColors.$2,
-                  orientation: ResizableOrientation.vertical,
-                  dividerIsFromStart: false,
-                  dividerWidth: 6,
-                  child: Stack(
-                    children: [
-                      MathCodeFieldTheme(
-                        data: mathCodeFieldTheme,
-                        child: const PlotFileEditor(),
-                      ),
-                      const Align(
-                        alignment: Alignment.bottomCenter,
-                        child: PlotFileSelectedError(),
-                      ),
-                    ],
-                  ),
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            children: [
+              ResizablePane(
+                min: 250,
+                max: 1000,
+                initialResizeValue: 150,
+                dividerColor: NordColors.$2,
+                orientation: ResizableOrientation.vertical,
+                dividerIsFromStart: false,
+                dividerWidth: 6,
+                child: Stack(
+                  children: [
+                    MathCodeFieldTheme(
+                      data: mathCodeFieldTheme,
+                      child: const PlotFileEditor(),
+                    ),
+                    const Align(
+                      alignment: Alignment.bottomCenter,
+                      child: PlotFileSelectedError(),
+                    ),
+                  ],
                 ),
-                Expanded(
-                  child: Container(
-                    color: NordColors.$0,
-                  ),
+              ),
+              Expanded(
+                child: Container(
+                  color: NordColors.$0,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          const ResizablePane(
-            dividerWidth: 6,
-            dividerColor: NordColors.$2,
-            initialResizeValue: 500,
-            max: 1000,
-            min: 500,
-            child: GraphsViewer(),
-          ),
-        ],
-      ),
+        ),
+        const ResizablePane(
+          dividerWidth: 6,
+          dividerColor: NordColors.$2,
+          initialResizeValue: 500,
+          max: 1000,
+          min: 500,
+          child: GraphsViewer(),
+        ),
+      ],
     );
   }
 }

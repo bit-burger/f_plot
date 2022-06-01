@@ -1,7 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:expressions/expressions.dart';
-import 'package:f_plot/repositories/projects/projects_repository_contract.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_nord_theme/flutter_nord_theme.dart';
 import 'package:meta/meta.dart';
@@ -17,7 +16,12 @@ class PlottingProjectCubit extends Cubit<PlottingProjectState> {
   void loadPlotfile(String plotFile) {
     cachedPlotFileParser.parseAndCache(plotFile);
     if (cachedPlotFileParser.errors.isNotEmpty) {
-      emit(PlottingProjectState(errors: [...cachedPlotFileParser.errors]));
+      emit(
+        PlottingProjectState(
+          errors: [...cachedPlotFileParser.errors],
+          plotFile: plotFile,
+        ),
+      );
     } else {
       emit(
         PlottingProjectState(
@@ -29,6 +33,7 @@ class PlottingProjectCubit extends Cubit<PlottingProjectState> {
               .graphFunctionsFromCachedFunctionDeclarationMap(
             cachedPlotFileParser.functions,
           ),
+          plotFile: plotFile,
         ),
       );
     }
@@ -37,7 +42,12 @@ class PlottingProjectCubit extends Cubit<PlottingProjectState> {
   void write(String plotFile) {
     cachedPlotFileParser.parseAndCache(plotFile);
     if (cachedPlotFileParser.errors.isNotEmpty) {
-      emit(state.copyWith(errors: [...cachedPlotFileParser.errors]));
+      emit(
+        state.copyWith(
+          errors: [...cachedPlotFileParser.errors],
+          plotFile: plotFile,
+        ),
+      );
     } else {
       emit(
         PlottingProjectState(
@@ -49,6 +59,7 @@ class PlottingProjectCubit extends Cubit<PlottingProjectState> {
               .graphFunctionsFromCachedFunctionDeclarationMap(
             cachedPlotFileParser.functions,
           ),
+          plotFile: plotFile,
         ),
       );
     }

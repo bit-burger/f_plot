@@ -1,5 +1,4 @@
-import 'package:f_plot/blocs/plotting_project/plotting_project_cubit.dart';
-import 'package:f_plot/blocs/selected_error/selected_error_cubit.dart';
+import 'package:f_plot/blocs/plot_file_errors/plot_file_errors_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -16,6 +15,7 @@ class PlotFileEditor extends StatefulWidget {
 
 class _PlotFileEditorState extends State<PlotFileEditor> {
   late final MathCodeEditingController _codeEditingController;
+  late int _lastCursorPosition;
 
   @override
   void initState() {
@@ -26,26 +26,38 @@ class _PlotFileEditorState extends State<PlotFileEditor> {
 
     _codeEditingController = MathCodeEditingController();
     _codeEditingController.text = initialPlotFile;
+    _lastCursorPosition = _codeEditingController.selection.start;
+
+    _codeEditingController.addListener(_onSelectionChange);
+  }
+
+  void _onSelectionChange() {
+    final newCursorPosition = _codeEditingController.selection.start;
+    if (newCursorPosition != _lastCursorPosition) {
+      context
+          .read<PlotFileErrorsCubit>()
+          .changeCursorPosition(newCursorPosition);
+      _lastCursorPosition = newCursorPosition;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final openProjectCubit = context.read<OpenProjectCubit>();
-    final plottingProjectState = context.watch<PlottingProjectCubit>().state;
+    final plottingProjectState = context.watch<PlotFileErrorsCubit>().state;
     return MathCodeField(
       codeEditingController: _codeEditingController,
       monoTextTheme: GoogleFonts.jetBrainsMonoTextTheme(),
-      codeErrors: plottingProjectState.errors
-          .map((error) => CodeError(
-              begin: error.from, end: error.to, message: error.message))
-          .toList(growable: false),
+      codeErrors: plottingProjectState.errors,
       textChanged: (plotFile) {
         openProjectCubit.editPlotfile(plotFile);
       },
-      errorSelectionExact: false,
-      errorSelectionChanged: (codeError) {
-        context.read<SelectedErrorCubit>().select(codeError?.message);
-      },
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _codeEditingController.removeListener(_onSelectionChange);
   }
 }

@@ -25,28 +25,13 @@ class MathCodeField extends StatelessWidget {
   /// a function that is called when the text changes
   final ValueChanged<String>? textChanged;
 
-  /// a function that is called when the selection/cursor or text changes.
-  ///
-  /// is called with the first error in [codeErrors],
-  /// where the cursor lies in the error
-  final ValueChanged<CodeError?>? errorSelectionChanged;
-
   final MathCodeEditingController? codeEditingController;
-
-  /// if an error should only be counted as selected
-  /// if the cursor is inside the error.
-  ///
-  /// else the first error on the line is taken, or, if it exists,
-  /// the error where the cursor is inside
-  final bool errorSelectionExact;
 
   const MathCodeField({
     Key? key,
     this.codeErrors = const [],
     required this.monoTextTheme,
     this.textChanged,
-    this.errorSelectionChanged,
-    this.errorSelectionExact = true,
     this.codeEditingController,
   }) : super(key: key);
 
@@ -59,9 +44,7 @@ class MathCodeField extends StatelessWidget {
       child: _MathCodeField(
         errors: codeErrors,
         textChanged: textChanged,
-        errorSelectionChanged: errorSelectionChanged,
         controller: codeEditingController,
-        errorSelectionExact: errorSelectionExact,
       ),
     );
   }
@@ -70,17 +53,13 @@ class MathCodeField extends StatelessWidget {
 class _MathCodeField extends StatefulWidget {
   final List<CodeError> errors;
   final ValueChanged<String>? textChanged;
-  final ValueChanged<CodeError?>? errorSelectionChanged;
-  final bool errorSelectionExact;
   final MathCodeEditingController? controller;
 
   const _MathCodeField({
     required this.errors,
     Key? key,
     this.textChanged,
-    this.errorSelectionChanged,
     this.controller,
-    required this.errorSelectionExact,
   }) : super(key: key);
 
   @override
@@ -89,32 +68,12 @@ class _MathCodeField extends StatefulWidget {
 
 class _MathCodeFieldState extends State<_MathCodeField> {
   late final MathCodeEditingController _controller;
-  late TextSelection _lastSelection;
-  late CodeError? _lastSelectedError;
 
   @override
   void initState() {
     super.initState();
     _controller = widget.controller ?? MathCodeEditingController();
-    _lastSelection = _controller.selection;
-    _lastSelectedError = null;
-    _controller.addListener(_didUpdateController);
     _controller.setErrors(widget.errors);
-  }
-
-  void _didUpdateController({bool override = false}) {
-    if (override || _controller.selection != _lastSelection) {
-      final cursorPosition = _controller.selection.baseOffset;
-      var error = _firstErrorThatLiesInCursor(cursorPosition);
-      if (!widget.errorSelectionExact && error == null) {
-        error = _firstErrorThatLiesInCursorLine(cursorPosition);
-      }
-      if (error != _lastSelectedError) {
-        widget.errorSelectionChanged?.call(error);
-      }
-      _lastSelectedError = error;
-    }
-    _lastSelection = _controller.selection;
   }
 
   // line starts at 0
@@ -149,42 +108,6 @@ class _MathCodeFieldState extends State<_MathCodeField> {
           begin >= codeError.end && begin >= codeError.end;
       if (!errorIsBeforeCursorLine && !errorIsAfterCursorLine) {
         return codeError;
-      }
-    }
-    return null;
-  }
-
-  CodeError? _firstErrorThatLiesInCursorLine(int cursorPosition) {
-    final text = _controller.text;
-    var firstCharacterCursorLine = 0;
-    for (var i = 0; i < text.length; i++) {
-      if (text[i] == "\n") {
-        firstCharacterCursorLine = i;
-      }
-      if (i == cursorPosition) {
-        break;
-      }
-    }
-    var lastCharacterCursorLine = firstCharacterCursorLine;
-    while (lastCharacterCursorLine < text.length - 1 &&
-        text[lastCharacterCursorLine] != "\n") {
-      lastCharacterCursorLine++;
-    }
-    return _firstErrorInRange(
-        firstCharacterCursorLine, lastCharacterCursorLine);
-  }
-
-  CodeError? _firstErrorThatLiesInCursor(int cursorPosition) {
-    for (final error in widget.errors) {
-      if (cursorPosition >= error.begin && cursorPosition < error.end) {
-        return error;
-      }
-      // make sure a error cannot be marked if it is on the line above,
-      // even if it goes to the new line
-      if (cursorPosition != 0 &&
-          cursorPosition == error.end &&
-          _controller.text[cursorPosition - 1] != "\n") {
-        return error;
       }
     }
     return null;
@@ -237,7 +160,6 @@ class _MathCodeFieldState extends State<_MathCodeField> {
       _controller = widget.controller!;
     }
     _controller.setErrors(widget.errors);
-    _didUpdateController(override: true);
   }
 
   @override
@@ -338,7 +260,6 @@ class _MathCodeFieldState extends State<_MathCodeField> {
   @override
   void dispose() {
     _controller.dispose();
-    _controller.removeListener(_didUpdateController);
     super.dispose();
   }
 }

@@ -48,11 +48,6 @@ class _MyHomePageState extends State<MyHomePage> {
             child: MathCodeField(
               monoTextTheme: GoogleFonts.jetBrainsMonoTextTheme(),
               codeErrors: errorsOn ? _errors : <CodeError>[],
-              errorSelectionChanged: (e) {
-                setState(() {
-                  errorMessage = e?.toString();
-                });
-              },
             ),
           ),
           if (errorMessage != null)

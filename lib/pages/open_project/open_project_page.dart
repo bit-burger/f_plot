@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:f_plot/blocs/open_project/open_project_cubit.dart';
+import 'package:f_plot/blocs/plot_file_errors/plot_file_errors_cubit.dart';
 import 'package:f_plot/blocs/plotting_project/plotting_project_cubit.dart';
 import 'package:f_plot/pages/open_project/open_project_app_bar.dart';
 import 'package:flutter/material.dart';
@@ -14,14 +17,20 @@ class OpenProjectPage extends StatefulWidget {
 }
 
 class _OpenProjectPageState extends State<OpenProjectPage> {
-  late final PlottingProjectCubit cubit;
+  late final PlottingProjectCubit _plottingProjectCubit;
+  late final StreamSubscription<PlottingProjectState> _plottingProjectCubitSub;
+  late final PlotFileErrorsCubit _plotFileErrorsCubit;
 
   @override
   void initState() {
     super.initState();
-    cubit = PlottingProjectCubit()
+    _plottingProjectCubit = PlottingProjectCubit()
       ..loadPlotfile(
           context.read<OpenProjectCubit>().state.openProject!.plotFile);
+    _plottingProjectCubitSub = _plottingProjectCubit.stream.listen((state) {
+      _plotFileErrorsCubit.updatePlotFile(state.errors, state.plotFile);
+    });
+    _plotFileErrorsCubit = PlotFileErrorsCubit();
   }
 
   @override
@@ -29,16 +38,20 @@ class _OpenProjectPageState extends State<OpenProjectPage> {
     return BlocListener<OpenProjectCubit, OpenProjectState>(
       listenWhen: (oldState, newState) => newState.projectIsOpen,
       listener: (context, state) {
-        cubit.write(state.openProject!.plotFile);
+        _plottingProjectCubit.write(state.openProject!.plotFile);
       },
       child: Scaffold(
         appBar: const OpenProjectAppBar(),
         body: BlocProvider.value(
-          value: cubit,
-          child: Builder(builder: (context) {
-            return const OpenProjectContent();
-          }),
-          // child: ,
+          value: _plottingProjectCubit,
+          child: BlocProvider.value(
+            value: _plotFileErrorsCubit,
+            child: Builder(
+              builder: (context) {
+                return const OpenProjectContent();
+              },
+            ),
+          ),
         ),
       ),
     );
@@ -47,6 +60,8 @@ class _OpenProjectPageState extends State<OpenProjectPage> {
   @override
   void dispose() {
     super.dispose();
-    cubit.close();
+    _plottingProjectCubitSub.cancel();
+    _plottingProjectCubit.close();
+    _plotFileErrorsCubit.close();
   }
 }

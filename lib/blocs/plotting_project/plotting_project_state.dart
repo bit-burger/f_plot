@@ -103,11 +103,13 @@ class PlottingProjectState {
   final List<StringExpressionParseError> errors;
   final List<GraphFunction> functions;
   final List<Variable> variables;
+  final String plotFile;
 
   const PlottingProjectState({
     this.errors = const [],
     this.functions = const [],
     this.variables = const [],
+    this.plotFile = "",
   });
 
   factory PlottingProjectState.initial() {
@@ -118,11 +120,13 @@ class PlottingProjectState {
     List<StringExpressionParseError>? errors,
     List<GraphFunction>? functions,
     List<Variable>? variables,
+    String? plotFile,
   }) {
     return PlottingProjectState(
       errors: errors ?? this.errors,
       functions: functions ?? this.functions,
       variables: variables ?? this.variables,
+      plotFile: plotFile ?? this.plotFile,
     );
   }
 
