@@ -39,9 +39,14 @@ class PlotFileErrorsCubit extends Cubit<PlotFileErrorsState> {
     List<PlotFileError> errors,
   ) {
     var firstCharacterCursorLine = 0;
+    var lineBreak = false;
     for (var i = 0; i < _currentPlotFile.length; i++) {
-      if (_currentPlotFile[i] == "\n") {
+      if(lineBreak) {
+        lineBreak = false;
         firstCharacterCursorLine = i;
+      }
+      if (_currentPlotFile[i] == "\n") {
+        lineBreak = true;
       }
       if (i == cursorPosition) {
         break;
