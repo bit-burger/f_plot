@@ -14,22 +14,23 @@ class PlotFileSelectedError extends StatelessWidget {
           tween: Tween(begin: 0, end: state.errorIsSelected ? 1 : 0),
           duration: const Duration(milliseconds: 250),
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(4),
             child: Tooltip(
               message: state.selectedError?.message ?? "",
               child: Row(
                 children: [
                   Icon(
                     Icons.error_outline,
+                    size: 13,
                     color: state.errorIsSelected
                         ? NordColors.$9
                         : Colors.transparent,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 4),
                   Expanded(
                     child: Text(
                       state.selectedError?.message ?? "",
-                      style: const TextStyle(color: NordColors.$9),
+                      style: const TextStyle(color: NordColors.$9, fontSize: 12),
                     ),
                   ),
                 ],

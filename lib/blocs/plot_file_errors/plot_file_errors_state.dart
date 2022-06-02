@@ -6,6 +6,9 @@ class PlotFileErrorsState extends Equatable {
   final int? lastSelectedErrorCursorPosition;
 
   bool get errorIsSelected => selectedError != null;
+  int get selectedErrorIndex => errors.indexWhere(
+        (error) => error == selectedError,
+      );
 
   const PlotFileErrorsState({
     this.errors = const [],

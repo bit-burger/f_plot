@@ -28,9 +28,14 @@ ThemeData get fPlotTheme => ThemeData.from(
         ),
         textStyle: TextStyle(color: NordColors.$6),
       ),
+      listTileTheme: const ListTileThemeData(
+        selectedColor: NordColors.$4,
+        selectedTileColor: NordColors.$1,
+      ),
       dividerTheme: const DividerThemeData(
         color: NordColors.$1,
-        thickness: 2,
+        thickness: 3,
+        space: 3,
       ),
     );
 
