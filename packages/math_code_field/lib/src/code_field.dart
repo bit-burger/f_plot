@@ -27,7 +27,7 @@ class MathCodeField extends StatelessWidget {
 
   final MathCodeEditingController? codeEditingController;
 
-  final FocusNode focusNode;
+  final FocusNode? focusNode;
 
   const MathCodeField({
     Key? key,
@@ -35,7 +35,7 @@ class MathCodeField extends StatelessWidget {
     required this.monoTextTheme,
     this.textChanged,
     this.codeEditingController,
-    required this.focusNode,
+    this.focusNode,
   }) : super(key: key);
 
   @override
@@ -58,13 +58,13 @@ class _MathCodeField extends StatefulWidget {
   final List<CodeError> errors;
   final ValueChanged<String>? textChanged;
   final MathCodeEditingController? controller;
-  final FocusNode focusNode;
+  final FocusNode? focusNode;
 
   const _MathCodeField({
     required this.errors,
     Key? key,
-    this.textChanged,
-    this.controller,
+    required this.textChanged,
+    required this.controller,
     required this.focusNode,
   }) : super(key: key);
 
