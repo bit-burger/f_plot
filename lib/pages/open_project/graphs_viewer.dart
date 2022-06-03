@@ -1,4 +1,4 @@
-import 'package:f_plot/blocs/plotting_project/plotting_project_cubit.dart';
+import 'package:f_plot/blocs/plot_file_result/plot_file_result_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_nord_theme/flutter_nord_theme.dart';
@@ -26,7 +26,7 @@ class _GraphsViewerState extends State<GraphsViewer> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PlottingProjectCubit, PlottingProjectState>(
+    return BlocBuilder<PlotFileResultCubit, PlotFileResultState>(
       buildWhen: (oldState, newState) =>
           oldState.functions != newState.functions,
       builder: (context, state) {
@@ -38,8 +38,7 @@ class _GraphsViewerState extends State<GraphsViewer> {
             graphsWidth: 3,
             axisLabelsTextStyle: const TextStyle(
                 color: NordColors.$3, fontWeight: FontWeight.w500),
-            graphs: state.functions
-                .where((function) => function.isSingleVariableFunction)
+            graphs: state.shownFunctions
                 .map(
                   (function) => GraphAttributes(
                       evaluatingFunction: function.function,

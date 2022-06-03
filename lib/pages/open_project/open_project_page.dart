@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:f_plot/blocs/open_project/open_project_cubit.dart';
 import 'package:f_plot/blocs/plot_file_errors/plot_file_errors_cubit.dart';
+import 'package:f_plot/blocs/plot_file_result/plot_file_result_cubit.dart';
 import 'package:f_plot/blocs/plotting_project/plotting_project_cubit.dart';
 import 'package:f_plot/pages/open_project/open_project_app_bar.dart';
 import 'package:flutter/material.dart';
@@ -20,17 +21,32 @@ class _OpenProjectPageState extends State<OpenProjectPage> {
   late final PlottingProjectCubit _plottingProjectCubit;
   late final StreamSubscription<PlottingProjectState> _plottingProjectCubitSub;
   late final PlotFileErrorsCubit _plotFileErrorsCubit;
+  late final PlotFileResultCubit _plotFileResultCubit;
 
   @override
   void initState() {
     super.initState();
-    _plottingProjectCubit = PlottingProjectCubit()
-      ..loadPlotfile(
-          context.read<OpenProjectCubit>().state.openProject!.plotFile);
-    _plottingProjectCubitSub = _plottingProjectCubit.stream.listen((state) {
-      _plotFileErrorsCubit.updatePlotFile(state.errors, state.plotFile);
-    });
     _plotFileErrorsCubit = PlotFileErrorsCubit();
+    _plottingProjectCubit = PlottingProjectCubit();
+    _plotFileResultCubit = PlotFileResultCubit();
+
+    _plottingProjectCubitSub =
+        _plottingProjectCubit.stream.listen(_plotFileUpdate);
+
+    _plottingProjectCubit.loadPlotfile(
+        context.read<OpenProjectCubit>().state.openProject!.plotFile);
+  }
+
+  void _plotFileUpdate(PlottingProjectState state) {
+    _plotFileErrorsCubit.updatePlotFile(state.errors, state.plotFile);
+    if (state.errors.isNotEmpty) {
+      _plotFileResultCubit.plotFileContainsErrors();
+    } else {
+      _plotFileResultCubit.updateErrorlessPlotFile(
+        state.functions,
+        state.variables,
+      );
+    }
   }
 
   @override
@@ -42,15 +58,16 @@ class _OpenProjectPageState extends State<OpenProjectPage> {
       },
       child: Scaffold(
         appBar: const OpenProjectAppBar(),
-        body: BlocProvider.value(
-          value: _plottingProjectCubit,
-          child: BlocProvider.value(
-            value: _plotFileErrorsCubit,
-            child: Builder(
-              builder: (context) {
-                return const OpenProjectContent();
-              },
-            ),
+        body: MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: _plotFileResultCubit),
+            BlocProvider.value(value: _plotFileErrorsCubit),
+            BlocProvider.value(value: _plottingProjectCubit),
+          ],
+          child: Builder(
+            builder: (context) {
+              return const OpenProjectContent();
+            },
           ),
         ),
       ),

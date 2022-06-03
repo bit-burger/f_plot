@@ -2,7 +2,6 @@ import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:expressions/expressions.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_nord_theme/flutter_nord_theme.dart';
 import 'package:meta/meta.dart';
 import 'package:plot_file/plot_file.dart';
 
@@ -25,14 +24,8 @@ class PlottingProjectCubit extends Cubit<PlottingProjectState> {
     } else {
       emit(
         PlottingProjectState(
-          variables:
-              PlottingProjectState.variablesFromCachedVariableDeclarationMap(
-            cachedPlotFileParser.variables,
-          ),
-          functions: PlottingProjectState
-              .graphFunctionsFromCachedFunctionDeclarationMap(
-            cachedPlotFileParser.functions,
-          ),
+          variables: {...cachedPlotFileParser.variables},
+          functions: {...cachedPlotFileParser.functions},
           plotFile: plotFile,
         ),
       );
@@ -51,14 +44,8 @@ class PlottingProjectCubit extends Cubit<PlottingProjectState> {
     } else {
       emit(
         PlottingProjectState(
-          variables:
-              PlottingProjectState.variablesFromCachedVariableDeclarationMap(
-            cachedPlotFileParser.variables,
-          ),
-          functions: PlottingProjectState
-              .graphFunctionsFromCachedFunctionDeclarationMap(
-            cachedPlotFileParser.functions,
-          ),
+          variables: {...cachedPlotFileParser.variables},
+          functions: {...cachedPlotFileParser.functions},
           plotFile: plotFile,
         ),
       );

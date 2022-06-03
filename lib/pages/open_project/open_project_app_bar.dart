@@ -25,6 +25,9 @@ class OpenProjectAppBar extends StatelessWidget implements PreferredSizeWidget {
               newState.projectIsOpen &&
               oldState.openProject?.name != newState.openProject!.name,
           builder: (context, state) {
+            if (!state.projectIsOpen) {
+              return const SizedBox();
+            }
             return Text(state.openProject!.name);
           },
         ),
