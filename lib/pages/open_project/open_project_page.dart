@@ -26,7 +26,7 @@ class _OpenProjectPageState extends State<OpenProjectPage> {
   @override
   void initState() {
     super.initState();
-    _plotFileErrorsCubit = PlotFileErrorsCubit();
+    _plotFileErrorsCubit = PlotFileErrorsCubit()..unfocusPlotFileEditor();
     _plottingProjectCubit = PlottingProjectCubit();
     _plotFileResultCubit = PlotFileResultCubit();
 
@@ -51,6 +51,7 @@ class _OpenProjectPageState extends State<OpenProjectPage> {
 
   @override
   Widget build(BuildContext context) {
+    // TODO: add listener for save keyboard shortcut
     return BlocListener<OpenProjectCubit, OpenProjectState>(
       listenWhen: (oldState, newState) => newState.projectIsOpen,
       listener: (context, state) {

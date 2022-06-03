@@ -14,7 +14,7 @@ part 'plot_file_error.dart';
 /// as well as if the cursor is on the same line as an error,
 /// it should be shown extra should be handled.
 class PlotFileErrorsCubit extends Cubit<PlotFileErrorsState> {
-  int _currentCursorPosition = 0;
+  late int? _currentCursorPosition;
   String _currentPlotFile = "";
 
   PlotFileErrorsCubit() : super(const PlotFileErrorsState.initial());
@@ -41,7 +41,7 @@ class PlotFileErrorsCubit extends Cubit<PlotFileErrorsState> {
     var firstCharacterCursorLine = 0;
     var lineBreak = false;
     for (var i = 0; i < _currentPlotFile.length; i++) {
-      if(lineBreak) {
+      if (lineBreak) {
         lineBreak = false;
         firstCharacterCursorLine = i;
       }
@@ -106,8 +106,19 @@ class PlotFileErrorsCubit extends Cubit<PlotFileErrorsState> {
       );
     emit(
       PlotFileErrorsState(
-        selectedError: _errorInCursorLine(_currentCursorPosition, newErrors),
+        selectedError: _currentCursorPosition == null
+            ? null
+            : _errorInCursorLine(_currentCursorPosition!, newErrors),
         errors: newErrors,
+      ),
+    );
+  }
+
+  void unfocusPlotFileEditor() {
+    _currentCursorPosition = null;
+    emit(
+      PlotFileErrorsState(
+        errors: state.errors,
       ),
     );
   }

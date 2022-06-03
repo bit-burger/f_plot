@@ -17,7 +17,6 @@ class _PlotFileEditorState extends State<PlotFileEditor> {
   late final FocusNode _codeFocusNode;
 
   late final MathCodeEditingController _codeEditingController;
-  late int _lastCursorPosition;
 
   @override
   void initState() {
@@ -30,19 +29,21 @@ class _PlotFileEditorState extends State<PlotFileEditor> {
 
     _codeEditingController = MathCodeEditingController();
     _codeEditingController.text = initialPlotFile;
-    _lastCursorPosition = _codeEditingController.selection.start;
 
     _codeEditingController.addListener(_onSelectionChange);
+
+    _codeFocusNode.addListener(_onFocusChange);
+  }
+
+  void _onFocusChange() {
+    if (!_codeFocusNode.hasFocus) {
+      context.read<PlotFileErrorsCubit>().unfocusPlotFileEditor();
+    }
   }
 
   void _onSelectionChange() {
     final newCursorPosition = _codeEditingController.selection.start;
-    if (newCursorPosition != _lastCursorPosition) {
-      context
-          .read<PlotFileErrorsCubit>()
-          .changeCursorPosition(newCursorPosition);
-      _lastCursorPosition = newCursorPosition;
-    }
+    context.read<PlotFileErrorsCubit>().changeCursorPosition(newCursorPosition);
   }
 
   @override
@@ -75,5 +76,6 @@ class _PlotFileEditorState extends State<PlotFileEditor> {
   void dispose() {
     super.dispose();
     _codeEditingController.removeListener(_onSelectionChange);
+    _codeFocusNode.dispose();
   }
 }
