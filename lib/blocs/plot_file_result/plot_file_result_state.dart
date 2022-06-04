@@ -2,9 +2,19 @@ part of 'plot_file_result_cubit.dart';
 
 class PlotFileResultState extends Equatable {
   final bool disabled;
-  final List<Variable> variables;
-  final List<GraphFunction> functions;
+  final Map<String, CachedVariableDeclaration> cachedVariableDeclarations;
+  final Map<String, CachedFunctionDeclaration> cachedFunctionDeclarations;
   final Set<String> hiddenFunctionsNames;
+
+  late final List<Variable> variables =
+      Variable.variablesFromCachedVariableDeclarationMap(
+    cachedVariableDeclarations,
+  );
+  late final List<GraphFunction> functions =
+      GraphFunction.graphFunctionsFromCachedFunctionDeclarationMap(
+    cachedFunctionDeclarations,
+    hiddenFunctionsNames,
+  );
 
   late final List<GraphFunction> shownFunctions = functions
       .where((function) =>
@@ -14,8 +24,8 @@ class PlotFileResultState extends Equatable {
 
   PlotFileResultState({
     this.disabled = false,
-    this.variables = const [],
-    this.functions = const [],
+    this.cachedVariableDeclarations = const {},
+    this.cachedFunctionDeclarations = const {},
     this.hiddenFunctionsNames = const {},
   });
 
@@ -24,21 +34,23 @@ class PlotFileResultState extends Equatable {
   @override
   List<Object?> get props => [
         disabled,
-        variables,
-        functions,
+        cachedFunctionDeclarations,
+        cachedVariableDeclarations,
         hiddenFunctionsNames,
       ];
 
   PlotFileResultState copyWith({
     bool? disabled,
-    List<Variable>? variables,
-    List<GraphFunction>? functions,
+    Map<String, CachedVariableDeclaration>? cachedVariableDeclarations,
+    Map<String, CachedFunctionDeclaration>? cachedFunctionDeclarations,
     Set<String>? hiddenFunctionsNames,
   }) {
     return PlotFileResultState(
       disabled: disabled ?? this.disabled,
-      variables: variables ?? this.variables,
-      functions: functions ?? this.functions,
+      cachedVariableDeclarations:
+          cachedVariableDeclarations ?? this.cachedVariableDeclarations,
+      cachedFunctionDeclarations:
+          cachedFunctionDeclarations ?? this.cachedFunctionDeclarations,
       hiddenFunctionsNames: hiddenFunctionsNames ?? this.hiddenFunctionsNames,
     );
   }

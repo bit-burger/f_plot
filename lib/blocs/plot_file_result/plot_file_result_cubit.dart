@@ -18,22 +18,15 @@ class PlotFileResultCubit extends Cubit<PlotFileResultState> {
     Map<String, CachedFunctionDeclaration> functionDeclarations,
     Map<String, CachedVariableDeclaration> variableDeclarations,
   ) {
-    final newFunctions =
-        GraphFunction.graphFunctionsFromCachedFunctionDeclarationMap(
-      functionDeclarations,
-      state.hiddenFunctionsNames,
-    );
-    final newFunctionNames = newFunctions.map((function) => function.name);
-    final removedFunctionNames = state.functions
-        .map((function) => function.name)
-        .where((functionName) => !newFunctionNames.contains(functionName));
+    final removedFunctionNames =
+        state.functions.map((function) => function.name).where(
+              (functionName) => !functionDeclarations.containsKey(functionName),
+            );
     emit(
       state.copyWith(
         disabled: false,
-        functions: newFunctions,
-        variables: Variable.variablesFromCachedVariableDeclarationMap(
-          variableDeclarations,
-        ),
+        cachedFunctionDeclarations: functionDeclarations,
+        cachedVariableDeclarations: variableDeclarations,
         hiddenFunctionsNames: {...state.hiddenFunctionsNames}
           ..removeAll(removedFunctionNames),
       ),
