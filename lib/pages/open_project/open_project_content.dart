@@ -2,6 +2,7 @@ import 'package:f_plot/pages/open_project/error_viewer.dart';
 import 'package:f_plot/pages/open_project/graph_functions_viewer.dart';
 import 'package:f_plot/pages/open_project/plot_file_editor.dart';
 import 'package:f_plot/pages/open_project/plot_file_selected_error.dart';
+import 'package:f_plot/pages/open_project/variables_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_nord_theme/flutter_nord_theme.dart';
 import 'package:math_code_field/math_code_field.dart';
@@ -40,7 +41,7 @@ class OpenProjectContent extends StatelessWidget {
                 max: 1000,
                 min: 250,
                 dividerIsFromStart: true,
-                child: Container(color: Colors.red),
+                child: const VariablesViewer(),
               ),
             ],
           ),
