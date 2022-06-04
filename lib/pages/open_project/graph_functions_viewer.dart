@@ -8,14 +8,18 @@ class GraphFunctionsViewer extends StatelessWidget {
   const GraphFunctionsViewer({super.key});
 
   Widget _buildFunction(GraphFunction function, {required bool hasColor}) {
-    return Text(
-      "${function.name}(${function.parameters.join(",")}) = "
-      "${function.expression.toString()}",
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
+    return AnimatedDefaultTextStyle(
+      key: ValueKey(function.name),
       style: GoogleFonts.jetBrainsMono().copyWith(
         fontSize: 16,
         color: hasColor ? function.color : NordColors.$3,
+      ),
+      duration: const Duration(milliseconds: 500),
+      child: Text(
+        "${function.name}(${function.parameters.join(",")}) = "
+        "${function.expression.toString()}",
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }
