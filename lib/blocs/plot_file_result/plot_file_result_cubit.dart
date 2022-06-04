@@ -21,6 +21,7 @@ class PlotFileResultCubit extends Cubit<PlotFileResultState> {
     final newFunctions =
         GraphFunction.graphFunctionsFromCachedFunctionDeclarationMap(
       functionDeclarations,
+      state.hiddenFunctionsNames,
     );
     final newFunctionNames = newFunctions.map((function) => function.name);
     final removedFunctionNames = state.functions

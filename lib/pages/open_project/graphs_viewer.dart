@@ -27,8 +27,6 @@ class _GraphsViewerState extends State<GraphsViewer> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<PlotFileResultCubit, PlotFileResultState>(
-      buildWhen: (oldState, newState) =>
-          oldState.functions != newState.functions,
       builder: (context, state) {
         return ClipRect(
           child: GraphPlotter(

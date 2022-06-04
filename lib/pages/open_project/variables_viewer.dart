@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class VariablesViewer extends StatelessWidget {
-  const VariablesViewer({Key key}) : super(key: key);
+  const VariablesViewer({super.key});
 
   @override
   Widget build(BuildContext context) {

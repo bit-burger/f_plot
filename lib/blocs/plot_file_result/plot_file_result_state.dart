@@ -22,7 +22,12 @@ class PlotFileResultState extends Equatable {
   factory PlotFileResultState.initial() = PlotFileResultState;
 
   @override
-  List<Object?> get props => [disabled, variables, functions];
+  List<Object?> get props => [
+        disabled,
+        variables,
+        functions,
+        hiddenFunctionsNames,
+      ];
 
   PlotFileResultState copyWith({
     bool? disabled,

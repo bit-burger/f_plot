@@ -45,12 +45,14 @@ class GraphFunction {
     NordColors.$12,
     NordColors.$13,
     NordColors.$14,
+    NordColors.$7,
+    NordColors.$9,
     NordColors.$15,
   ];
 
   final String name;
   final List<String> parameters;
-  final Expression _expression;
+  final Expression expression;
   final double Function(double)? _callableFunction;
   final Color? _color;
 
@@ -69,21 +71,19 @@ class GraphFunction {
   GraphFunction.singleParameterFunction({
     required this.name,
     required String parameterName,
-    required Expression expression,
+    required this.expression,
     required double Function(double) callableFunction,
     required Color color,
   })  : parameters = [parameterName],
-        _expression = expression,
         _callableFunction = callableFunction,
         _color = color;
 
   const GraphFunction.multipleParameterFunction({
     required this.name,
     required this.parameters,
-    required Expression expression,
+    required this.expression,
   })  : _callableFunction = null,
-        _color = null,
-        _expression = expression;
+        _color = null;
 
   factory GraphFunction.fromCachedFunctionDeclaration({
     required String name,
@@ -110,7 +110,7 @@ class GraphFunction {
     if (isSingleVariableFunction) {
       return _callableFunction!.call(parameters[0]);
     }
-    return _expression.resolveToNumber(
+    return expression.resolveToNumber(
       ResolveContext.custom(
         variables: {
           for (var i = 0; i < parameters.length; i++)
@@ -134,10 +134,11 @@ class GraphFunction {
   }
 
   static List<GraphFunction> graphFunctionsFromCachedFunctionDeclarationMap(
-    Map<String, CachedFunctionDeclaration> declarations,
-  ) {
+    Map<String, CachedFunctionDeclaration> declarations, [
+    Set<String> hiddenFunctionNames = const {},
+  ]) {
     final List<GraphFunction> ls = [];
-    var functionNumber = 0;
+    var shownFunctionNumber = 0;
     for (var i = 0; i < declarations.length; i++) {
       late final String declarationName;
       late final CachedFunctionDeclaration declaration;
@@ -151,11 +152,12 @@ class GraphFunction {
         GraphFunction.fromCachedFunctionDeclaration(
           name: declarationName,
           declaration: declaration,
-          color: colorFromFunctionNumber(functionNumber),
+          color: colorFromFunctionNumber(shownFunctionNumber),
         ),
       );
-      if (declaration.evaluatorFunction != null) {
-        functionNumber++;
+      if (declaration.evaluatorFunction != null &&
+          !hiddenFunctionNames.contains(declarationName)) {
+        shownFunctionNumber++;
       }
     }
     return ls;

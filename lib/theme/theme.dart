@@ -12,7 +12,7 @@ ThemeData get fPlotTheme => ThemeData.from(
         onBackground: NordColors.$4,
         surface: NordColors.$1,
         onSurface: NordColors.$5,
-        error: NordColors.$4,
+        error: NordColors.$11,
         onError: NordColors.$5,
         brightness: Brightness.dark,
       ),
@@ -22,6 +22,12 @@ ThemeData get fPlotTheme => ThemeData.from(
       ),
       useMaterial3: true,
     ).copyWith(
+      checkboxTheme: CheckboxThemeData(
+        checkColor: MaterialStateProperty.all(NordColors.$0),
+        fillColor: MaterialStateProperty.all(NordColors.$10),
+        shape: const ContinuousRectangleBorder(),
+        // side: BorderSide(width: 3, color: NordColors.$10),
+      ),
       tooltipTheme: const TooltipThemeData(
         decoration: BoxDecoration(
           color: NordColors.$10,
