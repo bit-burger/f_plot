@@ -28,7 +28,18 @@ class GraphFunctionsViewer extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.watch<PlotFileResultCubit>();
     final state = cubit.state;
+    if (state.cachedFunctionDeclarations.isEmpty) {
+      return Center(
+        child: Text(
+          "no functions",
+          style: Theme.of(context)
+              .textTheme
+              .subtitle2!
+              .copyWith(color: NordColors.$3),
 
+        ),
+      );
+    }
     return ListView.separated(
       itemCount: state.functions.length,
       itemBuilder: (context, index) {

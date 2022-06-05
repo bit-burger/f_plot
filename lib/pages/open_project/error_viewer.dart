@@ -15,7 +15,10 @@ class ErrorViewer extends StatelessWidget {
           return Center(
             child: Text(
               "no errors found",
-              style: Theme.of(context).textTheme.caption,
+              style: Theme.of(context)
+                  .textTheme
+                  .subtitle2!
+                  .copyWith(color: NordColors.$3),
             ),
           );
         }
