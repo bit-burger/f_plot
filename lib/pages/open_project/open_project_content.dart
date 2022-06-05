@@ -56,7 +56,7 @@ class OpenProjectContent extends StatelessWidget {
         ResizablePane(
           min: 250,
           max: 1000,
-          initialResizeValue: MediaQuery.of(context).size.height * (2 / 3),
+          initialResizeValue: MediaQuery.of(context).size.height * (4 / 5),
           dividerColor: NordColors.$2,
           orientation: ResizableOrientation.vertical,
           dividerIsFromStart: false,
@@ -91,7 +91,7 @@ class OpenProjectContent extends StatelessWidget {
         ResizablePane(
           dividerWidth: 6,
           dividerColor: NordColors.$2,
-          initialResizeValue: MediaQuery.of(context).size.width / 3,
+          initialResizeValue: MediaQuery.of(context).size.width / 2,
           max: 1000,
           min: 500,
           child: _buildPlotFileResult(context),
