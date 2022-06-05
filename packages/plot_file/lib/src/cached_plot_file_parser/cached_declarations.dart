@@ -61,6 +61,16 @@ class CachedFunctionDeclaration extends CachedDeclaration {
   @override
   int get hashCode =>
       parameters.hashCode ^ body.hashCode ^ evaluatorFunction.hashCode;
+
+  CachedFunctionDeclaration copy() {
+    return CachedFunctionDeclaration(
+      parameters: parameters,
+      body: body,
+      rawBody: rawBody,
+      evaluatorFunction: evaluatorFunction,
+      status: status,
+    )..order = order;
+  }
 }
 
 class CachedVariableDeclaration extends CachedDeclaration {
@@ -86,4 +96,12 @@ class CachedVariableDeclaration extends CachedDeclaration {
 
   @override
   int get hashCode => value.hashCode;
+
+  CachedVariableDeclaration copy() {
+    return CachedVariableDeclaration(
+      rawBody: rawBody,
+      status: status,
+      value: value,
+    )..order = order;
+  }
 }

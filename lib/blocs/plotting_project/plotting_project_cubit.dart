@@ -14,38 +14,51 @@ class PlottingProjectCubit extends Cubit<PlottingProjectState> {
 
   void loadPlotfile(String plotFile) {
     cachedPlotFileParser.parseAndCache(plotFile);
-    if (cachedPlotFileParser.errors.isNotEmpty) {
-      emit(
-        PlottingProjectState(
-          errors: [...cachedPlotFileParser.errors],
-          plotFile: plotFile,
-        ),
-      );
-    } else {
-      emit(
-        PlottingProjectState(
-          variables: {...cachedPlotFileParser.variables},
-          functions: {...cachedPlotFileParser.functions},
-          plotFile: plotFile,
-        ),
-      );
-    }
+    _emitPlotFileParserResults(
+      plotFile: plotFile,
+      copyFromOld: false,
+    );
   }
 
   void write(String plotFile) {
     cachedPlotFileParser.parseAndCache(plotFile);
+    _emitPlotFileParserResults(
+      plotFile: plotFile,
+      copyFromOld: true,
+    );
+  }
+
+  void _emitPlotFileParserResults({
+    required String plotFile,
+    required bool copyFromOld,
+  }) {
     if (cachedPlotFileParser.errors.isNotEmpty) {
-      emit(
-        state.copyWith(
-          errors: [...cachedPlotFileParser.errors],
-          plotFile: plotFile,
-        ),
-      );
+      if (copyFromOld) {
+        emit(
+          state.copyWith(
+            errors: [...cachedPlotFileParser.errors],
+            plotFile: plotFile,
+          ),
+        );
+      } else {
+        emit(
+          PlottingProjectState(
+            errors: [...cachedPlotFileParser.errors],
+            plotFile: plotFile,
+          ),
+        );
+      }
     } else {
       emit(
         PlottingProjectState(
-          variables: {...cachedPlotFileParser.variables},
-          functions: {...cachedPlotFileParser.functions},
+          variables: {
+            for (final name in cachedPlotFileParser.variables.keys)
+              name: cachedPlotFileParser.variables[name]!.copy(),
+          },
+          functions: {
+            for (final name in cachedPlotFileParser.functions.keys)
+              name: cachedPlotFileParser.functions[name]!.copy(),
+          },
           plotFile: plotFile,
         ),
       );
