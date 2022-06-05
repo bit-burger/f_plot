@@ -16,7 +16,7 @@ final mathCodeFieldTheme = MathCodeFieldThemeData(
     NordColors.$8,
     NordColors.$10,
   ],
-  selectionColor: NordColors.$11,
+  selectionColor: NordColors.$1,
   errorTextStyle: const TextStyle(
     decoration: TextDecoration.underline,
     decorationColor: NordColors.$11,
