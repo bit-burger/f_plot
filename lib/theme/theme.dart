@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_nord_theme/flutter_nord_theme.dart';
 
-final ThemeData _baseTheme = NordTheme.dark();
 ThemeData get fPlotTheme => ThemeData.from(
       colorScheme: const ColorScheme(
         primary: NordColors.$1,
@@ -16,7 +15,13 @@ ThemeData get fPlotTheme => ThemeData.from(
         onError: NordColors.$5,
         brightness: Brightness.dark,
       ),
-      textTheme: const TextTheme().apply(
+      textTheme: const TextTheme(
+        titleSmall: TextStyle(
+          fontSize: 14,
+          color: NordColors.$3,
+          fontWeight: FontWeight.w500,
+        ),
+      ).apply(
         bodyColor: NordColors.$5,
         displayColor: NordColors.$0,
       ),
@@ -26,7 +31,6 @@ ThemeData get fPlotTheme => ThemeData.from(
         checkColor: MaterialStateProperty.all(NordColors.$0),
         fillColor: MaterialStateProperty.all(NordColors.$10),
         shape: const ContinuousRectangleBorder(),
-        // side: BorderSide(width: 3, color: NordColors.$10),
       ),
       tooltipTheme: const TooltipThemeData(
         decoration: BoxDecoration(
@@ -43,30 +47,18 @@ ThemeData get fPlotTheme => ThemeData.from(
         thickness: 3,
         space: 3,
       ),
-    );
-
-final ThemeData bfPlotTheme = _baseTheme.copyWith(
-  useMaterial3: true,
-  splashColor: Colors.white.withAlpha(32),
-  hoverColor: Colors.white.withAlpha(12),
-  outlinedButtonTheme: OutlinedButtonThemeData(
-    style: ButtonStyle(
-      side: MaterialStateProperty.resolveWith(
-        (states) {
-          const enabledSide = BorderSide(color: NordColors.$8, width: 2);
-          const disabledSide = BorderSide(color: Color(0xFF838486), width: 2);
-          if (states.contains(MaterialState.disabled)) {
-            return disabledSide;
-          }
-          return enabledSide;
-        },
+      dialogTheme: const DialogTheme(
+        shape: ContinuousRectangleBorder(),
+        backgroundColor: NordColors.$1,
       ),
-    ),
-  ),
-  tooltipTheme: const TooltipThemeData(
-    decoration: BoxDecoration(
-      color: NordColors.$10,
-    ),
-    textStyle: TextStyle(color: NordColors.$6),
-  ),
-);
+      splashColor: Colors.white.withAlpha(32),
+      hoverColor: Colors.white.withAlpha(12),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: ButtonStyle(
+          shape: MaterialStateProperty.all(const ContinuousRectangleBorder()),
+          foregroundColor: MaterialStateProperty.all(NordColors.$0),
+          backgroundColor: MaterialStateProperty.all(NordColors.$10),
+          side: MaterialStateProperty.all(BorderSide.none),
+        ),
+      ),
+    );
