@@ -6,6 +6,7 @@ import 'package:f_plot/blocs/plot_file_result/plot_file_result_cubit.dart';
 import 'package:f_plot/blocs/plotting_project/plotting_project_cubit.dart';
 import 'package:f_plot/pages/open_project/open_project_app_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'open_project_content.dart';
@@ -49,26 +50,38 @@ class _OpenProjectPageState extends State<OpenProjectPage> {
     }
   }
 
+  void _saveFile() {
+    context.read<OpenProjectCubit>().saveProject();
+  }
+
   @override
   Widget build(BuildContext context) {
     // TODO: add listener for save keyboard shortcut
-    return BlocListener<OpenProjectCubit, OpenProjectState>(
-      listenWhen: (oldState, newState) => newState.projectIsOpen,
-      listener: (context, state) {
-        _plottingProjectCubit.write(state.openProject!.plotFile);
+    return CallbackShortcuts(
+      bindings: {
+        LogicalKeySet(
+          LogicalKeyboardKey.control,
+          LogicalKeyboardKey.keyS,
+        ): _saveFile,
       },
-      child: Scaffold(
-        appBar: const OpenProjectAppBar(),
-        body: MultiBlocProvider(
-          providers: [
-            BlocProvider.value(value: _plotFileResultCubit),
-            BlocProvider.value(value: _plotFileErrorsCubit),
-            BlocProvider.value(value: _plottingProjectCubit),
-          ],
-          child: Builder(
-            builder: (context) {
-              return const OpenProjectContent();
-            },
+      child: BlocListener<OpenProjectCubit, OpenProjectState>(
+        listenWhen: (oldState, newState) => newState.projectIsOpen,
+        listener: (context, state) {
+          _plottingProjectCubit.write(state.openProject!.plotFile);
+        },
+        child: Scaffold(
+          appBar: const OpenProjectAppBar(),
+          body: MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: _plotFileResultCubit),
+              BlocProvider.value(value: _plotFileErrorsCubit),
+              BlocProvider.value(value: _plottingProjectCubit),
+            ],
+            child: Builder(
+              builder: (context) {
+                return const OpenProjectContent();
+              },
+            ),
           ),
         ),
       ),
