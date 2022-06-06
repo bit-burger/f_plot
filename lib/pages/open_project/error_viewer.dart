@@ -23,6 +23,7 @@ class ErrorViewer extends StatelessWidget {
           );
         }
         return ListView.separated(
+          controller: ScrollController(),
           itemCount: errors.length,
           itemBuilder: (context, index) {
             final error = errors[index];

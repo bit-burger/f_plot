@@ -40,6 +40,7 @@ class GraphFunctionsViewer extends StatelessWidget {
       );
     }
     return ListView.separated(
+      controller: ScrollController(),
       itemCount: state.functions.length,
       itemBuilder: (context, index) {
         final graphFunction = state.functions[index];

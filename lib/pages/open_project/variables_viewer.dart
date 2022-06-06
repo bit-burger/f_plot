@@ -23,6 +23,7 @@ class VariablesViewer extends StatelessWidget {
       );
     }
     return ListView.separated(
+      controller: ScrollController(),
       itemCount: state.variables.length,
       itemBuilder: (context, index) {
         final variable = state.variables[index];
