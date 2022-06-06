@@ -28,6 +28,9 @@ ThemeData get fPlotTheme => ThemeData.from(
       ),
       useMaterial3: true,
     ).copyWith(
+      appBarTheme: AppBarTheme(
+        toolbarHeight: 42,
+      ),
       checkboxTheme: CheckboxThemeData(
         checkColor: MaterialStateProperty.all(NordColors.$0),
         fillColor: MaterialStateProperty.all(NordColors.$10),
