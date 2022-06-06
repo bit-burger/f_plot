@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_nord_theme/flutter_nord_theme.dart';
 
 ThemeData get fPlotTheme => ThemeData.from(
@@ -51,8 +52,39 @@ ThemeData get fPlotTheme => ThemeData.from(
         shape: ContinuousRectangleBorder(),
         backgroundColor: NordColors.$1,
       ),
-      splashColor: Colors.white.withAlpha(32),
-      hoverColor: Colors.white.withAlpha(12),
+      textSelectionTheme: const TextSelectionThemeData(
+        cursorColor: NordColors.$10,
+        selectionColor: NordColors.$10,
+      ),
+      splashColor: NordColors.$3,
+      hoverColor: NordColors.$2,
+      splashFactory: InkSplash.splashFactory,
+      inputDecorationTheme: const InputDecorationTheme(
+        contentPadding: EdgeInsets.symmetric(horizontal: 16),
+        filled: true,
+        hoverColor: NordColors.$2,
+        fillColor: NordColors.$1,
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.zero),
+          borderSide: BorderSide(width: 2, color: NordColors.$10),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.zero),
+          borderSide: BorderSide.none,
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: ButtonStyle(
+          splashFactory: InkSplash.splashFactory,
+          overlayColor: MaterialStateProperty.resolveWith((states) {
+            if (states.contains(MaterialState.hovered) ||
+                states.contains(MaterialState.focused)) {
+              return NordColors.$2;
+            }
+            return NordColors.$3;
+          }),
+        ),
+      ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
           shape: MaterialStateProperty.all(const ContinuousRectangleBorder()),
