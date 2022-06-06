@@ -36,7 +36,6 @@ class GraphFunctionsViewer extends StatelessWidget {
               .textTheme
               .subtitle2!
               .copyWith(color: NordColors.$3),
-
         ),
       );
     }

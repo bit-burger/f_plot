@@ -30,7 +30,8 @@ class PlotFileSelectedError extends StatelessWidget {
                   Expanded(
                     child: Text(
                       state.selectedError?.message ?? "",
-                      style: const TextStyle(color: NordColors.$9, fontSize: 12),
+                      style:
+                          const TextStyle(color: NordColors.$9, fontSize: 12),
                     ),
                   ),
                 ],
