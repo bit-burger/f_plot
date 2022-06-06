@@ -1,3 +1,4 @@
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:f_plot/blocs/open_project/open_project_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -60,23 +61,32 @@ class ProjectsOverviewPage extends StatelessWidget {
     final projectsOverviewState = projectsOverviewCubit.state;
     final projects = projectsOverviewState.projects!;
     return Scaffold(
-      appBar: AppBar(
-        leading: const SizedBox(),
-        title: const Text("F Plot"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            tooltip: "add new project",
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (_) => AddNewProjectDialog(
-                  onNewProjectSuccess: projectsOverviewCubit.newProject,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(70),
+        child: Stack(
+          children: [
+            AppBar(
+              toolbarHeight: 70,
+              leading: const SizedBox(),
+              title: const Text("F Plot"),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  tooltip: "add new project",
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (_) => AddNewProjectDialog(
+                        onNewProjectSuccess: projectsOverviewCubit.newProject,
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
-        ],
+              ],
+            ),
+            MoveWindow(),
+          ],
+        ),
       ),
       body:
           projects.isEmpty ? _emptyProjects(context) : _projectsList(projects),

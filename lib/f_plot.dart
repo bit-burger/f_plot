@@ -1,11 +1,9 @@
-import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:f_plot/blocs/open_project/open_project_cubit.dart';
 import 'package:f_plot/pages/projects_navigator/projects_navigator.dart';
 import 'package:f_plot/repositories/projects/projects_repository.dart';
 import 'package:f_plot/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_nord_theme/flutter_nord_theme.dart';
 
 import 'blocs/projects_overview/projects_overview_cubit.dart';
 import 'database/projects_dao.dart';
@@ -42,17 +40,7 @@ class FPlot extends StatelessWidget {
                 )..noProjectOpened(),
               ),
             ],
-            child: Column(
-              children: [
-                WindowTitleBarBox(
-                  child: ColoredBox(
-                    color: NordColors.$1,
-                    child: MoveWindow(),
-                  ),
-                ),
-                Expanded(child: const ProjectsNavigator()),
-              ],
-            ),
+            child: ProjectsNavigator(),
           );
         }),
       ),

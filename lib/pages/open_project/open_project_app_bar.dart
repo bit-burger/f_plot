@@ -1,14 +1,16 @@
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:f_plot/blocs/open_project/open_project_cubit.dart';
 import 'package:f_plot/pages/open_project/open_project_edit_name_dialog.dart';
 import 'package:f_plot/widgets/delete_project_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_nord_theme/flutter_nord_theme.dart';
 
 class OpenProjectAppBar extends StatelessWidget implements PreferredSizeWidget {
   const OpenProjectAppBar({super.key});
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(75);
 
   Widget _buildTitle(BuildContext context) {
     return Tooltip(
@@ -137,12 +139,23 @@ class OpenProjectAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () => _shouldExitPage(context),
-      child: AppBar(
-        title: _buildTitle(context),
-        actions: [
-          _buildSaveButton(context),
-          _buildDeleteButton(context),
-        ],
+      child: MoveWindow(
+        child: Column(
+          children: [
+            Container(
+              color: NordColors.$1,
+              height: 10,
+            ),
+            AppBar(
+              toolbarHeight: 65,
+              title: _buildTitle(context),
+              actions: [
+                _buildSaveButton(context),
+                _buildDeleteButton(context),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
