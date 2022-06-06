@@ -16,8 +16,9 @@ class CachedDeclaration {
     this.rawBody,
     this.status,
     this.order,
-  )   : variableReferences = {},
-        functionReferences = {};
+    this.variableReferences,
+    this.functionReferences,
+  );
 }
 
 class CachedFunctionDeclaration extends CachedDeclaration {
@@ -32,7 +33,9 @@ class CachedFunctionDeclaration extends CachedDeclaration {
     String rawBody = "",
     this.evaluatorFunction,
     CachedDeclarationStatus status = CachedDeclarationStatus.found,
-  }) : super(rawBody, status, 0);
+    Set<String> variableReferences = const {},
+    Set<String> functionReferences = const {},
+  }) : super(rawBody, status, 0, variableReferences, functionReferences);
 
   @override
   bool operator ==(Object other) {
@@ -69,6 +72,8 @@ class CachedFunctionDeclaration extends CachedDeclaration {
       rawBody: rawBody,
       evaluatorFunction: evaluatorFunction,
       status: status,
+      functionReferences: functionReferences,
+      variableReferences: variableReferences,
     )..order = order;
   }
 }
@@ -80,7 +85,9 @@ class CachedVariableDeclaration extends CachedDeclaration {
     required this.value,
     String rawBody = "",
     CachedDeclarationStatus status = CachedDeclarationStatus.found,
-  }) : super(rawBody, status, 0);
+    Set<String> variableReferences = const {},
+    Set<String> functionReferences = const {},
+  }) : super(rawBody, status, 0, variableReferences, functionReferences);
 
   @override
   bool operator ==(Object other) =>
@@ -102,6 +109,8 @@ class CachedVariableDeclaration extends CachedDeclaration {
       rawBody: rawBody,
       status: status,
       value: value,
+      functionReferences: functionReferences,
+      variableReferences: variableReferences,
     )..order = order;
   }
 }

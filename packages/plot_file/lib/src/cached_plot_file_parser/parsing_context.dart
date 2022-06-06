@@ -39,6 +39,13 @@ class _ParsingContext
     "e": e,
   };
 
+  static final defaultIdentifiers = {
+    ...defaultOneArgumentFunctions.keys,
+    ...defaultTwoArgumentFunctions.keys,
+    ...defaultOperators.keys,
+    ...defaultConstants.keys,
+  };
+
   // TODO: in constructor of CachedPlotFileParser,
   // TODO: be able to give custom functions, etc
   _ParsingContext()

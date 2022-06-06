@@ -32,6 +32,7 @@ class CachedPlotFileParser {
     errors.clear();
     RawPlotFileParser multipleParserContext = RawPlotFileParser(
       stringExpressionParser: _stringExpressionParser,
+      defaultDeclarations: _ParsingContext.defaultIdentifiers,
     );
     multipleParserContext.parsePlotFile(plotFile);
     if (multipleParserContext.parseErrors.isNotEmpty) {
@@ -253,6 +254,8 @@ class CachedPlotFileParser {
         rawBody: rawBody,
         evaluatorFunction: evaluatorFunction,
         status: CachedDeclarationStatus.changed,
+        functionReferences: body.referencedFunctions,
+        variableReferences: body.referencedVariables,
       );
     } else {
       final body = _stringExpressionParser.operatorParse(
@@ -266,6 +269,8 @@ class CachedPlotFileParser {
         value: body.resolveToNumber(c),
         rawBody: rawBody,
         status: CachedDeclarationStatus.changed,
+        functionReferences: body.referencedFunctions,
+        variableReferences: body.referencedVariables,
       );
     }
   }

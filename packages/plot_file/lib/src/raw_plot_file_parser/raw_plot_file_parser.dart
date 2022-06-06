@@ -4,14 +4,19 @@ part "raw_declarations.dart";
 
 class RawPlotFileParser {
   final StringExpressionParser stringExpressionParser;
+  final Set<String> defaultDeclarations;
   final List<RawDeclaration> declarations = [];
   final List<StringExpressionParseError> parseErrors = [];
 
   RawPlotFileParser({
     required this.stringExpressionParser,
+    this.defaultDeclarations = const {},
   });
 
   bool identifierExists(String identifier) {
+    if (defaultDeclarations.contains(identifier)) {
+      return true;
+    }
     return declarations.any(
       (declaration) => declaration.identifier == identifier,
     );
