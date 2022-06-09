@@ -28,7 +28,7 @@ ThemeData get fPlotTheme => ThemeData.from(
       ),
       useMaterial3: true,
     ).copyWith(
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         toolbarHeight: 42,
       ),
       checkboxTheme: CheckboxThemeData(
@@ -41,10 +41,6 @@ ThemeData get fPlotTheme => ThemeData.from(
           color: NordColors.$10,
         ),
         textStyle: TextStyle(color: NordColors.$6),
-      ),
-      listTileTheme: const ListTileThemeData(
-        selectedColor: NordColors.$4,
-        selectedTileColor: NordColors.$1,
       ),
       dividerTheme: const DividerThemeData(
         color: NordColors.$1,
@@ -60,7 +56,6 @@ ThemeData get fPlotTheme => ThemeData.from(
         selectionColor: NordColors.$10,
       ),
       splashColor: NordColors.$3,
-      hoverColor: NordColors.$2,
       splashFactory: InkSplash.splashFactory,
       inputDecorationTheme: const InputDecorationTheme(
         contentPadding: EdgeInsets.symmetric(horizontal: 16),
