@@ -7,6 +7,7 @@ abstract class IProjectsRepository {
   void startListeningToProjects();
   Future<void> loadProjects();
   Future<ProjectListing> newProject(String name);
+  Future<ProjectListing> cloneProject(int projectId, String name);
   Future<Project> getProject(int projectId);
   Future<Project> editProjectName(int projectId, String newName);
   Future<Project> editProjectPlotFile(int projectId, String newPlotFile);

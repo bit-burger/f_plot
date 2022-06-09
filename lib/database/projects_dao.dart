@@ -59,6 +59,16 @@ class ProjectsDao {
     return ProjectListing.fromJson(result.first);
   }
 
+  Future<Project> cloneProject(int projectId, String clonedName) async {
+    final result = await db.rawQuery(
+      "insert into projects(name, plot_file) "
+      "select ?, plot_file from projects where id = ?"
+      "returning id, name, created_at, plot_file",
+      [clonedName, projectId],
+    );
+    return Project.fromJson(result[0]);
+  }
+
   Future<Project> editProjectName(int projectId, String name) async {
     final result = await db.rawQuery(
       "update projects set name = ? "

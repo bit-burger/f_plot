@@ -26,20 +26,41 @@ class ProjectsOverviewPage extends StatelessWidget {
           onTap: () {
             context.read<OpenProjectCubit>().openProject(project.id);
           },
-          trailing: IconButton(
-            tooltip: "delete project ${project.name}",
-            icon: const Icon(Icons.delete),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (_) => DeleteProjectDialog(
-                  projectName: project.name,
-                  onDelete: () => context
-                      .read<ProjectsOverviewCubit>()
-                      .deleteProject(project.id),
-                ),
-              );
-            },
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                tooltip: "clone project ${project.name}",
+                icon: const Icon(Icons.copy_outlined),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (_) => TextFieldDialog(
+                      title: "Clone the project '${project.name}'?",
+                      textFieldHint: "new name",
+                      onTextFieldSubmit: (name) => context
+                          .read<ProjectsOverviewCubit>()
+                          .cloneProject(project.id, name),
+                    ),
+                  );
+                },
+              ),
+              IconButton(
+                tooltip: "delete project ${project.name}",
+                icon: const Icon(Icons.delete),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (_) => DeleteProjectDialog(
+                      projectName: project.name,
+                      onDelete: () => context
+                          .read<ProjectsOverviewCubit>()
+                          .deleteProject(project.id),
+                    ),
+                  );
+                },
+              )
+            ],
           ),
         );
       },
@@ -76,8 +97,10 @@ class ProjectsOverviewPage extends StatelessWidget {
                   onPressed: () {
                     showDialog(
                       context: context,
-                      builder: (_) => AddNewProjectDialog(
-                        onNewProjectSuccess: projectsOverviewCubit.newProject,
+                      builder: (_) => TextFieldDialog(
+                        title: "Add a new project",
+                        textFieldHint: "project name",
+                        onTextFieldSubmit: projectsOverviewCubit.newProject,
                       ),
                     );
                   },

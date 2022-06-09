@@ -25,6 +25,11 @@ class ProjectsOverviewCubit extends Cubit<ProjectsOverviewState> {
     emit(ProjectsOverviewState(projects: newProjectListing));
   }
 
+  void cloneProject(int projectId, String clonedName) {
+    emit(state.copyWith(isLoading: true));
+    projectsRepository.cloneProject(projectId, clonedName);
+  }
+
   void deleteProject(int projectId) {
     emit(state.copyWith(isLoading: true));
     projectsRepository.deleteProject(projectId);

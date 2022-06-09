@@ -35,6 +35,13 @@ class ProjectsRepository implements IProjectsRepository {
   }
 
   @override
+  Future<ProjectListing> cloneProject(int projectId, String name) async {
+    final project = await projectsDao.cloneProject(projectId, name);
+    await loadProjects();
+    return project;
+  }
+
+  @override
   Future<Project> getProject(int projectId) async {
     final project = await projectsDao.getProject(projectId);
     return project;

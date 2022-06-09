@@ -1,20 +1,28 @@
 import 'package:flutter/material.dart';
 
-class AddNewProjectDialog extends StatefulWidget {
-  final ValueChanged<String> onNewProjectSuccess;
-  const AddNewProjectDialog({super.key, required this.onNewProjectSuccess});
+class TextFieldDialog extends StatefulWidget {
+  final String title;
+  final String textFieldHint;
+  final ValueChanged<String> onTextFieldSubmit;
+
+  const TextFieldDialog({
+    super.key,
+    required this.onTextFieldSubmit,
+    required this.title,
+    required this.textFieldHint,
+  });
 
   @override
-  State<AddNewProjectDialog> createState() => _AddNewProjectDialogState();
+  State<TextFieldDialog> createState() => _TextFieldDialogState();
 }
 
-class _AddNewProjectDialogState extends State<AddNewProjectDialog> {
+class _TextFieldDialogState extends State<TextFieldDialog> {
   late final TextEditingController _nameTextController;
 
   void _addNewProject() {
     final name = _nameTextController.text;
     if (name.isEmpty) return;
-    widget.onNewProjectSuccess(name);
+    widget.onTextFieldSubmit(name);
     Navigator.pop(context);
   }
 
@@ -27,13 +35,13 @@ class _AddNewProjectDialogState extends State<AddNewProjectDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text("Add a new project"),
+      title: Text(widget.title),
       content: TextField(
         focusNode: FocusNode()..requestFocus(),
         controller: _nameTextController,
         onSubmitted: (_) => _addNewProject(),
-        decoration: const InputDecoration(
-          hintText: "project name",
+        decoration: InputDecoration(
+          hintText: widget.textFieldHint,
         ),
       ),
       actions: [
