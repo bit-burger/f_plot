@@ -1,16 +1,26 @@
-# f_plot
+<h1 align="center">flutter plotter</h1>
+<h3 align="center">A interactive function plotter for flutter using a highlighted text editor as input mode.
+</h3>
 
-A new Flutter project.
+<br>
 
-## Getting Started
+<p align="center">
+    Written in frontend with <a href="https://flutter.dev">Flutter</a> using <a href="https://pub.dev/packages/bloc">bloc</a> as the state managment,<br> 
+    as well as <a href="https://pub.dev/packages/sqflite">sqflite</a> to store data and <a href="https://pub.dev/packages/bitsdojo_window">bitsdojo_window</a> for a beautiful desktop interface <br><br>
+    Features include: An interactive function plotter, writing functions into a highlighted text editor that automatically updates the function plotter, and managing different projects, which are saved in a local database.
+</p>
 
-This project is a starting point for a Flutter application.
+<img width="1312" alt="Screenshot 2024-08-31 at 22 33 01" src="https://github.com/user-attachments/assets/3366c260-f9a7-497f-ad66-a2820caab0f0">
 
-A few resources to get you started if this is your first Flutter project:
+<p float="center">
+  <img src="https://github.com/user-attachments/assets/415ac124-0e72-4a3e-aff5-48fbb1304022" width="49%">
+  <img src="https://github.com/user-attachments/assets/7610b948-13ec-4c69-a3c4-f62bc06ea509" width="49%">
+</p>
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+<p float="center">
+  <img src="https://github.com/user-attachments/assets/c7369b15-0904-47b5-9eb9-7ae0bc9e6bf6" width="49%">
+  <img src="https://github.com/user-attachments/assets/9307c997-f628-4c78-ab9c-4483ac1c623d" width="49%">
+</p>
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+
+<br>
