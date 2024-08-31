@@ -13,15 +13,14 @@
 <img width="1312" alt="Screenshot 2024-08-31 at 22 33 01" src="https://github.com/user-attachments/assets/3366c260-f9a7-497f-ad66-a2820caab0f0">
 
 <p float="center">
-  <img src="https://github.com/user-attachments/assets/10ca2342-996a-416d-b79f-0f114cd9ee40" width="49%">
-  <img src="https://github.com/user-attachments/assets/dec6a5cc-e056-45ca-af95-6ae9c0f96628" width="49%">
+  <img src="https://github.com/user-attachments/assets/415ac124-0e72-4a3e-aff5-48fbb1304022" width="49%">
+  <img src="https://github.com/user-attachments/assets/7610b948-13ec-4c69-a3c4-f62bc06ea509" width="49%">
 </p>
 
 <p float="center">
-  <img src="https://github.com/user-attachments/assets/c663e535-6925-46fe-be75-b45029c1d05d" width="49%">
+  <img src="https://github.com/user-attachments/assets/c7369b15-0904-47b5-9eb9-7ae0bc9e6bf6" width="49%">
   <img src="https://github.com/user-attachments/assets/9307c997-f628-4c78-ab9c-4483ac1c623d" width="49%">
 </p>
-
 
 
 <br>
