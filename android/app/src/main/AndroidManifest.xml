@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.f_plot">
+    package="com.example.flutter_plotter">
    <application
-        android:label="f_plot"
+        android:label="flutter_plotter"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

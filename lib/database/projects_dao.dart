@@ -1,4 +1,4 @@
-import "package:f_plot/domain/project.dart";
+import "package:flutter_plotter/domain/project.dart";
 import "package:sqflite/sqflite.dart";
 
 import '../domain/project_listing.dart';

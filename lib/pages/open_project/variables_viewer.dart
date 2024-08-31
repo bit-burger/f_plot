@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_nord_theme/flutter_nord_theme.dart';
 
 import '../../blocs/plot_file_result/plot_file_result_cubit.dart';
+import "../../theme/colors.dart";
 
 class VariablesViewer extends StatelessWidget {
   const VariablesViewer({super.key});

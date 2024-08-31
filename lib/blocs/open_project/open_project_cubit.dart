@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:f_plot/repositories/projects/projects_repository_contract.dart';
+import 'package:flutter_plotter/repositories/projects/projects_repository_contract.dart';
 import 'package:meta/meta.dart';
 
 import '../../domain/project.dart';

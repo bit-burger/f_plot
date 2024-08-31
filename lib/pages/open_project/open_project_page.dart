@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:f_plot/blocs/open_project/open_project_cubit.dart';
-import 'package:f_plot/blocs/plot_file_errors/plot_file_errors_cubit.dart';
-import 'package:f_plot/blocs/plot_file_result/plot_file_result_cubit.dart';
-import 'package:f_plot/blocs/plotting_project/plotting_project_cubit.dart';
-import 'package:f_plot/pages/open_project/open_project_app_bar.dart';
+import 'package:flutter_plotter/blocs/open_project/open_project_cubit.dart';
+import 'package:flutter_plotter/blocs/plot_file_errors/plot_file_errors_cubit.dart';
+import 'package:flutter_plotter/blocs/plot_file_result/plot_file_result_cubit.dart';
+import 'package:flutter_plotter/blocs/plotting_project/plotting_project_cubit.dart';
+import 'package:flutter_plotter/pages/open_project/open_project_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

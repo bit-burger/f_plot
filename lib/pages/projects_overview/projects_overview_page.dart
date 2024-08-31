@@ -1,5 +1,5 @@
 import 'package:bitsdojo_window/bitsdojo_window.dart';
-import 'package:f_plot/blocs/open_project/open_project_cubit.dart';
+import 'package:flutter_plotter/blocs/open_project/open_project_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -89,7 +89,7 @@ class ProjectsOverviewPage extends StatelessWidget {
             AppBar(
               toolbarHeight: 70,
               leading: const SizedBox(),
-              title: const Text("F Plot"),
+              title: const Text("flutter plotter"),
               actions: [
                 IconButton(
                   icon: const Icon(Icons.add),

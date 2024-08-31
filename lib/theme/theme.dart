@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_nord_theme/flutter_nord_theme.dart';
+
+import "colors.dart";
+
+
+
 
 ThemeData get fPlotTheme => ThemeData.from(
       colorScheme: const ColorScheme(

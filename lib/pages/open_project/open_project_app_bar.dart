@@ -1,10 +1,11 @@
 import 'package:bitsdojo_window/bitsdojo_window.dart';
-import 'package:f_plot/blocs/open_project/open_project_cubit.dart';
-import 'package:f_plot/pages/open_project/open_project_edit_name_dialog.dart';
-import 'package:f_plot/widgets/delete_project_dialog.dart';
+import 'package:flutter_plotter/blocs/open_project/open_project_cubit.dart';
+import 'package:flutter_plotter/pages/open_project/open_project_edit_name_dialog.dart';
+import 'package:flutter_plotter/widgets/delete_project_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_nord_theme/flutter_nord_theme.dart';
+
+import "../../theme/colors.dart";
 
 class OpenProjectAppBar extends StatelessWidget implements PreferredSizeWidget {
   const OpenProjectAppBar({super.key});

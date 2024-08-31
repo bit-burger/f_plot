@@ -1,4 +1,4 @@
-import 'package:f_plot/domain/project_listing.dart';
+import 'package:flutter_plotter/domain/project_listing.dart';
 import 'package:flutter/cupertino.dart';
 import "package:json_annotation/json_annotation.dart";
 

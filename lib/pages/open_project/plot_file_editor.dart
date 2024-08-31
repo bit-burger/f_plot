@@ -1,4 +1,4 @@
-import 'package:f_plot/blocs/plot_file_errors/plot_file_errors_cubit.dart';
+import 'package:flutter_plotter/blocs/plot_file_errors/plot_file_errors_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';

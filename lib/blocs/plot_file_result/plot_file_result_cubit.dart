@@ -5,8 +5,9 @@ import 'package:equatable/equatable.dart';
 import 'package:expressions/expressions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_nord_theme/flutter_nord_theme.dart';
 import 'package:plot_file/plot_file.dart';
+
+import "../../theme/colors.dart";
 
 part 'plot_file_result_state.dart';
 part 'results.dart';

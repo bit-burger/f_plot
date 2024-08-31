@@ -47,9 +47,29 @@ class _ResizablePaneState extends State<ResizablePane> {
     _resizeValue = widget.initialResizeValue;
   }
 
-  MouseCursor get _mouseCursor => _isHorizontal
-      ? SystemMouseCursors.resizeColumn
-      : SystemMouseCursors.resizeUpDown;
+  MouseCursor get _mouseCursor {
+    final isMax = _resizeValue == widget.max;
+    final isMin = _resizeValue == widget.min;
+    final isStart = widget.dividerIsFromStart;
+    if (isMax || isMin) {
+      var isDown = isStart;
+      if (isMin) {
+        isDown = !isDown;
+      }
+      if (_isHorizontal) {
+        return isDown
+            ? SystemMouseCursors.resizeRight
+            : SystemMouseCursors.resizeLeft;
+      } else {
+        return isDown
+            ? SystemMouseCursors.resizeDown
+            : SystemMouseCursors.resizeUp;
+      }
+    }
+    return _isHorizontal
+        ? SystemMouseCursors.resizeColumn
+        : SystemMouseCursors.resizeUpDown;
+  }
 
   void onDragStart(DragStartDetails details) {
     _resizeStartValue = _resizeValue;

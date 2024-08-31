@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_nord_theme/flutter_nord_theme.dart';
 import 'package:math_code_field/math_code_field.dart';
+
+import "colors.dart";
 
 final mathCodeFieldTheme = MathCodeFieldThemeData(
   numberColor: NordColors.$13,

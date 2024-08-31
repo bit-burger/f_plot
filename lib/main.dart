@@ -1,5 +1,5 @@
-import 'package:f_plot/database/projects_dao.dart';
-import 'package:f_plot/f_plot.dart';
+import 'package:flutter_plotter/database/projects_dao.dart';
+import 'package:flutter_plotter/f_plot.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sqflite/sqflite.dart';
@@ -19,11 +19,14 @@ void main() async {
   runApp(
     FPlot(projectsDao: projectsDao),
   );
+  window.appWindow.size = const Size(1200, 800);
+  window.appWindow.minSize = const Size(900, 600);
+  window.appWindow.show();
+  window.appWindow.title = "flutter plotter";
 
-  window.doWhenWindowReady(() {
-    window.appWindow.minSize = const Size(1500, 1000);
-    window.appWindow.size = const Size(1500, 1000);
-    window.appWindow.show();
-    window.appWindow.title = "F Plot";
-  });
+  // window.doWhenWindowReady(() {
+  //   window.appWindow.size = const Size(1200, 800);
+  //   window.appWindow.show();
+  //   window.appWindow.title = "F Plot";
+  // });
 }

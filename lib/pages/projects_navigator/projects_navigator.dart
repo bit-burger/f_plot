@@ -1,9 +1,9 @@
-import 'package:f_plot/blocs/open_project/open_project_cubit.dart';
-import 'package:f_plot/blocs/projects_overview/projects_overview_cubit.dart';
-import 'package:f_plot/pages/projects_navigator/loading_overlay_page.dart';
-import 'package:f_plot/pages/open_project/open_project_page.dart';
-import 'package:f_plot/pages/projects_navigator/splash_loading_screen.dart';
-import 'package:f_plot/pages/projects_overview/projects_overview_page.dart';
+import 'package:flutter_plotter/blocs/open_project/open_project_cubit.dart';
+import 'package:flutter_plotter/blocs/projects_overview/projects_overview_cubit.dart';
+import 'package:flutter_plotter/pages/projects_navigator/loading_overlay_page.dart';
+import 'package:flutter_plotter/pages/open_project/open_project_page.dart';
+import 'package:flutter_plotter/pages/projects_navigator/splash_loading_screen.dart';
+import 'package:flutter_plotter/pages/projects_overview/projects_overview_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

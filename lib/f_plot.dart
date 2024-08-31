@@ -1,7 +1,7 @@
-import 'package:f_plot/blocs/open_project/open_project_cubit.dart';
-import 'package:f_plot/pages/projects_navigator/projects_navigator.dart';
-import 'package:f_plot/repositories/projects/projects_repository.dart';
-import 'package:f_plot/theme/theme.dart';
+import 'package:flutter_plotter/blocs/open_project/open_project_cubit.dart';
+import 'package:flutter_plotter/pages/projects_navigator/projects_navigator.dart';
+import 'package:flutter_plotter/repositories/projects/projects_repository.dart';
+import 'package:flutter_plotter/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

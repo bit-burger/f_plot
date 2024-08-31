@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:f_plot/database/projects_dao.dart';
-import 'package:f_plot/domain/project.dart';
-import 'package:f_plot/domain/project_listing.dart';
-import 'package:f_plot/repositories/projects/projects_repository_contract.dart';
+import 'package:flutter_plotter/database/projects_dao.dart';
+import 'package:flutter_plotter/domain/project.dart';
+import 'package:flutter_plotter/domain/project_listing.dart';
+import 'package:flutter_plotter/repositories/projects/projects_repository_contract.dart';
 
 class ProjectsRepository implements IProjectsRepository {
   final ProjectsDao projectsDao;

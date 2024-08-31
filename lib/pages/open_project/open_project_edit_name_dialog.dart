@@ -1,4 +1,4 @@
-import 'package:f_plot/blocs/open_project/open_project_cubit.dart';
+import 'package:flutter_plotter/blocs/open_project/open_project_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
