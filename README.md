@@ -6,7 +6,7 @@
 
 <p align="center">
     Written in frontend with <a href="https://flutter.dev">Flutter</a> using <a href="https://pub.dev/packages/bloc">bloc</a> as the state managment,<br> 
-    as well as <a href="https://pub.dev/packages/sqflite">sqflite</a> to store data and <a href="https://pub.dev/packages/bitsdojo_window">bitsdojo_window</a> for a beautiful desktop interface <br><br>
+    as well as <a href="https://pub.dev/packages/sqflite">sqflite</a> to store data and <a href="https://pub.dev/packages/bitsdojo_window">bitsdojo_window</a> for a clean desktop window <br><br>
     Features include: An interactive function plotter, writing functions into a highlighted text editor that automatically updates the function plotter, and managing different projects, which are saved in a local database.
 </p>
 
