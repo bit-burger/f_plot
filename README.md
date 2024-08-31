@@ -1,4 +1,4 @@
-<h1 align="center">flutter plot</h1>
+<h1 align="center">flutter plotter</h1>
 <h3 align="center">A interactive function plotter for flutter using a highlighted text editor as input mode.
 </h3>
 
